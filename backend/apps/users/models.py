@@ -1,0 +1,242 @@
+﻿from django.contrib.auth.base_user import BaseUserManager
+from django.contrib.auth.models import AbstractUser
+from django.db import models
+from django.db.models.functions import Lower
+
+
+class UserManager(BaseUserManager):
+    use_in_migrations = True
+
+    def _create_user(self, email, password, **extra_fields):
+        if not email:
+            raise ValueError("Email is required.")
+
+        email = self.normalize_email(email)
+        extra_fields.setdefault("username", email)
+
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_user(self, email, password=None, **extra_fields):
+        extra_fields.setdefault("is_staff", False)
+        extra_fields.setdefault("is_superuser", False)
+        return self._create_user(email, password, **extra_fields)
+
+    def create_superuser(self, email, password, **extra_fields):
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+        extra_fields.setdefault("role", User.Role.MINISTRY)
+        extra_fields.setdefault("status", User.Status.APPROVED)
+
+        if extra_fields.get("is_staff") is not True:
+            raise ValueError("Superuser must have is_staff=True.")
+        if extra_fields.get("is_superuser") is not True:
+            raise ValueError("Superuser must have is_superuser=True.")
+
+        return self._create_user(email, password, **extra_fields)
+
+
+class User(AbstractUser):
+    class Role(models.IntegerChoices):
+        FARMER = 1, "Farmer"
+        BUYER = 2, "Buyer"
+        TRANSPORTER = 3, "Transporter"
+        MINISTRY = 4, "Ministry"
+
+    class Status(models.IntegerChoices):
+        PENDING = 0, "Pending Approval"
+        APPROVED = 1, "Approved"
+        REJECTED = 2, "Rejected"
+
+    ROLE_SLUGS = {
+        Role.FARMER: "farmer",
+        Role.BUYER: "buyer",
+        Role.TRANSPORTER: "transporter",
+        Role.MINISTRY: "ministry",
+    }
+
+    STATUS_SLUGS = {
+        Status.PENDING: "pending",
+        Status.APPROVED: "approved",
+        Status.REJECTED: "rejected",
+    }
+
+    id = models.AutoField(primary_key=True, db_column="IDPerson")
+    first_name = models.CharField(max_length=100, blank=True, db_column="FirstName")
+    last_name = models.CharField(max_length=100, blank=True, db_column="LastName")
+    address = models.CharField(max_length=255, blank=True, db_column="Address")
+    phone_number = models.CharField(max_length=30, blank=True, db_column="PhoneNumber")
+    personal_picture_url = models.CharField(max_length=255, blank=True, db_column="personalPictureURL")
+    documents_url = models.CharField(max_length=255, blank=True, db_column="DocumentsURL")
+    email = models.EmailField(unique=True, db_column="Email")
+    username = models.CharField(max_length=100, unique=True, db_column="Username")
+    password = models.CharField(max_length=255, db_column="Password")
+    status = models.PositiveSmallIntegerField(
+        choices=Status.choices,
+        default=Status.PENDING,
+        db_column="Status",
+        db_index=True,
+    )
+    role = models.PositiveSmallIntegerField(
+        choices=Role.choices,
+        default=Role.FARMER,
+        db_column="Role",
+        db_index=True,
+    )
+
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["username"]
+
+    objects = UserManager()
+
+    class Meta:
+        db_table = "Person"
+        verbose_name = "person"
+        verbose_name_plural = "people"
+
+    def __str__(self):
+        return f"{self.email} ({self.get_role_display()})"
+
+    @property
+    def role_slug(self):
+        return self.ROLE_SLUGS.get(self.role, "unknown")
+
+    @property
+    def approval_status_slug(self):
+        return self.STATUS_SLUGS.get(self.status, "pending")
+
+    @classmethod
+    def role_from_slug(cls, value):
+        mapping = {
+            "farmer": cls.Role.FARMER,
+            "buyer": cls.Role.BUYER,
+            "transporter": cls.Role.TRANSPORTER,
+            "ministry": cls.Role.MINISTRY,
+        }
+        return mapping.get((value or "").strip().lower())
+
+    @classmethod
+    def status_from_slug(cls, value):
+        mapping = {
+            "pending": cls.Status.PENDING,
+            "approved": cls.Status.APPROVED,
+            "rejected": cls.Status.REJECTED,
+        }
+        return mapping.get((value or "").strip().lower())
+
+
+class Farmer(models.Model):
+    id = models.AutoField(primary_key=True, db_column="IDFarmer")
+    person = models.OneToOneField(User, on_delete=models.CASCADE, db_column="IDPerson", related_name="farmer")
+    average_rating = models.IntegerField(null=True, blank=True, db_column="AverageRating")
+    total_reviews = models.IntegerField(null=True, blank=True, db_column="TotalReviews")
+
+    class Meta:
+        db_table = "Farmer"
+
+    def __str__(self):
+        return f"Farmer<{self.person.email}>"
+
+
+class Buyer(models.Model):
+    id = models.AutoField(primary_key=True, db_column="IDBuyer")
+    person = models.OneToOneField(User, on_delete=models.CASCADE, db_column="IDPerson", related_name="buyer")
+
+    class Meta:
+        db_table = "Buyer"
+
+    def __str__(self):
+        return f"Buyer<{self.person.email}>"
+
+
+class AdminProfile(models.Model):
+    id = models.AutoField(primary_key=True, db_column="IDAdmin")
+    person = models.OneToOneField(User, on_delete=models.CASCADE, db_column="IDPerson", related_name="admin_profile")
+    total_processes = models.IntegerField(default=0, db_column="TotalProcesses")
+    region_code = models.IntegerField(null=True, blank=True, db_column="RegionCode")
+
+    class Meta:
+        db_table = "Admin"
+
+    def __str__(self):
+        return f"Admin<{self.person.email}>"
+
+
+class Transporter(models.Model):
+    id = models.AutoField(primary_key=True, db_column="IDTransporter")
+    person = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        db_column="IDPerson",
+        related_name="transporter",
+    )
+    capacity = models.IntegerField(null=True, blank=True, db_column="Capacity")
+    service_area = models.CharField(max_length=255, blank=True, db_column="ServiceArea")
+    vehicle_type = models.CharField(max_length=100, blank=True, db_column="VehicleType")
+    average_rating = models.IntegerField(null=True, blank=True, db_column="AverageRating")
+    total_reviews = models.IntegerField(null=True, blank=True, db_column="TotalReviews")
+
+    class Meta:
+        db_table = "Transporter"
+
+    def __str__(self):
+        return f"Transporter<{self.person.email}>"
+
+
+class Farm(models.Model):
+    id = models.AutoField(primary_key=True, db_column="IDFarm")
+    farmer = models.ForeignKey(Farmer, on_delete=models.CASCADE, db_column="IDFarmer", related_name="farms")
+    location = models.CharField(max_length=255, db_column="Location")
+    name = models.CharField(max_length=150, blank=True, db_column="Name")
+    area = models.IntegerField(null=True, blank=True, db_column="Area")
+
+    class Meta:
+        db_table = "Farm"
+        constraints = [
+            models.UniqueConstraint(Lower("location"), name="unique_farm_location_ci"),
+        ]
+
+    def __str__(self):
+        return self.name or self.location
+
+
+class JoinRequest(models.Model):
+    class RequestStatus(models.IntegerChoices):
+        PENDING = 0, "Pending"
+        APPROVED = 1, "Approved"
+        REJECTED = 2, "Rejected"
+
+    id = models.AutoField(primary_key=True, db_column="IDRequest")
+    admin = models.ForeignKey(
+        AdminProfile,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        db_column="IDAdmin",
+        related_name="join_requests",
+    )
+    first_name = models.CharField(max_length=100, blank=True, db_column="FirstName")
+    last_name = models.CharField(max_length=100, blank=True, db_column="LastName")
+    email = models.EmailField(max_length=150, db_column="Email")
+    phone_number = models.CharField(max_length=30, blank=True, db_column="PhoneNumber")
+    address = models.CharField(max_length=255, blank=True, db_column="Address")
+    requested_role = models.PositiveSmallIntegerField(db_column="RequestedRole")
+    personal_picture_url = models.CharField(max_length=255, blank=True, db_column="personalPictureURL")
+    documents_url = models.CharField(max_length=255, blank=True, db_column="DocumentsURL")
+    request_date = models.DateTimeField(auto_now_add=True, db_column="RequestDate")
+    review_date = models.DateTimeField(null=True, blank=True, db_column="ReviewDate")
+    notes = models.CharField(max_length=255, blank=True, db_column="Notes")
+    status = models.PositiveSmallIntegerField(
+        choices=RequestStatus.choices,
+        default=RequestStatus.PENDING,
+        db_column="Status",
+        db_index=True,
+    )
+
+    class Meta:
+        db_table = "JoinRequest"
+
+    def __str__(self):
+        return f"JoinRequest<{self.email}>"

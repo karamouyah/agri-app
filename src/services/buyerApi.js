@@ -1,4 +1,5 @@
 import { apiRequest } from './apiClient'
+import { PLATFORM_CURRENCY } from '../utils/currency'
 
 const KEYS = {
   cart: 'agri_buyer_cart',
@@ -34,7 +35,11 @@ const normalizeProduct = (item) => ({
   id: item.id,
   name: item.name,
   category: item.category_name,
+  unit: item.unit || 'kg',
   price: Number(item.price),
+  minPrice: Number(item.min_price_dzd ?? item.min_price ?? 0),
+  maxPrice: Number(item.max_price_dzd ?? item.max_price ?? 0),
+  currency: item.currency || PLATFORM_CURRENCY,
   quantityAvailable: item.quantity_available,
   farmerName: item.farmer_name,
   farmerRegion: item.farmer_region,
@@ -62,6 +67,7 @@ const normalizeOrder = (order) => ({
   id: order.id,
   date: order.created_at.slice(0, 10),
   total: Number(order.total),
+  currency: order.currency || PLATFORM_CURRENCY,
   status: order.status,
   estimatedDelivery: order.estimated_delivery,
   paymentMethod: order.payment_method,
@@ -71,6 +77,7 @@ const normalizeOrder = (order) => ({
     name: item.name,
     quantity: item.quantity,
     unitPrice: Number(item.unit_price),
+    currency: item.currency || PLATFORM_CURRENCY,
   })),
   timeline: toTimeline(order.status),
 })
@@ -134,6 +141,7 @@ export const addToCart = async (product, quantity) => {
       productId: product.id,
       name: product.name,
       unitPrice: Number(product.price),
+      currency: product.currency || PLATFORM_CURRENCY,
       quantity: qty,
       farmerName: product.farmerName,
     })
@@ -166,9 +174,9 @@ export const clearCart = async () => {
 
 export const calculateCartTotals = (cartItems) => {
   const subtotal = cartItems.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0)
-  const taxes = Number((subtotal * 0.1).toFixed(2))
-  const total = Number((subtotal + taxes).toFixed(2))
-  return { subtotal, taxes, total }
+  const taxes = Math.round(subtotal * 0.1)
+  const total = subtotal + taxes
+  return { subtotal, taxes, total, currency: PLATFORM_CURRENCY }
 }
 
 export const getShippingProfile = async () =>
@@ -217,6 +225,7 @@ export const getInvoices = async () => {
     orderId: item.order_id,
     date: item.date.slice(0, 10),
     amount: Number(item.amount),
+    currency: item.currency || PLATFORM_CURRENCY,
     downloadUrl: '#',
     details: item.details,
   }))

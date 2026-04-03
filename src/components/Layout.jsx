@@ -91,14 +91,16 @@ export default function Layout({ role }) {
 
   return (
     <div className="relative min-h-screen overflow-hidden text-slate-800">
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-emerald-50/70 via-transparent to-transparent" />
+      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-white/40 via-transparent to-transparent" />
+      <div className="absolute left-[-8rem] top-[-6rem] -z-10 h-72 w-72 rounded-full bg-lime-200/40 blur-3xl" />
+      <div className="absolute bottom-[-8rem] right-[-6rem] -z-10 h-80 w-80 rounded-full bg-amber-100/45 blur-3xl" />
 
       <div className="relative flex min-h-screen">
-        <aside className="hidden w-72 shrink-0 flex-col border-r border-emerald-200/70 bg-gradient-to-b from-emerald-900 via-emerald-800 to-emerald-900 text-white xl:flex">
-          <div className="border-b border-white/10 px-6 py-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-100">AgriGov Platform</p>
-            <h2 className="mt-2 text-2xl font-bold">{meta.badge}</h2>
-            <p className="mt-2 text-sm text-emerald-100/90">{meta.subtitle}</p>
+        <aside className="glass-panel hidden w-72 shrink-0 flex-col border-r border-white/50 bg-gradient-to-b from-[#fffdfa]/90 via-[#f6f5ec]/88 to-[#eef5ea]/85 text-slate-800 xl:flex">
+          <div className="border-b border-[var(--line)] px-6 py-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">AgriGov Platform</p>
+            <h2 className="mt-2 text-2xl font-bold text-slate-900">{meta.badge}</h2>
+            <p className="mt-2 text-sm text-slate-600">{meta.subtitle}</p>
           </div>
 
           <nav className="flex-1 space-y-1 px-4 py-5">
@@ -110,14 +112,14 @@ export default function Layout({ role }) {
                   key={link.to}
                   to={link.to}
                   className={({ isActive }) =>
-                    `group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${
+                    `group flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-semibold transition ${
                       isActive
-                        ? 'bg-white/20 text-white shadow-[0_8px_20px_rgba(8,45,24,0.32)]'
-                        : 'text-emerald-100/85 hover:bg-white/10 hover:text-white'
+                        ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-white shadow-[0_16px_32px_rgba(53,132,71,0.28)]'
+                        : 'text-slate-700 hover:bg-white/80 hover:text-slate-900'
                     }`
                   }
                 >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-black/10 transition group-hover:bg-black/20">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 transition group-hover:bg-emerald-100">
                     <IconComponent className="text-base" />
                   </span>
                   {link.label}
@@ -126,7 +128,7 @@ export default function Layout({ role }) {
             })}
           </nav>
 
-          <div className="border-t border-white/10 px-4 py-4">
+          <div className="border-t border-[var(--line)] px-4 py-4">
             <button
               type="button"
               className="btn-secondary flex w-full items-center justify-center gap-2 px-4 py-2 text-sm"
@@ -138,7 +140,7 @@ export default function Layout({ role }) {
         </aside>
 
         <main className="flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-30 border-b border-emerald-100/80 bg-white/90 px-4 py-4 backdrop-blur md:px-8">
+          <header className="glass-panel sticky top-0 z-30 border-b border-white/60 bg-white/70 px-4 py-4 md:px-8">
             <div className="mx-auto flex w-full max-w-7xl items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">{meta.badge}</p>
@@ -147,7 +149,7 @@ export default function Layout({ role }) {
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="hidden rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-800 md:inline-block">
+                <span className="badge-soft hidden px-3 py-2 text-sm md:inline-flex">
                   {UserDisplayName(user)}
                 </span>
                 <button
@@ -170,10 +172,10 @@ export default function Layout({ role }) {
                     key={link.to}
                     to={link.to}
                     className={({ isActive }) =>
-                      `inline-flex items-center gap-1.5 whitespace-nowrap rounded-xl px-3 py-2 text-xs font-semibold transition ${
+                      `inline-flex items-center gap-1.5 whitespace-nowrap rounded-2xl px-3 py-2 text-xs font-semibold transition ${
                         isActive
-                          ? 'bg-gradient-to-r from-emerald-700 to-emerald-500 text-white shadow-md'
-                          : 'border border-emerald-200 bg-white text-slate-700 hover:bg-emerald-50'
+                          ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-white shadow-md'
+                          : 'border border-[var(--line)] bg-white/80 text-slate-700 hover:bg-white'
                       }`
                     }
                   >
@@ -189,7 +191,7 @@ export default function Layout({ role }) {
             <Outlet />
           </div>
 
-          <footer className="border-t border-emerald-100 bg-white/90 px-6 py-3 text-xs text-slate-500">
+          <footer className="border-t border-[var(--line)] bg-white/50 px-6 py-3 text-xs text-slate-500 backdrop-blur">
             AgriGov Marketplace © 2026 · Ministry of Agriculture
           </footer>
         </main>

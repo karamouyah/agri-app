@@ -25,20 +25,25 @@ class OrderItemSerializer(serializers.ModelSerializer):
     product_id = serializers.IntegerField(source="product_list.id", read_only=True)
     name = serializers.CharField(source="product_list.product.name", read_only=True)
     unit_price = serializers.IntegerField(source="price", read_only=True)
+    currency = serializers.SerializerMethodField()
 
     class Meta:
         model = OrderItem
-        fields = ["product_id", "name", "quantity", "unit_price"]
+        fields = ["product_id", "name", "quantity", "unit_price", "currency"]
+
+    def get_currency(self, _obj):
+        return "DZD"
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    id = serializers.CharField(source="id", read_only=True)
+    id = serializers.IntegerField(read_only=True)
     address = serializers.CharField(source="delivery_address", read_only=True)
     payment_method = serializers.SerializerMethodField()
     status = serializers.SerializerMethodField()
     estimated_delivery = serializers.SerializerMethodField()
     created_at = serializers.DateTimeField(source="order_date", read_only=True)
     total = serializers.IntegerField(source="total_amount", read_only=True)
+    currency = serializers.SerializerMethodField()
     items = OrderItemSerializer(many=True, read_only=True)
 
     class Meta:
@@ -51,6 +56,7 @@ class OrderSerializer(serializers.ModelSerializer):
             "estimated_delivery",
             "created_at",
             "total",
+            "currency",
             "items",
         ]
 
@@ -66,6 +72,9 @@ class OrderSerializer(serializers.ModelSerializer):
         if shipment and shipment.estimated_delivery_date:
             return shipment.estimated_delivery_date.date()
         return None
+
+    def get_currency(self, _obj):
+        return "DZD"
 
 
 class CheckoutItemInputSerializer(serializers.Serializer):
@@ -160,16 +169,20 @@ class InvoiceSerializer(serializers.ModelSerializer):
     order_id = serializers.CharField(source="order.id", read_only=True)
     date = serializers.DateTimeField(source="transaction_date", read_only=True)
     details = serializers.SerializerMethodField()
+    currency = serializers.SerializerMethodField()
 
     class Meta:
         model = Payment
-        fields = ["id", "order_id", "date", "amount", "details"]
+        fields = ["id", "order_id", "date", "amount", "currency", "details"]
 
     def get_id(self, obj):
         return f"PAY-{obj.id}"
 
     def get_details(self, obj):
         return f"Payment method: {obj.payment_method}"
+
+    def get_currency(self, _obj):
+        return "DZD"
 
 
 class OrderStatusUpdateSerializer(serializers.Serializer):

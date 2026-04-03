@@ -5,9 +5,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from apps.catalog.models import Category, OfficialPrice, ProductList
+from apps.catalog.models import Category, OfficialPrice, Product, ProductList
 from apps.catalog.serializers import (
     CategorySerializer,
+    ControlledProductSerializer,
     OfficialPriceSerializer,
     ProductSerializer,
 )
@@ -36,7 +37,11 @@ class OfficialPriceViewSet(ModelViewSet):
 
 
 class ProductViewSet(ModelViewSet):
-    queryset = ProductList.objects.select_related("product", "product__category", "farmer", "farmer__person").all()
+    queryset = (
+        ProductList.objects.select_related("product", "product__category", "farmer", "farmer__person")
+        .filter(product__is_active=True)
+        .all()
+    )
     serializer_class = ProductSerializer
 
     def get_queryset(self):
@@ -83,6 +88,25 @@ class ProductViewSet(ModelViewSet):
         serializer.save(farmer=farmer)
 
 
+class ControlledProductListView(generics.ListAPIView):
+    serializer_class = ControlledProductSerializer
+    permission_classes = [IsAuthenticated]
+    queryset = Product.objects.select_related("category").filter(is_active=True).order_by("category__name", "name")
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        query = self.request.query_params.get("q", "").strip()
+        category = self.request.query_params.get("category", "").strip()
+
+        if query:
+            queryset = queryset.filter(name__icontains=query)
+
+        if category:
+            queryset = queryset.filter(category__name__iexact=category)
+
+        return queryset
+
+
 class BuyerFilterOptionsView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -90,7 +114,9 @@ class BuyerFilterOptionsView(APIView):
         locations = list(Farm.objects.values_list("location", flat=True).distinct())
         return Response(
             {
-                "categories": list(Category.objects.values_list("name", flat=True)),
+                "categories": list(
+                    Category.objects.filter(products__is_active=True).distinct().values_list("name", flat=True)
+                ),
                 "locations": sorted(set(locations)),
                 "qualities": ["A"],
             }
@@ -110,6 +136,7 @@ class RelatedProductsView(generics.ListAPIView):
         return (
             ProductList.objects.select_related("product", "product__category", "farmer", "farmer__person")
             .prefetch_related("farmer__farms")
+            .filter(product__is_active=True)
             .filter(product__category=listing.product.category)
             .exclude(id=product_id)[:3]
         )

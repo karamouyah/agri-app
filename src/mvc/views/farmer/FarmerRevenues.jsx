@@ -10,6 +10,7 @@ import {
   YAxis,
 } from 'recharts'
 import { getRevenueData } from '../../controllers/farmerController'
+import { formatDzd } from '../../../utils/currency'
 
 export default function FarmerRevenues() {
   const [data, setData] = useState({ total: 0, series: [], transactions: [] })
@@ -33,7 +34,7 @@ export default function FarmerRevenues() {
       <div className="grid gap-4 md:grid-cols-3">
         <div className="rounded-lg border border-slate-200 bg-white p-5 md:col-span-1">
           <h3 className="text-sm font-medium text-slate-500">Total Earnings</h3>
-          <p className="mt-2 text-3xl font-semibold text-emerald-700">{data.total} MAD</p>
+          <p className="mt-2 text-3xl font-semibold text-emerald-700">{formatDzd(data.total)}</p>
         </div>
 
         <div className="rounded-lg border border-slate-200 bg-white p-5 md:col-span-2">
@@ -43,7 +44,7 @@ export default function FarmerRevenues() {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="period" />
                 <YAxis />
-                <Tooltip />
+                <Tooltip formatter={(value) => [formatDzd(value), 'Revenue']} />
                 <Legend />
                 <Line type="monotone" dataKey="amount" stroke="#059669" strokeWidth={3} />
               </LineChart>
@@ -68,7 +69,7 @@ export default function FarmerRevenues() {
               <tr key={tx.id} className="border-b border-slate-100">
                 <td className="px-3 py-2">{tx.id}</td>
                 <td className="px-3 py-2">{tx.product}</td>
-                <td className="px-3 py-2">{tx.amount} MAD</td>
+                <td className="px-3 py-2">{formatDzd(tx.amount)}</td>
                 <td className="px-3 py-2">{tx.date}</td>
               </tr>
             ))}

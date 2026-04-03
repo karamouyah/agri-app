@@ -1,5 +1,6 @@
 ﻿import { useEffect, useState } from 'react'
 import { getInvoices } from '../../controllers/buyerController'
+import { formatDzd } from '../../../utils/currency'
 
 export default function BuyerInvoices() {
   const [invoices, setInvoices] = useState([])
@@ -39,7 +40,7 @@ export default function BuyerInvoices() {
                 <td className="px-3 py-2">{invoice.id}</td>
                 <td className="px-3 py-2">{invoice.orderId}</td>
                 <td className="px-3 py-2">{invoice.date}</td>
-                <td className="px-3 py-2">{invoice.amount} MAD</td>
+                <td className="px-3 py-2">{formatDzd(invoice.amount)}</td>
                 <td className="px-3 py-2">
                   <a href={invoice.downloadUrl} className="text-emerald-700 hover:underline">
                     Download
@@ -71,7 +72,7 @@ export default function BuyerInvoices() {
               <span className="font-medium">Date:</span> {selectedInvoice.date}
             </p>
             <p>
-              <span className="font-medium">Amount:</span> {selectedInvoice.amount} MAD
+              <span className="font-medium">Amount:</span> {formatDzd(selectedInvoice.amount)}
             </p>
             <p>
               <span className="font-medium">Notes:</span> {selectedInvoice.details}

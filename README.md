@@ -14,25 +14,31 @@ This project now includes:
 python -m pip install -r requirements.txt
 ```
 
-3. Create environment file:
+3. Create PostgreSQL database (default name in env is `agri_app`):
+
+```bash
+psql -U postgres -h 127.0.0.1 -d postgres -c "CREATE DATABASE agri_app;"
+```
+
+4. Create environment file:
 
 ```bash
 copy .env.example .env
 ```
 
-4. Apply migrations:
+5. Apply migrations:
 
 ```bash
 python manage.py migrate
 ```
 
-5. Seed demo data:
+6. Seed demo data:
 
 ```bash
 python manage.py seed_data
 ```
 
-6. Run server:
+7. Run server:
 
 ```bash
 python manage.py runserver
@@ -108,5 +114,6 @@ The backend was configured with secure defaults:
 
 ## Notes
 
-- SQLite is used by default for local development.
+- PostgreSQL is used by default (`DB_ENGINE=django.db.backends.postgresql`).
+- You can still switch back to SQLite by setting `DB_ENGINE=django.db.backends.sqlite3` and `DB_NAME=db.sqlite3` in `backend/.env`.
 - For production, use environment variables from `.env` and disable debug.

@@ -6,6 +6,7 @@ import {
   removeCartItem,
   updateCartQuantity,
 } from '../../controllers/buyerController'
+import { formatDzd } from '../../../utils/currency'
 
 export default function BuyerCart() {
   const navigate = useNavigate()
@@ -71,8 +72,8 @@ export default function BuyerCart() {
                         className="w-20 rounded-md border border-slate-300 px-2 py-1"
                       />
                     </td>
-                    <td className="px-3 py-2">{item.unitPrice} MAD</td>
-                    <td className="px-3 py-2">{item.unitPrice * item.quantity} MAD</td>
+                    <td className="px-3 py-2">{formatDzd(item.unitPrice)}</td>
+                    <td className="px-3 py-2">{formatDzd(item.unitPrice * item.quantity)}</td>
                     <td className="px-3 py-2">
                       <button
                         type="button"
@@ -94,15 +95,15 @@ export default function BuyerCart() {
           <div className="mt-3 space-y-2 text-slate-700">
             <p className="flex items-center justify-between">
               <span>Subtotal</span>
-              <span>{totals.subtotal} MAD</span>
+              <span>{formatDzd(totals.subtotal)}</span>
             </p>
             <p className="flex items-center justify-between">
               <span>Taxes (10%)</span>
-              <span>{totals.taxes} MAD</span>
+              <span>{formatDzd(totals.taxes)}</span>
             </p>
             <p className="flex items-center justify-between border-t border-slate-200 pt-2 font-semibold">
               <span>Total</span>
-              <span>{totals.total} MAD</span>
+              <span>{formatDzd(totals.total)}</span>
             </p>
           </div>
 

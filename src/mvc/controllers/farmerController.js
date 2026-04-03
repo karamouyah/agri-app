@@ -1,6 +1,7 @@
 export {
   getFarmProfile,
   updateFarmProfile,
+  getControlledProducts,
   getProducts,
   addProduct,
   updateProduct,

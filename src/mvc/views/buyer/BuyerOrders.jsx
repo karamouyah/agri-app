@@ -1,5 +1,6 @@
 ﻿import { useEffect, useState } from 'react'
 import { getBuyerOrders } from '../../controllers/buyerController'
+import { formatDzd } from '../../../utils/currency'
 
 export default function BuyerOrders() {
   const [orders, setOrders] = useState([])
@@ -38,7 +39,7 @@ export default function BuyerOrders() {
               <tr key={order.id} className="border-b border-slate-100">
                 <td className="px-3 py-2">{order.id}</td>
                 <td className="px-3 py-2">{order.date}</td>
-                <td className="px-3 py-2">{order.total} MAD</td>
+                <td className="px-3 py-2">{formatDzd(order.total)}</td>
                 <td className="px-3 py-2 capitalize">{order.status}</td>
                 <td className="px-3 py-2">
                   {order.status === 'delivered' ? '-' : order.estimatedDelivery}
@@ -69,7 +70,7 @@ export default function BuyerOrders() {
               <span className="font-medium">Payment:</span> {selectedOrder.paymentMethod}
             </p>
             <p>
-              <span className="font-medium">Total:</span> {selectedOrder.total} MAD
+              <span className="font-medium">Total:</span> {formatDzd(selectedOrder.total)}
             </p>
             <p>
               <span className="font-medium">Current Status:</span>{' '}

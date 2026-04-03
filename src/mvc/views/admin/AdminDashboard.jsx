@@ -13,6 +13,7 @@ import {
 } from 'recharts'
 import { FiActivity, FiBarChart2, FiShield, FiUsers } from 'react-icons/fi'
 import { getNationalStats } from '../../controllers/adminController'
+import { formatDzd } from '../../../utils/currency'
 
 export default function AdminDashboard() {
   const [data, setData] = useState(null)
@@ -92,15 +93,15 @@ export default function AdminDashboard() {
         </div>
 
         <div className="surface-card p-5">
-          <h3 className="text-base font-bold text-slate-900">Price Trends (Key Products)</h3>
-          <p className="mt-1 text-xs text-slate-500">Monthly movement for strategic market products</p>
+          <h3 className="text-base font-bold text-slate-900">Price Trends (DZD)</h3>
+          <p className="mt-1 text-xs text-slate-500">Monthly movement for strategic market products in Algerian Dinar</p>
           <div className="mt-3 h-72">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={priceTrends}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#dce9dc" />
                 <XAxis dataKey="month" />
                 <YAxis />
-                <Tooltip />
+                <Tooltip formatter={(value, name) => [formatDzd(value), name]} />
                 <Legend />
                 <Line type="monotone" dataKey="tomatoes" stroke="#1f7a3d" strokeWidth={2.5} />
                 <Line type="monotone" dataKey="oranges" stroke="#0ea5a3" strokeWidth={2.5} />

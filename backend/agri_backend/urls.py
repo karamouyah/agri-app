@@ -12,8 +12,26 @@ class HealthView(APIView):
         return Response({"status": "ok"})
 
 
+class ApiRootView(APIView):
+    permission_classes = []
+    authentication_classes = []
+
+    def get(self, request):
+        return Response(
+            {
+                "message": "Agri API is running.",
+                "health": "/api/health/",
+                "auth": "/api/auth/",
+                "catalog": "/api/catalog/",
+                "orders": "/api/orders/",
+                "logistics": "/api/logistics/",
+            }
+        )
+
+
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("api/", ApiRootView.as_view(), name="api-root"),
     path("api/health/", HealthView.as_view(), name="health"),
     path("api/auth/", include("apps.users.urls")),
     path("api/catalog/", include("apps.catalog.urls")),

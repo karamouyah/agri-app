@@ -7,6 +7,7 @@ import {
   setOfficialPrice,
   updateCategory,
 } from '../../controllers/adminController'
+import { formatDzd } from '../../../utils/currency'
 
 const emptyPrice = { min: '', max: '', suggested: '' }
 
@@ -91,6 +92,7 @@ export default function AdminProducts() {
     <section className="agri-page space-y-5">
       <div className="rounded-lg border border-slate-200 bg-white p-5">
         <h2 className="text-xl font-semibold text-slate-800">Product Management</h2>
+        <p className="mt-1 text-sm text-slate-600">All official price controls are managed in DZD.</p>
       </div>
 
       <div className="grid gap-4 xl:grid-cols-2">
@@ -169,9 +171,9 @@ export default function AdminProducts() {
               <thead className="bg-slate-100 text-slate-600">
                 <tr>
                   <th className="px-3 py-2">Category</th>
-                  <th className="px-3 py-2">Min</th>
-                  <th className="px-3 py-2">Max</th>
-                  <th className="px-3 py-2">Suggested</th>
+                  <th className="px-3 py-2">Min (DZD)</th>
+                  <th className="px-3 py-2">Max (DZD)</th>
+                  <th className="px-3 py-2">Suggested (DZD)</th>
                   <th className="px-3 py-2">Action</th>
                 </tr>
               </thead>
@@ -186,7 +188,12 @@ export default function AdminProducts() {
 
                   return (
                     <tr key={category.id} className="border-b border-slate-100">
-                      <td className="px-3 py-2">{category.name}</td>
+                      <td className="px-3 py-2">
+                        <div className="font-medium text-slate-800">{category.name}</div>
+                        <div className="text-xs text-slate-500">
+                          Range: {formatDzd(current.min)} - {formatDzd(current.max)}
+                        </div>
+                      </td>
                       <td className="px-3 py-2">
                         <input
                           type="number"

@@ -13,6 +13,8 @@ dist-ssr
 *.local
 *.sqlite3
 backend/db.sqlite3
+.env
+backend/.env
 
 # Editor directories and files
 .vscode/*

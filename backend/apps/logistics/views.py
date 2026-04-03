@@ -37,6 +37,27 @@ class ActiveDeliveriesView(generics.ListAPIView):
         ).select_related("order", "order__buyer__person", "order__farmer__person", "transporter", "transporter__person")
 
 
+class CompletedDeliveriesView(generics.ListAPIView):
+    serializer_class = MissionSerializer
+    permission_classes = [IsTransporter]
+
+    def get_queryset(self):
+        transporter = getattr(self.request.user, "transporter", None)
+        if not transporter:
+            return Shipment.objects.none()
+
+        return Shipment.objects.filter(
+            transporter=transporter,
+            status=Shipment.Status.DELIVERED,
+        ).select_related(
+            "order",
+            "order__buyer__person",
+            "order__farmer__person",
+            "transporter",
+            "transporter__person",
+        ).order_by("-actual_delivery_date", "-id")
+
+
 class DeliveryByIdView(generics.RetrieveAPIView):
     serializer_class = MissionSerializer
     permission_classes = [IsTransporter]

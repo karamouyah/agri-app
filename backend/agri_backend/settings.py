@@ -20,6 +20,42 @@ def get_list(name: str, default: str = "") -> list[str]:
     return [item.strip() for item in raw.split(",") if item.strip()]
 
 
+def get_int(name: str, default: int) -> int:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    try:
+        return int(raw)
+    except ValueError:
+        return default
+
+
+def get_database_config() -> dict:
+    engine = os.getenv("DB_ENGINE", "django.db.backends.postgresql").strip()
+
+    if engine == "django.db.backends.sqlite3":
+        return {
+            "ENGINE": engine,
+            "NAME": os.getenv("DB_NAME", BASE_DIR / "db.sqlite3"),
+        }
+
+    database = {
+        "ENGINE": engine,
+        "NAME": os.getenv("DB_NAME", "agri_app"),
+        "USER": os.getenv("DB_USER", "postgres"),
+        "PASSWORD": os.getenv("DB_PASSWORD", ""),
+        "HOST": os.getenv("DB_HOST", "127.0.0.1"),
+        "PORT": os.getenv("DB_PORT", "5432"),
+        "CONN_MAX_AGE": get_int("DB_CONN_MAX_AGE", 60),
+    }
+
+    sslmode = os.getenv("DB_SSLMODE")
+    if sslmode:
+        database["OPTIONS"] = {"sslmode": sslmode}
+
+    return database
+
+
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "insecure-dev-only-secret-key-change-me")
 DEBUG = get_bool("DJANGO_DEBUG", True)
 ALLOWED_HOSTS = get_list("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost")
@@ -72,10 +108,7 @@ WSGI_APPLICATION = "agri_backend.wsgi.application"
 ASGI_APPLICATION = "agri_backend.asgi.application"
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+    "default": get_database_config()
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -135,8 +168,8 @@ REST_FRAMEWORK = {
     },
 }
 
-access_minutes = int(os.getenv("JWT_ACCESS_MINUTES", "30"))
-refresh_days = int(os.getenv("JWT_REFRESH_DAYS", "7"))
+access_minutes = get_int("JWT_ACCESS_MINUTES", 30)
+refresh_days = get_int("JWT_REFRESH_DAYS", 7)
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=access_minutes),

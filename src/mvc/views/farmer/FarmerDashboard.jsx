@@ -12,6 +12,7 @@ import {
 import { FiArrowRight, FiClipboard, FiDollarSign, FiShoppingBag, FiTrendingUp } from 'react-icons/fi'
 import { getOrders, getRevenueData } from '../../controllers/farmerController'
 import { useAuth } from '../../../context/AuthContext'
+import { formatDzd } from '../../../utils/currency'
 
 export default function FarmerDashboard() {
   const { user } = useAuth()
@@ -51,7 +52,7 @@ export default function FarmerDashboard() {
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <article className="surface-card p-5">
           <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Monthly Earnings</p>
-          <p className="mt-2 text-3xl font-bold text-emerald-700">{revenue.total} MAD</p>
+          <p className="mt-2 text-3xl font-bold text-emerald-700">{formatDzd(revenue.total)}</p>
           <p className="mt-1 text-xs text-slate-500">Total tracked transactions this month</p>
         </article>
 
@@ -89,7 +90,7 @@ export default function FarmerDashboard() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#dce9dc" />
                 <XAxis dataKey="period" />
                 <YAxis />
-                <Tooltip />
+                <Tooltip formatter={(value) => [formatDzd(value), 'Revenue']} />
                 <Bar dataKey="amount" fill="#1f7a3d" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>

@@ -1,5 +1,6 @@
 ﻿import { useCallback, useEffect, useMemo, useState } from 'react'
 import { acceptOrder, declineOrder, getOrders } from '../../controllers/farmerController'
+import { formatDzd } from '../../../utils/currency'
 
 export default function FarmerOrders() {
   const [orders, setOrders] = useState([])
@@ -110,7 +111,7 @@ export default function FarmerOrders() {
         <article className="surface-card p-5">
           <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Total Revenue</p>
           <h3 className="mt-2 text-3xl font-bold text-slate-900">
-            {totals.totalRevenue.toLocaleString()} <span className="text-sm font-medium text-slate-500">MAD</span>
+            {formatDzd(totals.totalRevenue)}
           </h3>
         </article>
       </div>
@@ -180,7 +181,7 @@ export default function FarmerOrders() {
                       <div className="font-medium text-slate-800">{order.product}</div>
                       <div className="text-xs text-slate-500">{order.quantity} units</div>
                     </td>
-                    <td className="px-6 py-4 font-semibold text-slate-900">{order.amount} MAD</td>
+                    <td className="px-6 py-4 font-semibold text-slate-900">{formatDzd(order.amount)}</td>
                     <td className="px-6 py-4 text-slate-600">{order.deliveryAddress}</td>
                     <td className="px-6 py-4">
                       <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold capitalize text-slate-700">
@@ -285,7 +286,7 @@ export default function FarmerOrders() {
               <span className="font-medium">Quantity:</span> {selectedOrder.quantity}
             </p>
             <p>
-              <span className="font-medium">Amount:</span> {selectedOrder.amount} MAD
+              <span className="font-medium">Amount:</span> {formatDzd(selectedOrder.amount)}
             </p>
             <p>
               <span className="font-medium">Status:</span>{' '}

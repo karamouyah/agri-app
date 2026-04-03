@@ -104,9 +104,17 @@ class OfficialPriceSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(source="product.name")
-    category = serializers.PrimaryKeyRelatedField(source="product.category", queryset=Category.objects.all())
+    product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.filter(is_active=True))
+    name = serializers.CharField(source="product.name", read_only=True)
+    category = serializers.IntegerField(source="product.category_id", read_only=True)
     category_name = serializers.CharField(source="product.category.name", read_only=True)
+    unit = serializers.CharField(source="product.unit", read_only=True)
+    min_price = serializers.IntegerField(source="product.min_price", read_only=True)
+    max_price = serializers.IntegerField(source="product.max_price", read_only=True)
+    min_price_dzd = serializers.IntegerField(source="product.min_price", read_only=True)
+    max_price_dzd = serializers.IntegerField(source="product.max_price", read_only=True)
+    is_active = serializers.BooleanField(source="product.is_active", read_only=True)
+    currency = serializers.SerializerMethodField()
     price = serializers.IntegerField(min_value=0)
     quantity_available = serializers.IntegerField(source="quantity", min_value=0)
     farmer_name = serializers.SerializerMethodField()
@@ -120,9 +128,17 @@ class ProductSerializer(serializers.ModelSerializer):
         model = ProductList
         fields = [
             "id",
+            "product",
             "name",
             "category",
             "category_name",
+            "unit",
+            "min_price",
+            "max_price",
+            "min_price_dzd",
+            "max_price_dzd",
+            "is_active",
+            "currency",
             "price",
             "quantity_available",
             "farmer_name",
@@ -132,6 +148,32 @@ class ProductSerializer(serializers.ModelSerializer):
             "description",
             "status",
         ]
+
+    def validate_price(self, value):
+        product = self.initial_data.get("product")
+
+        if product is not None:
+            target = Product.objects.filter(id=product).first()
+        elif self.instance:
+            target = self.instance.product
+        else:
+            target = None
+
+        if not target:
+            return value
+
+        if not target.is_active:
+            raise serializers.ValidationError("This product is not available in the approved catalog.")
+
+        if value < target.min_price or value > target.max_price:
+            raise serializers.ValidationError(
+                f"Price must be between {target.min_price} and {target.max_price} DZD"
+            )
+
+        return value
+
+    def get_currency(self, _obj):
+        return "DZD"
 
     def get_farmer_name(self, obj):
         full = f"{obj.farmer.person.first_name} {obj.farmer.person.last_name}".strip()
@@ -154,27 +196,63 @@ class ProductSerializer(serializers.ModelSerializer):
         return "available" if obj.quantity > 0 else "out of stock"
 
     def create(self, validated_data):
-        product_data = validated_data.pop("product")
-        category = product_data["category"]
-        name = product_data["name"]
-        product = Product.objects.create(name=name, category=category)
-        return ProductList.objects.create(product=product, **validated_data)
+        product = validated_data["product"]
+        farmer = validated_data["farmer"]
+        if ProductList.objects.filter(product=product, farmer=farmer).exists():
+            raise serializers.ValidationError(
+                {"product": "You already listed this product. Please edit the existing listing."}
+            )
+        return ProductList.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
-        product_data = validated_data.pop("product", {})
+        target_product = validated_data.get("product", instance.product)
 
-        if "name" in product_data:
-            instance.product.name = product_data["name"]
-        if "category" in product_data:
-            instance.product.category = product_data["category"]
+        if not target_product.is_active:
+            raise serializers.ValidationError(
+                {"product": "This product is not available in the approved catalog."}
+            )
 
-        if product_data:
-            instance.product.save(update_fields=["name", "category"])
+        if (
+            ProductList.objects.filter(product=target_product, farmer=instance.farmer)
+            .exclude(id=instance.id)
+            .exists()
+        ):
+            raise serializers.ValidationError(
+                {"product": "You already listed this product. Please edit the existing listing."}
+            )
+
+        if "product" in validated_data:
+            instance.product = target_product
 
         if "price" in validated_data:
             instance.price = validated_data["price"]
         if "quantity" in validated_data:
             instance.quantity = validated_data["quantity"]
 
-        instance.save(update_fields=["price", "quantity"])
+        instance.save(update_fields=["product", "price", "quantity"])
         return instance
+
+
+class ControlledProductSerializer(serializers.ModelSerializer):
+    category = serializers.CharField(source="category.name", read_only=True)
+    min_price_dzd = serializers.IntegerField(source="min_price", read_only=True)
+    max_price_dzd = serializers.IntegerField(source="max_price", read_only=True)
+    currency = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Product
+        fields = [
+            "id",
+            "name",
+            "category",
+            "unit",
+            "min_price",
+            "max_price",
+            "min_price_dzd",
+            "max_price_dzd",
+            "is_active",
+            "currency",
+        ]
+
+    def get_currency(self, _obj):
+        return "DZD"

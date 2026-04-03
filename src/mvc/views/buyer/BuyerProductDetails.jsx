@@ -1,6 +1,7 @@
 ﻿import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { addToCart, getProductById, getRelatedProducts } from '../../controllers/buyerController'
+import { formatDzd, formatDzdPerUnit } from '../../../utils/currency'
 
 export default function BuyerProductDetails() {
   const { id } = useParams()
@@ -46,7 +47,7 @@ export default function BuyerProductDetails() {
 
           <div className="mt-4 space-y-1 text-sm text-slate-700">
             <p>
-              <span className="font-medium">Price:</span> {product.price} MAD / unit
+              <span className="font-medium">Price:</span> {formatDzdPerUnit(product.price, product.unit)}
             </p>
             <p>
               <span className="font-medium">Available Quantity:</span> {product.quantityAvailable}
@@ -98,7 +99,7 @@ export default function BuyerProductDetails() {
               className="rounded-md border border-slate-200 p-3 hover:bg-slate-50"
             >
               <p className="font-medium text-slate-800">{item.name}</p>
-              <p className="text-sm text-slate-600">{item.price} MAD</p>
+              <p className="text-sm text-slate-600">{formatDzd(item.price)}</p>
             </Link>
           ))}
         </div>

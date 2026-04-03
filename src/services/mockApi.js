@@ -1,15 +1,45 @@
 import { apiRequest } from './apiClient'
+import controlledCatalog from '../../shared/controlled-product-catalog.json'
+import { PLATFORM_CURRENCY } from '../utils/currency'
 
 const normalizeProduct = (item) => ({
   id: item.id,
+  productId: item.product,
   name: item.name,
   category: item.category_name,
+  unit: item.unit || 'kg',
+  minPrice: Number(item.min_price_dzd ?? item.min_price ?? 0),
+  maxPrice: Number(item.max_price_dzd ?? item.max_price ?? 0),
   price: Number(item.price),
   quantity: item.quantity_available,
   description: item.description || '',
   imageUrl: item.image_url || '',
   status: item.status,
+  isActive: item.is_active ?? true,
+  currency: item.currency || PLATFORM_CURRENCY,
 })
+
+const normalizeControlledProduct = (item, fallbackId) => ({
+  id: Number(item.id ?? fallbackId),
+  name: item.name,
+  category: item.category,
+  unit: item.unit || 'kg',
+  minPrice: Number(item.min_price_dzd ?? item.min_price ?? 0),
+  maxPrice: Number(item.max_price_dzd ?? item.max_price ?? 0),
+  isActive: item.is_active ?? true,
+  currency: item.currency || PLATFORM_CURRENCY,
+})
+
+const fallbackControlledProducts = controlledCatalog.map((item, index) =>
+  normalizeControlledProduct(
+    {
+      ...item,
+      id: index + 1,
+      currency: PLATFORM_CURRENCY,
+    },
+    index + 1,
+  ),
+)
 
 const mapOrderForFarmer = (order) => ({
   id: order.id,
@@ -19,16 +49,27 @@ const mapOrderForFarmer = (order) => ({
   orderDate: order.created_at.slice(0, 10),
   status: order.status,
   amount: Number(order.total),
+  currency: order.currency || PLATFORM_CURRENCY,
   deliveryAddress: order.address,
 })
 
-const getCategoryIdByName = async (name) => {
-  const categories = await apiRequest('/catalog/categories/')
-  const found = categories.find((item) => item.name === name)
-  if (!found) {
-    throw new Error('Category not found. Please create it first.')
+export const getControlledProducts = async (filters = {}) => {
+  const search = new URLSearchParams()
+  if (filters.query) search.set('q', filters.query)
+  if (filters.category && filters.category !== 'All') search.set('category', filters.category)
+
+  try {
+    const products = await apiRequest(`/catalog/predefined-products/${search.toString() ? `?${search}` : ''}`)
+    return products.map((item, index) => normalizeControlledProduct(item, index + 1))
+  } catch (_error) {
+    return fallbackControlledProducts.filter((item) => {
+      const matchesCategory =
+        !filters.category || filters.category === 'All' || item.category === filters.category
+      const normalizedQuery = (filters.query || '').trim().toLowerCase()
+      const matchesQuery = !normalizedQuery || item.name.toLowerCase().includes(normalizedQuery)
+      return matchesCategory && matchesQuery
+    })
   }
-  return found.id
 }
 
 export const getFarmProfile = () => apiRequest('/auth/farmer/profile/')
@@ -45,34 +86,24 @@ export const getProducts = async () => {
 }
 
 export const addProduct = async (product) => {
-  const categoryId = await getCategoryIdByName(product.category)
   const created = await apiRequest('/catalog/products/', {
     method: 'POST',
     body: {
-      name: product.name,
-      category: categoryId,
+      product: Number(product.productId),
       price: Number(product.price),
       quantity_available: Number(product.quantity),
-      farmer_region: 'Meknes',
-      quality: 'A',
-      image_url: product.imageUrl || '',
-      description: product.description,
     },
   })
   return normalizeProduct(created)
 }
 
 export const updateProduct = async (product) => {
-  const categoryId = await getCategoryIdByName(product.category)
   const updated = await apiRequest(`/catalog/products/${product.id}/`, {
     method: 'PATCH',
     body: {
-      name: product.name,
-      category: categoryId,
+      product: Number(product.productId),
       price: Number(product.price),
       quantity_available: Number(product.quantity),
-      image_url: product.imageUrl || '',
-      description: product.description,
     },
   })
   return normalizeProduct(updated)
@@ -106,6 +137,7 @@ export const getRevenueData = async () => {
     id: order.id,
     product: order.items[0]?.name || '-',
     amount: Number(order.total),
+    currency: order.currency || PLATFORM_CURRENCY,
     date: order.created_at.slice(0, 10),
   }))
 

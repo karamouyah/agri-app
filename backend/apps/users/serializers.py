@@ -25,10 +25,21 @@ class FarmerProfileSerializer(serializers.ModelSerializer):
 class TransporterProfileSerializer(serializers.ModelSerializer):
     phone_number = serializers.CharField(source="person.phone_number", read_only=True)
     vehicle = serializers.CharField(source="vehicle_type", read_only=True)
+    service_area = serializers.CharField(read_only=True)
+    capacity = serializers.IntegerField(read_only=True)
+    average_rating = serializers.IntegerField(read_only=True)
+    total_reviews = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Transporter
-        fields = ["phone_number", "vehicle"]
+        fields = [
+            "phone_number",
+            "vehicle",
+            "service_area",
+            "capacity",
+            "average_rating",
+            "total_reviews",
+        ]
 
 
 class BuyerProfileSerializer(serializers.ModelSerializer):
@@ -45,6 +56,7 @@ class UserSerializer(serializers.ModelSerializer):
     role = serializers.SerializerMethodField()
     approval_status = serializers.SerializerMethodField()
     profile = serializers.SerializerMethodField()
+    personal_picture_url = serializers.CharField(read_only=True)
     phone_number = serializers.SerializerMethodField()
     phone = serializers.SerializerMethodField()
     farm_address = serializers.SerializerMethodField()
@@ -62,6 +74,7 @@ class UserSerializer(serializers.ModelSerializer):
             "approval_status",
             "first_name",
             "last_name",
+            "personal_picture_url",
             "profile",
             "phone_number",
             "phone",

@@ -17,8 +17,12 @@ class Category(models.Model):
 
 class Product(models.Model):
     id = models.AutoField(primary_key=True, db_column="IDProduct")
-    name = models.CharField(max_length=100, db_column="Name")
+    name = models.CharField(max_length=100, db_column="Name", unique=True)
     category = models.ForeignKey(Category, on_delete=models.PROTECT, db_column="IDCategory", related_name="products")
+    unit = models.CharField(max_length=20, db_column="Unit", default="kg")
+    min_price = models.IntegerField(db_column="MinPrice", default=0)
+    max_price = models.IntegerField(db_column="MaxPrice", default=0)
+    is_active = models.BooleanField(db_column="IsActive", default=True)
 
     class Meta:
         db_table = "Product"
@@ -60,6 +64,9 @@ class ProductList(models.Model):
 
     class Meta:
         db_table = "ProductList"
+        constraints = [
+            models.UniqueConstraint(fields=["farmer", "product"], name="unique_farmer_product_listing"),
+        ]
 
     def __str__(self):
         return f"{self.product.name} ({self.farmer.person.email})"

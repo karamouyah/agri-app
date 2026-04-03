@@ -45,13 +45,15 @@ export default function LoginPage() {
 
   return (
     <div className="relative min-h-screen overflow-hidden px-4 py-8 md:px-8">
+      <div className="absolute left-[-5rem] top-[12rem] -z-10 h-64 w-64 rounded-full bg-lime-200/40 blur-3xl" />
+      <div className="absolute bottom-[-5rem] right-[-5rem] -z-10 h-72 w-72 rounded-full bg-amber-100/35 blur-3xl" />
       <div className="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-        <aside className="surface-card relative overflow-hidden p-6 md:p-8">
+        <aside className="surface-card section-shell relative overflow-hidden p-6 md:p-8">
           <div className="absolute -right-12 -top-10 h-48 w-48 rounded-full bg-emerald-200/60 blur-3xl" />
           <div className="absolute -bottom-14 -left-10 h-56 w-56 rounded-full bg-lime-200/55 blur-3xl" />
 
           <div className="relative">
-            <p className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
+            <p className="badge-soft px-3 py-1 text-xs">
               <FiCheckCircle />
               AgriGov Secure Access
             </p>
@@ -68,8 +70,8 @@ export default function LoginPage() {
               {trustPoints.map((item) => {
                 const Icon = item.icon
                 return (
-                  <div key={item.text} className="surface-muted flex items-center gap-3 px-3 py-2.5 text-sm">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
+                  <div key={item.text} className="surface-muted flex items-center gap-3 px-3 py-3 text-sm shadow-[0_10px_24px_rgba(65,88,74,0.06)]">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-100 to-amber-50 text-emerald-700">
                       <Icon />
                     </span>
                     <span className="text-slate-700">{item.text}</span>
@@ -80,12 +82,12 @@ export default function LoginPage() {
           </div>
         </aside>
 
-        <section className="surface-card p-6 md:p-8">
+        <section className="surface-card section-shell p-6 md:p-8">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Account Login</p>
             <h2 className="mt-2 text-2xl font-bold text-slate-900">Sign in to your workspace</h2>
             <p className="mt-1 text-sm text-slate-600">Use your approved account to continue.</p>
-            {notice && <p className="mt-3 rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{notice}</p>}
+            {notice && <p className="mt-3 rounded-2xl border border-emerald-100 bg-gradient-to-r from-emerald-50 to-amber-50 px-3 py-2.5 text-sm text-emerald-700">{notice}</p>}
           </div>
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">

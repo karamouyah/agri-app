@@ -67,10 +67,12 @@ export default function LandingPage() {
 
   return (
     <div className="relative min-h-screen overflow-hidden px-4 py-6 md:px-8">
+      <div className="absolute left-[-6rem] top-[8rem] -z-10 h-72 w-72 rounded-full bg-lime-200/35 blur-3xl" />
+      <div className="absolute right-[-4rem] top-[10rem] -z-10 h-80 w-80 rounded-full bg-amber-100/40 blur-3xl" />
       <div className="mx-auto w-full max-w-6xl">
-        <header className="surface-card flex items-center justify-between px-4 py-3 md:px-6">
+        <header className="surface-card section-shell flex items-center justify-between px-4 py-3 md:px-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-700 to-emerald-500 text-white">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-600 via-emerald-500 to-lime-400 text-white shadow-[0_12px_26px_rgba(73,163,90,0.28)]">
               <FiFeather className="text-lg" />
             </div>
             <div>
@@ -91,13 +93,14 @@ export default function LandingPage() {
         </header>
 
         <main className="mt-6 space-y-6">
-          <section className="surface-card relative overflow-hidden p-6 md:p-10">
+          <section className="surface-card section-shell relative overflow-hidden p-6 md:p-10">
             <div className="absolute -right-16 -top-20 h-64 w-64 rounded-full bg-emerald-200/40 blur-3xl" />
             <div className="absolute -bottom-24 -left-10 h-56 w-56 rounded-full bg-lime-200/30 blur-3xl" />
+            <div className="absolute bottom-8 right-10 hidden h-28 w-28 rounded-full border border-white/50 bg-white/20 lg:block" />
 
             <div className="relative grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
               <div>
-                <p className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
+                <p className="badge-soft px-3 py-1 text-xs">
                   <FiCheckCircle />
                   Trusted by farmers, buyers, transporters, and ministry teams
                 </p>
@@ -122,17 +125,17 @@ export default function LandingPage() {
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
-                <article className="surface-muted p-4">
+                <article className="surface-muted p-4 shadow-[0_12px_28px_rgba(65,88,74,0.06)]">
                   <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700">Network</p>
                   <p className="mt-2 text-2xl font-bold text-slate-900">3 Role Workflows</p>
                   <p className="mt-1 text-sm text-slate-600">Farmer, Buyer, and Transporter collaboration.</p>
                 </article>
-                <article className="surface-muted p-4">
+                <article className="surface-muted p-4 shadow-[0_12px_28px_rgba(65,88,74,0.06)]">
                   <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700">Governance</p>
                   <p className="mt-2 text-2xl font-bold text-slate-900">Ministry Approval</p>
                   <p className="mt-1 text-sm text-slate-600">Controlled onboarding for trusted marketplace quality.</p>
                 </article>
-                <article className="surface-muted p-4 sm:col-span-2">
+                <article className="surface-muted p-4 shadow-[0_12px_28px_rgba(65,88,74,0.06)] sm:col-span-2">
                   <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700">Operations</p>
                   <p className="mt-2 text-2xl font-bold text-slate-900">Orders + Logistics Visibility</p>
                   <p className="mt-1 text-sm text-slate-600">
@@ -147,8 +150,8 @@ export default function LandingPage() {
             {highlights.map((item) => {
               const Icon = item.icon
               return (
-                <article key={item.title} className="surface-card p-5">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+                <article key={item.title} className="surface-card section-shell p-5">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-100 to-amber-50 text-emerald-700 shadow-[0_10px_20px_rgba(73,163,90,0.12)]">
                     <Icon className="text-lg" />
                   </div>
                   <h3 className="mt-4 text-base font-bold text-slate-900">{item.title}</h3>
@@ -158,7 +161,7 @@ export default function LandingPage() {
             })}
           </section>
 
-          <section className="surface-card p-6 md:p-8">
+          <section className="surface-card section-shell p-6 md:p-8">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Role-based Access</p>
@@ -167,7 +170,7 @@ export default function LandingPage() {
                   Each role gets dedicated tools while sharing one consistent, modern marketplace system.
                 </p>
               </div>
-              <div className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 text-sm font-semibold text-emerald-800">
+              <div className="badge-soft px-4 py-2 text-sm">
                 <FiUsers />
                 Verified role-based workflows
               </div>
@@ -175,8 +178,11 @@ export default function LandingPage() {
 
             <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               {roleCards.map((card) => (
-                <article key={card.role} className="overflow-hidden rounded-2xl border border-emerald-100 bg-white">
-                  <div className={`h-1.5 bg-gradient-to-r ${card.accent}`} />
+                <article
+                  key={card.role}
+                  className="overflow-hidden rounded-[1.35rem] border border-[var(--line)] bg-white/90 shadow-[0_16px_30px_rgba(65,88,74,0.08)] transition hover:-translate-y-1 hover:shadow-[0_22px_34px_rgba(65,88,74,0.12)]"
+                >
+                  <div className={`h-2 bg-gradient-to-r ${card.accent}`} />
                   <div className="p-4">
                     <h4 className="text-base font-bold text-slate-900">{card.role}</h4>
                     <p className="mt-2 text-sm text-slate-600">{card.description}</p>

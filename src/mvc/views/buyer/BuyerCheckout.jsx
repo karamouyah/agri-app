@@ -6,6 +6,7 @@ import {
   getShippingProfile,
   placeOrder,
 } from '../../controllers/buyerController'
+import { formatDzd } from '../../../utils/currency'
 
 const initialAddress = {
   fullName: '',
@@ -147,15 +148,15 @@ export default function BuyerCheckout() {
             </p>
             <p className="flex items-center justify-between">
               <span>Subtotal</span>
-              <span>{totals.subtotal} MAD</span>
+              <span>{formatDzd(totals.subtotal)}</span>
             </p>
             <p className="flex items-center justify-between">
               <span>Taxes</span>
-              <span>{totals.taxes} MAD</span>
+              <span>{formatDzd(totals.taxes)}</span>
             </p>
             <p className="flex items-center justify-between border-t border-slate-200 pt-2 font-semibold">
               <span>Total</span>
-              <span>{totals.total} MAD</span>
+              <span>{formatDzd(totals.total)}</span>
             </p>
           </div>
 

@@ -136,13 +136,15 @@ export default function RegisterPage() {
 
   return (
     <div className="relative min-h-screen overflow-hidden px-4 py-8 md:px-8">
+      <div className="absolute left-[-5rem] top-[10rem] -z-10 h-72 w-72 rounded-full bg-lime-200/36 blur-3xl" />
+      <div className="absolute right-[-4rem] top-[18rem] -z-10 h-64 w-64 rounded-full bg-amber-100/34 blur-3xl" />
       <div className="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[0.98fr_1.02fr]">
-        <aside className="surface-card relative overflow-hidden p-6 md:p-8">
+        <aside className="surface-card section-shell relative overflow-hidden p-6 md:p-8">
           <div className="absolute -right-14 -top-12 h-52 w-52 rounded-full bg-emerald-200/60 blur-3xl" />
           <div className="absolute -bottom-20 -left-14 h-56 w-56 rounded-full bg-lime-200/50 blur-3xl" />
 
           <div className="relative">
-            <p className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
+            <p className="badge-soft px-3 py-1 text-xs">
               <FiCheckCircle />
               Ministry-verified onboarding
             </p>
@@ -159,8 +161,8 @@ export default function RegisterPage() {
               {trustPoints.map((item) => {
                 const Icon = item.icon
                 return (
-                  <article key={item.text} className="surface-muted flex items-center gap-3 px-3 py-2.5 text-sm">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
+                  <article key={item.text} className="surface-muted flex items-center gap-3 px-3 py-3 text-sm shadow-[0_10px_24px_rgba(65,88,74,0.06)]">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-100 to-amber-50 text-emerald-700">
                       <Icon />
                     </span>
                     <span className="text-slate-700">{item.text}</span>
@@ -171,7 +173,7 @@ export default function RegisterPage() {
           </div>
         </aside>
 
-        <section className="surface-card p-6 md:p-8">
+        <section className="surface-card section-shell p-6 md:p-8">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Create Account</p>
             <h2 className="mt-2 text-2xl font-bold text-slate-900">Role-based signup</h2>

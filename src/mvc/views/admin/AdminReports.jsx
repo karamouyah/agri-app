@@ -9,6 +9,7 @@ import {
   YAxis,
 } from 'recharts'
 import { generateReport } from '../../controllers/adminController'
+import { formatDzd } from '../../../utils/currency'
 
 const initialForm = {
   region: '',
@@ -124,7 +125,7 @@ export default function AdminReports() {
                   <td className="px-3 py-2">{row.region}</td>
                   <td className="px-3 py-2">{row.category}</td>
                   <td className="px-3 py-2">{row.volume}</td>
-                  <td className="px-3 py-2">{row.revenue} MAD</td>
+                  <td className="px-3 py-2">{formatDzd(row.revenue)}</td>
                 </tr>
               ))}
             </tbody>
@@ -137,7 +138,7 @@ export default function AdminReports() {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="region" />
               <YAxis />
-              <Tooltip />
+              <Tooltip formatter={(value) => [formatDzd(value), 'Revenue']} />
               <Bar dataKey="revenue" fill="#059669" />
             </BarChart>
           </ResponsiveContainer>

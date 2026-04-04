@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Bar,
   BarChart,
@@ -14,6 +14,7 @@ import {
 import { FiActivity, FiBarChart2, FiShield, FiUsers } from 'react-icons/fi'
 import { getNationalStats } from '../../controllers/adminController'
 import { formatDzd } from '../../../utils/currency'
+import PageHero from '../../../components/PageHero'
 
 export default function AdminDashboard() {
   const [data, setData] = useState(null)
@@ -35,13 +36,17 @@ export default function AdminDashboard() {
 
   return (
     <section className="agri-page space-y-5">
-      <div className="surface-card p-6 md:p-7">
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Ministry Intelligence</p>
-        <h2 className="mt-2 text-2xl font-bold text-slate-900 md:text-3xl">National Agriculture Oversight</h2>
-        <p className="mt-2 text-sm text-slate-600 md:text-base">
-          Monitor active participants, regional sales movement, and price behavior across the marketplace.
-        </p>
-      </div>
+      <PageHero
+        eyebrow="Ministry Intelligence"
+        title="National agriculture oversight with clearer visibility"
+        description="Monitor approved participants, regional movement, and controlled pricing through a calmer, more professional analytical workspace."
+        variant="admin"
+        stats={[
+          { label: 'Sales Volume', value: `${summary.totalSalesVolumeTons} tons`, help: 'Aggregated marketplace movement' },
+          { label: 'Active Farmers', value: summary.activeFarmers, help: 'Approved sellers on the platform' },
+          { label: 'Transporters', value: summary.activeTransporters, help: 'Active delivery operators' },
+        ]}
+      />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <article className="surface-card p-5">

@@ -1,7 +1,10 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { FiMapPin, FiPackage, FiPlus, FiShield, FiUser } from 'react-icons/fi'
 import { addToCart, getProductById, getRelatedProducts } from '../../controllers/buyerController'
 import { formatDzd, formatDzdPerUnit } from '../../../utils/currency'
+import AgriIllustration from '../../../components/AgriIllustration'
+import Reveal from '../../../components/Reveal'
 
 export default function BuyerProductDetails() {
   const { id } = useParams()
@@ -30,82 +33,106 @@ export default function BuyerProductDetails() {
 
   const handleAddToCart = async () => {
     await addToCart(product, quantity)
-    setMessage('Product added to cart.')
+    setMessage('Added to cart.')
     setTimeout(() => setMessage(''), 2000)
   }
 
   return (
     <section className="agri-page space-y-5">
-      <div className="grid gap-4 rounded-lg border border-slate-200 bg-white p-5 md:grid-cols-2">
-        <div className="flex h-64 items-center justify-center rounded-md bg-slate-100 text-slate-400">
-          Product Image
-        </div>
-
-        <div>
-          <h2 className="text-2xl font-semibold text-slate-800">{product.name}</h2>
-          <p className="mt-2 text-sm text-slate-600">{product.description}</p>
-
-          <div className="mt-4 space-y-1 text-sm text-slate-700">
-            <p>
-              <span className="font-medium">Price:</span> {formatDzdPerUnit(product.price, product.unit)}
-            </p>
-            <p>
-              <span className="font-medium">Available Quantity:</span> {product.quantityAvailable}
-            </p>
-            <p>
-              <span className="font-medium">Farmer:</span> {product.farmerName}
-            </p>
-            <p>
-              <span className="font-medium">Region:</span> {product.farmerRegion}
-            </p>
-            <p>
-              <span className="font-medium">Quality:</span> {product.quality}
-            </p>
+      <Reveal>
+        <div className="grid gap-4 rounded-lg border border-slate-200 bg-white p-5 md:grid-cols-[1.1fr_0.9fr]">
+          <div className="media-shell p-3">
+            <AgriIllustration variant="hero" className="h-72" />
           </div>
 
-          <div className="mt-4 flex items-center gap-2">
-            <label htmlFor="quantity" className="text-sm text-slate-700">
-              Quantity
-            </label>
-            <input
-              id="quantity"
-              type="number"
-              min="1"
-              max={product.quantityAvailable}
-              value={quantity}
-              onChange={(event) => setQuantity(Number(event.target.value))}
-              className="w-24 rounded-md border border-slate-300 px-2 py-1"
-            />
-            <button
-              type="button"
-              onClick={handleAddToCart}
-              className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
-            >
-              Add to Cart
-            </button>
+          <div className="space-y-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">{product.category}</p>
+              <h2 className="mt-2 text-3xl font-bold text-slate-900">{product.name}</h2>
+              <p className="mt-2 text-lg font-bold text-emerald-700">{formatDzdPerUnit(product.price, product.unit)}</p>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="surface-muted p-3 text-sm">
+                <p className="inline-flex items-center gap-2 font-semibold text-slate-800">
+                  <FiPackage />
+                  Stock
+                </p>
+                <p className="mt-1 text-slate-600">{product.quantityAvailable} {product.unit}</p>
+              </div>
+              <div className="surface-muted p-3 text-sm">
+                <p className="inline-flex items-center gap-2 font-semibold text-slate-800">
+                  <FiShield />
+                  Quality
+                </p>
+                <p className="mt-1 text-slate-600">{product.quality}</p>
+              </div>
+              <div className="surface-muted p-3 text-sm">
+                <p className="inline-flex items-center gap-2 font-semibold text-slate-800">
+                  <FiUser />
+                  Farmer
+                </p>
+                <p className="mt-1 text-slate-600">{product.farmerName}</p>
+              </div>
+              <div className="surface-muted p-3 text-sm">
+                <p className="inline-flex items-center gap-2 font-semibold text-slate-800">
+                  <FiMapPin />
+                  Region
+                </p>
+                <p className="mt-1 text-slate-600">{product.farmerRegion}</p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <label htmlFor="quantity" className="text-sm font-medium text-slate-700">
+                Qty
+              </label>
+              <input
+                id="quantity"
+                type="number"
+                min="1"
+                max={product.quantityAvailable}
+                value={quantity}
+                onChange={(event) => setQuantity(Number(event.target.value))}
+                className="field-control w-24 px-3 py-2"
+              />
+              <button type="button" onClick={handleAddToCart} className="btn-primary px-4 py-2 text-sm">
+                <span className="inline-flex items-center gap-2">
+                  <FiPlus />
+                  Add to Cart
+                </span>
+              </button>
+            </div>
+
+            {message ? <p className="text-sm font-semibold text-emerald-700">{message}</p> : null}
+          </div>
+        </div>
+      </Reveal>
+
+      <Reveal delay={80}>
+        <div className="rounded-lg border border-slate-200 bg-white p-5">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <h3 className="text-lg font-bold text-slate-900">Related</h3>
+            <span className="badge-soft px-3 py-1 text-xs">Same category</span>
           </div>
 
-          {message && <p className="mt-2 text-sm text-emerald-700">{message}</p>}
+          <div className="grid gap-3 md:grid-cols-3">
+            {related.map((item) => (
+              <Link
+                key={item.id}
+                to={`/buyer/product/${item.id}`}
+                className="surface-muted lift-card overflow-hidden p-3"
+              >
+                <div className="media-shell mb-3 p-2">
+                  <AgriIllustration variant="buyer" className="h-24" />
+                </div>
+                <p className="font-semibold text-slate-800">{item.name}</p>
+                <p className="mt-1 text-sm text-emerald-700">{formatDzd(item.price)}</p>
+              </Link>
+            ))}
+          </div>
         </div>
-      </div>
-
-      <div className="rounded-lg border border-slate-200 bg-white p-5">
-        <h3 className="text-lg font-semibold text-slate-800">Related Products</h3>
-        <div className="mt-3 grid gap-3 md:grid-cols-3">
-          {related.map((item) => (
-            <Link
-              key={item.id}
-              to={`/buyer/product/${item.id}`}
-              className="rounded-md border border-slate-200 p-3 hover:bg-slate-50"
-            >
-              <p className="font-medium text-slate-800">{item.name}</p>
-              <p className="text-sm text-slate-600">{formatDzd(item.price)}</p>
-            </Link>
-          ))}
-        </div>
-      </div>
+      </Reveal>
     </section>
   )
 }
-
-

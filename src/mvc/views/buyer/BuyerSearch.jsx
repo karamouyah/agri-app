@@ -1,7 +1,9 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { addToCart, buyerFilterOptions, searchProducts } from '../../controllers/buyerController'
 import { formatDzdPerUnit } from '../../../utils/currency'
+import PageHero from '../../../components/PageHero'
+import AgriIllustration from '../../../components/AgriIllustration'
 
 const initialFilters = {
   category: '',
@@ -53,30 +55,36 @@ export default function BuyerSearch() {
 
   return (
     <section className="agri-page space-y-5">
+      <PageHero
+        eyebrow="Fresh Marketplace"
+        title="Browse approved produce listings"
+        description="Filter by category, price, quality, and region in a brighter, more visual product search experience."
+        variant="buyer"
+        badge="Live approved catalog"
+        stats={[
+          { label: 'Results', value: data.total, help: 'Products matched right now' },
+          { label: 'Pages', value: data.totalPages, help: 'Responsive browsing with pagination' },
+          { label: 'Quality', value: 'Verified', help: 'Controlled catalog with visible pricing' },
+        ]}
+      />
+
       <div className="section-shell rounded-lg border border-slate-200 bg-white p-5">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Fresh marketplace</p>
-            <h2 className="text-xl font-semibold text-slate-800">Product Search</h2>
-            <p className="mt-1 text-sm text-slate-600">Browse approved produce listings with fast filters and clear price visibility.</p>
-          </div>
-          <div className="badge-soft px-3 py-1.5 text-xs">Live approved catalog</div>
-        </div>
-        <form onSubmit={handleSearch} className="mt-4 flex gap-2">
+        <form onSubmit={handleSearch} className="mt-1 flex flex-col gap-2 sm:flex-row">
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search products, farmers, keywords..."
             className="w-full rounded-md border border-slate-300 px-3 py-2.5 outline-none focus:border-emerald-500"
           />
-          <button
-            type="submit"
-            className="btn-primary px-4 py-2.5 text-sm font-medium text-white"
-          >
+          <button type="submit" className="btn-primary px-4 py-2.5 text-sm font-medium text-white">
             Search
           </button>
         </form>
-        {message && <p className="mt-3 rounded-2xl border border-emerald-100 bg-gradient-to-r from-emerald-50 to-amber-50 px-3 py-2 text-sm text-emerald-700">{message}</p>}
+        {message ? (
+          <p className="mt-3 rounded-2xl border border-emerald-100 bg-gradient-to-r from-emerald-50 to-amber-50 px-3 py-2 text-sm text-emerald-700">
+            {message}
+          </p>
+        ) : null}
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[260px_1fr]">
@@ -187,6 +195,10 @@ export default function BuyerSearch() {
               Clear Filters
             </button>
           </div>
+
+          <div className="media-shell mt-4 p-2">
+            <AgriIllustration variant="hero" className="h-48" />
+          </div>
         </aside>
 
         <div className="space-y-4">
@@ -195,10 +207,10 @@ export default function BuyerSearch() {
               {data.items.map((product) => (
                 <article
                   key={product.id}
-                  className="section-shell rounded-lg border border-slate-200 bg-white p-4 transition hover:-translate-y-1"
+                  className="section-shell lift-card rounded-lg border border-slate-200 bg-white p-4 transition hover:-translate-y-1"
                 >
-                  <div className="mb-3 flex h-36 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-50 via-white to-amber-50 text-center text-xs font-semibold tracking-[0.16em] text-emerald-700">
-                    Fresh Produce
+                  <div className="media-shell mb-3 p-2">
+                    <AgriIllustration variant="hero" className="h-28" />
                   </div>
                   <div className="flex items-start justify-between gap-3">
                     <div>
@@ -225,8 +237,11 @@ export default function BuyerSearch() {
               ))}
             </div>
           ) : (
-            <div className="empty-state px-6 py-12 text-center">
-              <h3 className="text-lg font-semibold text-slate-900">No products matched your filters</h3>
+            <div className="empty-state px-6 py-10 text-center">
+              <div className="mx-auto max-w-sm">
+                <AgriIllustration variant="empty" className="mx-auto h-44" />
+              </div>
+              <h3 className="mt-3 text-lg font-semibold text-slate-900">No products matched your filters</h3>
               <p className="mt-2 text-sm text-slate-600">
                 Try a broader search, remove a few filters, or explore another region.
               </p>
@@ -261,5 +276,3 @@ export default function BuyerSearch() {
     </section>
   )
 }
-
-

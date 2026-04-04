@@ -1,5 +1,6 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { FiCreditCard, FiMapPin, FiTruck } from 'react-icons/fi'
 import {
   calculateCartTotals,
   getCart,
@@ -7,6 +8,8 @@ import {
   placeOrder,
 } from '../../controllers/buyerController'
 import { formatDzd } from '../../../utils/currency'
+import AgriIllustration from '../../../components/AgriIllustration'
+import Reveal from '../../../components/Reveal'
 
 const initialAddress = {
   fullName: '',
@@ -64,114 +67,117 @@ export default function BuyerCheckout() {
 
   return (
     <section className="agri-page space-y-5">
-      <div className="rounded-lg border border-slate-200 bg-white p-5">
-        <h2 className="text-xl font-semibold text-slate-800">Place Order</h2>
-      </div>
-
-      <form onSubmit={handleSubmit} className="grid gap-4 lg:grid-cols-[1fr_320px]">
-        <div className="space-y-4 rounded-lg border border-slate-200 bg-white p-5">
-          <h3 className="text-base font-semibold text-slate-800">Shipping Address</h3>
-          <div className="grid gap-3 md:grid-cols-2">
-            <input
-              name="fullName"
-              required
-              value={address.fullName}
-              onChange={handleAddressChange}
-              placeholder="Full name"
-              className="rounded-md border border-slate-300 px-3 py-2"
-            />
-            <input
-              name="phone"
-              required
-              value={address.phone}
-              onChange={handleAddressChange}
-              placeholder="Phone"
-              className="rounded-md border border-slate-300 px-3 py-2"
-            />
-            <input
-              name="address"
-              required
-              value={address.address}
-              onChange={handleAddressChange}
-              placeholder="Street address"
-              className="md:col-span-2 rounded-md border border-slate-300 px-3 py-2"
-            />
-            <input
-              name="city"
-              required
-              value={address.city}
-              onChange={handleAddressChange}
-              placeholder="City"
-              className="rounded-md border border-slate-300 px-3 py-2"
-            />
-            <input
-              name="postalCode"
-              required
-              value={address.postalCode}
-              onChange={handleAddressChange}
-              placeholder="Postal code"
-              className="rounded-md border border-slate-300 px-3 py-2"
-            />
+      <Reveal>
+        <div className="grid gap-4 rounded-lg border border-slate-200 bg-white p-5 lg:grid-cols-[1.05fr_0.95fr]">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Checkout</p>
+            <h2 className="mt-2 text-3xl font-bold text-slate-900">Shipping and payment</h2>
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              <div className="surface-muted p-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Items</p>
+                <p className="mt-1 text-2xl font-bold text-slate-900">{cartItems.length}</p>
+              </div>
+              <div className="surface-muted p-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Delivery</p>
+                <p className="mt-1 text-2xl font-bold text-slate-900">Ready</p>
+              </div>
+              <div className="surface-muted p-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Total</p>
+                <p className="mt-1 text-2xl font-bold text-emerald-700">{formatDzd(totals.total)}</p>
+              </div>
+            </div>
           </div>
 
-          <h3 className="text-base font-semibold text-slate-800">Payment Method</h3>
-          <div className="space-y-2 text-sm text-slate-700">
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                name="payment"
-                value="cash_on_delivery"
-                checked={paymentMethod === 'cash_on_delivery'}
-                onChange={(event) => setPaymentMethod(event.target.value)}
-              />
-              Cash on Delivery
-            </label>
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                name="payment"
-                value="card"
-                checked={paymentMethod === 'card'}
-                onChange={(event) => setPaymentMethod(event.target.value)}
-              />
-              Card
-            </label>
+          <div className="media-shell p-3">
+            <AgriIllustration variant="transporter" className="h-48" />
           </div>
         </div>
+      </Reveal>
 
-        <aside className="h-fit rounded-lg border border-slate-200 bg-white p-4 text-sm">
-          <h3 className="text-base font-semibold text-slate-800">Order Summary</h3>
-          <div className="mt-3 space-y-2 text-slate-700">
-            <p className="flex items-center justify-between">
-              <span>Items</span>
-              <span>{cartItems.length}</span>
-            </p>
-            <p className="flex items-center justify-between">
-              <span>Subtotal</span>
-              <span>{formatDzd(totals.subtotal)}</span>
-            </p>
-            <p className="flex items-center justify-between">
-              <span>Taxes</span>
-              <span>{formatDzd(totals.taxes)}</span>
-            </p>
-            <p className="flex items-center justify-between border-t border-slate-200 pt-2 font-semibold">
-              <span>Total</span>
-              <span>{formatDzd(totals.total)}</span>
-            </p>
+      <form onSubmit={handleSubmit} className="grid gap-4 lg:grid-cols-[1fr_320px]">
+        <Reveal delay={40}>
+          <div className="space-y-4 rounded-lg border border-slate-200 bg-white p-5">
+            <div className="flex items-center gap-2">
+              <FiMapPin className="text-emerald-700" />
+              <h3 className="text-base font-bold text-slate-900">Shipping</h3>
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-2">
+              <input name="fullName" required value={address.fullName} onChange={handleAddressChange} placeholder="Full name" className="field-control px-3 py-2" />
+              <input name="phone" required value={address.phone} onChange={handleAddressChange} placeholder="Phone" className="field-control px-3 py-2" />
+              <input name="address" required value={address.address} onChange={handleAddressChange} placeholder="Street" className="field-control md:col-span-2 px-3 py-2" />
+              <input name="city" required value={address.city} onChange={handleAddressChange} placeholder="City" className="field-control px-3 py-2" />
+              <input name="postalCode" required value={address.postalCode} onChange={handleAddressChange} placeholder="Postal code" className="field-control px-3 py-2" />
+            </div>
+
+            <div className="soft-divider" />
+
+            <div className="flex items-center gap-2">
+              <FiCreditCard className="text-emerald-700" />
+              <h3 className="text-base font-bold text-slate-900">Payment</h3>
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-2">
+              <label className={`surface-muted flex cursor-pointer items-center gap-3 p-3 ${paymentMethod === 'cash_on_delivery' ? 'border border-emerald-300 bg-emerald-50' : ''}`}>
+                <input
+                  type="radio"
+                  name="payment"
+                  value="cash_on_delivery"
+                  checked={paymentMethod === 'cash_on_delivery'}
+                  onChange={(event) => setPaymentMethod(event.target.value)}
+                />
+                <span className="text-sm font-medium text-slate-800">Cash on delivery</span>
+              </label>
+              <label className={`surface-muted flex cursor-pointer items-center gap-3 p-3 ${paymentMethod === 'card' ? 'border border-emerald-300 bg-emerald-50' : ''}`}>
+                <input
+                  type="radio"
+                  name="payment"
+                  value="card"
+                  checked={paymentMethod === 'card'}
+                  onChange={(event) => setPaymentMethod(event.target.value)}
+                />
+                <span className="text-sm font-medium text-slate-800">Card</span>
+              </label>
+            </div>
           </div>
+        </Reveal>
 
-          <button
-            type="submit"
-            disabled={loading || cartItems.length === 0}
-            className="mt-4 w-full rounded-md bg-emerald-600 px-4 py-2 font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
-          >
-            {loading ? 'Placing order...' : 'Place Order'}
-          </button>
-          {error && <p className="mt-3 text-xs text-red-600">{error}</p>}
-        </aside>
+        <Reveal delay={90}>
+          <aside className="h-fit rounded-lg border border-slate-200 bg-white p-4 text-sm">
+            <div className="flex items-center gap-2">
+              <FiTruck className="text-emerald-700" />
+              <h3 className="text-base font-bold text-slate-900">Order summary</h3>
+            </div>
+            <div className="mt-3 space-y-2 text-slate-700">
+              <p className="flex items-center justify-between">
+                <span>Items</span>
+                <span>{cartItems.length}</span>
+              </p>
+              <p className="flex items-center justify-between">
+                <span>Subtotal</span>
+                <span>{formatDzd(totals.subtotal)}</span>
+              </p>
+              <p className="flex items-center justify-between">
+                <span>Taxes</span>
+                <span>{formatDzd(totals.taxes)}</span>
+              </p>
+              <p className="flex items-center justify-between border-t border-slate-200 pt-2 font-semibold">
+                <span>Total</span>
+                <span>{formatDzd(totals.total)}</span>
+              </p>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading || cartItems.length === 0}
+              className="btn-primary mt-4 w-full px-4 py-3 text-sm disabled:opacity-60"
+            >
+              {loading ? 'Placing order...' : 'Place order'}
+            </button>
+            {error ? <p className="mt-3 text-xs font-medium text-red-600">{error}</p> : null}
+          </aside>
+        </Reveal>
       </form>
     </section>
   )
 }
-
-

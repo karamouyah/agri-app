@@ -1,8 +1,10 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { FiCheckCircle, FiFeather, FiShield, FiTruck } from 'react-icons/fi'
 import { useAuth } from '../../context/AuthContext'
 import { getDashboardPath } from '../../utils/roleRoutes'
+import BrandLogo from '../../components/BrandLogo'
+import AgriIllustration from '../../components/AgriIllustration'
 
 const trustPoints = [
   { icon: FiFeather, text: 'Fresh-produce marketplace workflows' },
@@ -53,7 +55,8 @@ export default function LoginPage() {
           <div className="absolute -bottom-14 -left-10 h-56 w-56 rounded-full bg-lime-200/55 blur-3xl" />
 
           <div className="relative">
-            <p className="badge-soft px-3 py-1 text-xs">
+            <BrandLogo size="sm" />
+            <p className="badge-soft mt-4 px-3 py-1 text-xs">
               <FiCheckCircle />
               AgriGov Secure Access
             </p>
@@ -70,7 +73,10 @@ export default function LoginPage() {
               {trustPoints.map((item) => {
                 const Icon = item.icon
                 return (
-                  <div key={item.text} className="surface-muted flex items-center gap-3 px-3 py-3 text-sm shadow-[0_10px_24px_rgba(65,88,74,0.06)]">
+                  <div
+                    key={item.text}
+                    className="surface-muted lift-card flex items-center gap-3 px-3 py-3 text-sm shadow-[0_10px_24px_rgba(65,88,74,0.06)]"
+                  >
                     <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-100 to-amber-50 text-emerald-700">
                       <Icon />
                     </span>
@@ -79,15 +85,23 @@ export default function LoginPage() {
                 )
               })}
             </div>
+
+            <div className="media-shell mt-6 p-3">
+              <AgriIllustration variant="auth" className="h-60" />
+            </div>
           </div>
         </aside>
 
-        <section className="surface-card section-shell p-6 md:p-8">
+        <section className="surface-card section-shell motion-fade-up p-6 md:p-8">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Account Login</p>
             <h2 className="mt-2 text-2xl font-bold text-slate-900">Sign in to your workspace</h2>
             <p className="mt-1 text-sm text-slate-600">Use your approved account to continue.</p>
-            {notice && <p className="mt-3 rounded-2xl border border-emerald-100 bg-gradient-to-r from-emerald-50 to-amber-50 px-3 py-2.5 text-sm text-emerald-700">{notice}</p>}
+            {notice ? (
+              <p className="mt-3 rounded-2xl border border-emerald-100 bg-gradient-to-r from-emerald-50 to-amber-50 px-3 py-2.5 text-sm text-emerald-700">
+                {notice}
+              </p>
+            ) : null}
           </div>
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -124,7 +138,7 @@ export default function LoginPage() {
               />
             </div>
 
-            {error && <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+            {error ? <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p> : null}
 
             <button
               type="submit"

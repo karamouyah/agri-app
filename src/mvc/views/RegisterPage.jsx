@@ -1,7 +1,9 @@
-﻿import { useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { FiCheckCircle, FiFeather, FiShield, FiTruck } from 'react-icons/fi'
 import { register as registerUser } from '../controllers/authController'
+import BrandLogo from '../../components/BrandLogo'
+import AgriIllustration from '../../components/AgriIllustration'
 
 const PHONE_REGEX = /^\+?[0-9()\-\s]{7,20}$/
 const APPROVAL_NOTICE = 'Your account has been created and is waiting for ministry approval.'
@@ -53,6 +55,21 @@ const roleFieldConfig = {
   },
 }
 
+const trustPoints = [
+  {
+    icon: FiShield,
+    text: 'Every new account is reviewed by the ministry before activation.',
+  },
+  {
+    icon: FiFeather,
+    text: 'Role-specific onboarding for farmers, buyers, and transporters.',
+  },
+  {
+    icon: FiTruck,
+    text: 'Clean flow from farm listing to delivery and fulfillment.',
+  },
+]
+
 const validateForm = (formData) => {
   if (!formData.name.trim() || !formData.email.trim() || !formData.password || !formData.role) {
     return 'Name, email, password, and role are required.'
@@ -77,21 +94,6 @@ const validateForm = (formData) => {
 
   return ''
 }
-
-const trustPoints = [
-  {
-    icon: FiShield,
-    text: 'Every new account is reviewed by the ministry before activation.',
-  },
-  {
-    icon: FiFeather,
-    text: 'Role-specific onboarding for farmers, buyers, and transporters.',
-  },
-  {
-    icon: FiTruck,
-    text: 'Clean flow from farm listing to delivery and fulfillment.',
-  },
-]
 
 export default function RegisterPage() {
   const navigate = useNavigate()
@@ -144,7 +146,8 @@ export default function RegisterPage() {
           <div className="absolute -bottom-20 -left-14 h-56 w-56 rounded-full bg-lime-200/50 blur-3xl" />
 
           <div className="relative">
-            <p className="badge-soft px-3 py-1 text-xs">
+            <BrandLogo size="sm" />
+            <p className="badge-soft mt-4 px-3 py-1 text-xs">
               <FiCheckCircle />
               Ministry-verified onboarding
             </p>
@@ -161,7 +164,10 @@ export default function RegisterPage() {
               {trustPoints.map((item) => {
                 const Icon = item.icon
                 return (
-                  <article key={item.text} className="surface-muted flex items-center gap-3 px-3 py-3 text-sm shadow-[0_10px_24px_rgba(65,88,74,0.06)]">
+                  <article
+                    key={item.text}
+                    className="surface-muted lift-card flex items-center gap-3 px-3 py-3 text-sm shadow-[0_10px_24px_rgba(65,88,74,0.06)]"
+                  >
                     <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-100 to-amber-50 text-emerald-700">
                       <Icon />
                     </span>
@@ -170,10 +176,14 @@ export default function RegisterPage() {
                 )
               })}
             </div>
+
+            <div className="media-shell mt-6 p-3">
+              <AgriIllustration variant="auth" className="h-60" />
+            </div>
           </div>
         </aside>
 
-        <section className="surface-card section-shell p-6 md:p-8">
+        <section className="surface-card section-shell motion-fade-up p-6 md:p-8">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Create Account</p>
             <h2 className="mt-2 text-2xl font-bold text-slate-900">Role-based signup</h2>
@@ -243,7 +253,7 @@ export default function RegisterPage() {
               />
             </div>
 
-            {roleConfig.requiresPhone && (
+            {roleConfig.requiresPhone ? (
               <div>
                 <label htmlFor="phone" className="mb-1 block text-sm font-semibold text-slate-700">
                   Phone Number
@@ -259,14 +269,11 @@ export default function RegisterPage() {
                   className="field-control w-full px-3 py-2.5"
                 />
               </div>
-            )}
+            ) : null}
 
-            {roleConfig.extraField && (
+            {roleConfig.extraField ? (
               <div>
-                <label
-                  htmlFor={roleConfig.extraField.id}
-                  className="mb-1 block text-sm font-semibold text-slate-700"
-                >
+                <label htmlFor={roleConfig.extraField.id} className="mb-1 block text-sm font-semibold text-slate-700">
                   {roleConfig.extraField.label}
                 </label>
                 <input
@@ -278,13 +285,13 @@ export default function RegisterPage() {
                   placeholder={roleConfig.extraField.placeholder}
                   className="field-control w-full px-3 py-2.5"
                 />
-                {formData.role === 'farmer' && (
+                {formData.role === 'farmer' ? (
                   <p className="mt-1 text-xs text-slate-500">Each farm address can only be registered once.</p>
-                )}
+                ) : null}
               </div>
-            )}
+            ) : null}
 
-            {error && <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+            {error ? <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p> : null}
 
             <button
               type="submit"

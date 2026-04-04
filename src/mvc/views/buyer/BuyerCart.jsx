@@ -1,5 +1,6 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { FiArrowRight, FiPackage, FiShoppingCart, FiTrash2 } from 'react-icons/fi'
 import {
   calculateCartTotals,
   getCart,
@@ -7,6 +8,8 @@ import {
   updateCartQuantity,
 } from '../../controllers/buyerController'
 import { formatDzd } from '../../../utils/currency'
+import AgriIllustration from '../../../components/AgriIllustration'
+import Reveal from '../../../components/Reveal'
 
 export default function BuyerCart() {
   const navigate = useNavigate()
@@ -35,90 +38,124 @@ export default function BuyerCart() {
 
   return (
     <section className="agri-page space-y-5">
-      <div className="rounded-lg border border-slate-200 bg-white p-5">
-        <h2 className="text-xl font-semibold text-slate-800">Cart</h2>
-      </div>
+      <Reveal>
+        <div className="grid gap-4 rounded-lg border border-slate-200 bg-white p-5 lg:grid-cols-[1.05fr_0.95fr]">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Buyer Cart</p>
+            <h2 className="mt-2 text-3xl font-bold text-slate-900">Review your selection</h2>
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              <div className="surface-muted p-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Items</p>
+                <p className="mt-1 text-2xl font-bold text-slate-900">{items.length}</p>
+              </div>
+              <div className="surface-muted p-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Subtotal</p>
+                <p className="mt-1 text-2xl font-bold text-slate-900">{formatDzd(totals.subtotal)}</p>
+              </div>
+              <div className="surface-muted p-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Total</p>
+                <p className="mt-1 text-2xl font-bold text-emerald-700">{formatDzd(totals.total)}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="media-shell p-3">
+            <AgriIllustration variant="buyer" className="h-48" />
+          </div>
+        </div>
+      </Reveal>
 
       <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
-        <div className="rounded-lg border border-slate-200 bg-white p-4">
-          {items.length === 0 ? (
-            <div className="space-y-2 text-sm text-slate-600">
-              <p>Your cart is empty.</p>
-              <Link to="/buyer/search" className="font-medium text-emerald-700 hover:underline">
-                Browse products
-              </Link>
-            </div>
-          ) : (
-            <table className="min-w-full text-left text-sm">
-              <thead className="bg-slate-100 text-slate-600">
-                <tr>
-                  <th className="px-3 py-2">Product</th>
-                  <th className="px-3 py-2">Quantity</th>
-                  <th className="px-3 py-2">Unit Price</th>
-                  <th className="px-3 py-2">Total</th>
-                  <th className="px-3 py-2">Action</th>
-                </tr>
-              </thead>
-              <tbody>
+        <Reveal delay={40}>
+          <div className="rounded-lg border border-slate-200 bg-white p-4">
+            {items.length === 0 ? (
+              <div className="empty-state space-y-3 px-5 py-8 text-center">
+                <div className="mx-auto max-w-xs">
+                  <AgriIllustration variant="empty" className="h-36" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-900">Cart is empty</h3>
+                <Link to="/buyer/search" className="btn-secondary inline-flex px-4 py-2 text-sm">
+                  Browse products
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-3">
                 {items.map((item) => (
-                  <tr key={item.productId} className="border-b border-slate-100">
-                    <td className="px-3 py-2">{item.name}</td>
-                    <td className="px-3 py-2">
+                  <div key={item.productId} className="surface-muted lift-card flex flex-col gap-3 p-4 md:flex-row md:items-center md:justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
+                        <FiPackage />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-slate-900">{item.name}</p>
+                        <p className="text-sm text-slate-500">{formatDzd(item.unitPrice)} each</p>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2">
                       <input
                         type="number"
                         min="1"
                         value={item.quantity}
                         onChange={(event) => handleQuantityChange(item.productId, event.target.value)}
-                        className="w-20 rounded-md border border-slate-300 px-2 py-1"
+                        className="field-control w-20 px-3 py-2 text-sm"
                       />
-                    </td>
-                    <td className="px-3 py-2">{formatDzd(item.unitPrice)}</td>
-                    <td className="px-3 py-2">{formatDzd(item.unitPrice * item.quantity)}</td>
-                    <td className="px-3 py-2">
+                      <span className="min-w-24 text-sm font-semibold text-slate-900">
+                        {formatDzd(item.unitPrice * item.quantity)}
+                      </span>
                       <button
                         type="button"
                         onClick={() => handleRemove(item.productId)}
-                        className="rounded-md border border-red-300 px-2 py-1 text-xs text-red-700 hover:bg-red-50"
+                        className="btn-secondary px-3 py-2 text-sm text-red-700"
                       >
-                        Remove
+                        <span className="inline-flex items-center gap-2">
+                          <FiTrash2 />
+                          Remove
+                        </span>
                       </button>
-                    </td>
-                  </tr>
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-
-        <aside className="h-fit rounded-lg border border-slate-200 bg-white p-4 text-sm">
-          <h3 className="text-base font-semibold text-slate-800">Summary</h3>
-          <div className="mt-3 space-y-2 text-slate-700">
-            <p className="flex items-center justify-between">
-              <span>Subtotal</span>
-              <span>{formatDzd(totals.subtotal)}</span>
-            </p>
-            <p className="flex items-center justify-between">
-              <span>Taxes (10%)</span>
-              <span>{formatDzd(totals.taxes)}</span>
-            </p>
-            <p className="flex items-center justify-between border-t border-slate-200 pt-2 font-semibold">
-              <span>Total</span>
-              <span>{formatDzd(totals.total)}</span>
-            </p>
+              </div>
+            )}
           </div>
+        </Reveal>
 
-          <button
-            type="button"
-            disabled={items.length === 0}
-            onClick={() => navigate('/buyer/checkout')}
-            className="mt-4 w-full rounded-md bg-emerald-600 px-4 py-2 font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
-          >
-            Proceed to Checkout
-          </button>
-        </aside>
+        <Reveal delay={90}>
+          <aside className="h-fit rounded-lg border border-slate-200 bg-white p-4 text-sm">
+            <div className="flex items-center gap-2">
+              <FiShoppingCart className="text-emerald-700" />
+              <h3 className="text-base font-bold text-slate-900">Summary</h3>
+            </div>
+            <div className="mt-3 space-y-2 text-slate-700">
+              <p className="flex items-center justify-between">
+                <span>Subtotal</span>
+                <span>{formatDzd(totals.subtotal)}</span>
+              </p>
+              <p className="flex items-center justify-between">
+                <span>Taxes</span>
+                <span>{formatDzd(totals.taxes)}</span>
+              </p>
+              <p className="flex items-center justify-between border-t border-slate-200 pt-2 font-semibold">
+                <span>Total</span>
+                <span>{formatDzd(totals.total)}</span>
+              </p>
+            </div>
+
+            <button
+              type="button"
+              disabled={items.length === 0}
+              onClick={() => navigate('/buyer/checkout')}
+              className="btn-primary mt-4 w-full px-4 py-3 text-sm disabled:opacity-60"
+            >
+              <span className="inline-flex items-center gap-2">
+                <FiArrowRight />
+                Checkout
+              </span>
+            </button>
+          </aside>
+        </Reveal>
       </div>
     </section>
   )
 }
-
-

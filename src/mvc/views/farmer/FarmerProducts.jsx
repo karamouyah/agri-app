@@ -7,6 +7,8 @@ import {
   updateProduct,
 } from '../../controllers/farmerController'
 import { formatDzd, formatDzdRange } from '../../../utils/currency'
+import AgriIllustration from '../../../components/AgriIllustration'
+import Reveal from '../../../components/Reveal'
 
 const initialForm = {
   id: null,
@@ -190,22 +192,27 @@ export default function FarmerProducts() {
 
   return (
     <section className="space-y-4">
-      <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-5">
-        <div>
-          <h2 className="text-xl font-semibold text-slate-800">Controlled Product Listings</h2>
-          <p className="text-sm text-slate-600">
-            Farmers can only list approved catalog products with prices inside the allowed DZD range.
-          </p>
+      <Reveal>
+        <div className="grid gap-4 rounded-lg border border-slate-200 bg-white p-5 lg:grid-cols-[1fr_280px]">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Listings</p>
+              <h2 className="text-2xl font-semibold text-slate-800">Approved products only</h2>
+            </div>
+            <button
+              type="button"
+              onClick={openCreateModal}
+              className="btn-primary px-4 py-2 text-sm disabled:cursor-not-allowed disabled:bg-slate-300"
+              disabled={catalog.length === 0}
+            >
+              Add Product
+            </button>
+          </div>
+          <div className="media-shell p-2">
+            <AgriIllustration variant="farmer" className="h-36" />
+          </div>
         </div>
-        <button
-          type="button"
-          onClick={openCreateModal}
-          className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
-          disabled={catalog.length === 0}
-        >
-          Add Product
-        </button>
-      </div>
+      </Reveal>
 
       {pageError && (
         <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">

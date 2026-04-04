@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Bar,
@@ -13,6 +13,7 @@ import { FiArrowRight, FiClipboard, FiDollarSign, FiShoppingBag, FiTrendingUp } 
 import { getOrders, getRevenueData } from '../../controllers/farmerController'
 import { useAuth } from '../../../context/AuthContext'
 import { formatDzd } from '../../../utils/currency'
+import PageHero from '../../../components/PageHero'
 
 export default function FarmerDashboard() {
   const { user } = useAuth()
@@ -35,19 +36,17 @@ export default function FarmerDashboard() {
 
   return (
     <section className="agri-page space-y-6">
-      <div className="surface-card relative overflow-hidden p-6 md:p-7">
-        <div className="absolute -right-14 -top-14 h-44 w-44 rounded-full bg-emerald-200/50 blur-3xl" />
-        <div className="absolute -bottom-16 -left-8 h-40 w-40 rounded-full bg-lime-200/50 blur-3xl" />
-        <div className="relative">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Farm Command Center</p>
-          <h2 className="mt-2 text-2xl font-bold text-slate-900 md:text-3xl">
-            Welcome back, {user?.farmName || user?.name || 'Farmer'}
-          </h2>
-          <p className="mt-2 text-sm text-slate-600 md:text-base">
-            Monitor production performance, manage orders, and keep your marketplace flow healthy.
-          </p>
-        </div>
-      </div>
+      <PageHero
+        eyebrow="Farm Command Center"
+        title={`Welcome back, ${user?.farmName || user?.name || 'Farmer'}`}
+        description="Monitor sales momentum, keep listings healthy, and respond to incoming demand with a clearer, more premium workspace."
+        variant="farmer"
+        stats={[
+          { label: 'Monthly Earnings', value: formatDzd(revenue.total), help: 'Tracked transactions this month' },
+          { label: 'Pending Orders', value: pendingCount, help: 'Awaiting confirmation or preparation' },
+          { label: 'Delivered', value: deliveredCount, help: 'Completed shipments' },
+        ]}
+      />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <article className="surface-card p-5">
@@ -102,7 +101,7 @@ export default function FarmerDashboard() {
           <div className="mt-4 space-y-3 text-sm">
             <Link
               to="/farmer/products"
-              className="surface-muted flex items-center justify-between px-3 py-2.5 text-slate-700 transition hover:border-emerald-300"
+              className="surface-muted lift-card flex items-center justify-between px-3 py-2.5 text-slate-700 transition hover:border-emerald-300"
             >
               <span className="inline-flex items-center gap-2 font-semibold">
                 <FiShoppingBag />
@@ -112,7 +111,7 @@ export default function FarmerDashboard() {
             </Link>
             <Link
               to="/farmer/orders"
-              className="surface-muted flex items-center justify-between px-3 py-2.5 text-slate-700 transition hover:border-emerald-300"
+              className="surface-muted lift-card flex items-center justify-between px-3 py-2.5 text-slate-700 transition hover:border-emerald-300"
             >
               <span className="inline-flex items-center gap-2 font-semibold">
                 <FiClipboard />
@@ -122,7 +121,7 @@ export default function FarmerDashboard() {
             </Link>
             <Link
               to="/farmer/revenues"
-              className="surface-muted flex items-center justify-between px-3 py-2.5 text-slate-700 transition hover:border-emerald-300"
+              className="surface-muted lift-card flex items-center justify-between px-3 py-2.5 text-slate-700 transition hover:border-emerald-300"
             >
               <span className="inline-flex items-center gap-2 font-semibold">
                 <FiDollarSign />
@@ -161,13 +160,13 @@ export default function FarmerDashboard() {
                   </td>
                 </tr>
               ))}
-              {recentOrders.length === 0 && (
+              {recentOrders.length === 0 ? (
                 <tr>
                   <td className="px-3 py-4 text-slate-500" colSpan={5}>
                     No recent orders yet.
                   </td>
                 </tr>
-              )}
+              ) : null}
             </tbody>
           </table>
         </div>

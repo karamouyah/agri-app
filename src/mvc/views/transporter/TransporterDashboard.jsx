@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FiCheckCircle, FiClock, FiTruck, FiXCircle } from 'react-icons/fi'
 import {
@@ -7,16 +7,14 @@ import {
   getActiveDeliveries,
   getDeliveryRequests,
 } from '../../controllers/transporterController'
+import PageHero from '../../../components/PageHero'
 
 export default function TransporterDashboard() {
   const [requests, setRequests] = useState([])
   const [activeDeliveries, setActiveDeliveries] = useState([])
 
   const load = async () => {
-    const [pendingData, activeData] = await Promise.all([
-      getDeliveryRequests(),
-      getActiveDeliveries(),
-    ])
+    const [pendingData, activeData] = await Promise.all([getDeliveryRequests(), getActiveDeliveries()])
 
     setRequests(pendingData)
     setActiveDeliveries(activeData)
@@ -47,13 +45,17 @@ export default function TransporterDashboard() {
 
   return (
     <section className="agri-page space-y-5">
-      <div className="surface-card p-6 md:p-7">
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Logistics Workspace</p>
-        <h2 className="mt-2 text-2xl font-bold text-slate-900 md:text-3xl">Transporter Dashboard</h2>
-        <p className="mt-2 text-sm text-slate-600 md:text-base">
-          Keep deliveries efficient from pickup assignment to final handoff.
-        </p>
-      </div>
+      <PageHero
+        eyebrow="Logistics Workspace"
+        title="Keep deliveries efficient from pickup to handoff"
+        description="Handle mission requests, monitor live delivery work, and keep agricultural logistics moving with a cleaner operations dashboard."
+        variant="transporter"
+        stats={[
+          { label: 'Pending Requests', value: stats.pending, help: 'Available missions awaiting action' },
+          { label: 'Active Deliveries', value: stats.active, help: 'Accepted deliveries underway' },
+          { label: 'In Transit', value: stats.inTransit, help: 'Current missions on the road' },
+        ]}
+      />
 
       <div className="grid gap-4 sm:grid-cols-3">
         <article className="surface-card p-5">
@@ -119,13 +121,13 @@ export default function TransporterDashboard() {
                   </td>
                 </tr>
               ))}
-              {requests.length === 0 && (
+              {requests.length === 0 ? (
                 <tr>
                   <td className="px-3 py-4 text-slate-500" colSpan={5}>
                     No pending delivery requests.
                   </td>
                 </tr>
-              )}
+              ) : null}
             </tbody>
           </table>
         </div>
@@ -162,13 +164,13 @@ export default function TransporterDashboard() {
                   </td>
                 </tr>
               ))}
-              {activeDeliveries.length === 0 && (
+              {activeDeliveries.length === 0 ? (
                 <tr>
                   <td className="px-3 py-4 text-slate-500" colSpan={5}>
                     No active deliveries.
                   </td>
                 </tr>
-              )}
+              ) : null}
             </tbody>
           </table>
         </div>

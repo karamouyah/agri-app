@@ -1,4 +1,4 @@
-﻿import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import {
   FiBarChart2,
   FiBox,
@@ -10,10 +10,11 @@ import {
   FiSettings,
   FiShoppingBag,
   FiTruck,
-  FiUser,
   FiUsers,
 } from 'react-icons/fi'
 import { useAuth } from '../context/AuthContext'
+import BrandLogo from './BrandLogo'
+import AgriIllustration from './AgriIllustration'
 
 const navByRole = {
   farmer: [
@@ -30,9 +31,7 @@ const navByRole = {
     { to: '/buyer/orders', label: 'Orders', icon: FiClipboard },
     { to: '/buyer/invoices', label: 'Invoices', icon: FiDollarSign },
   ],
-  transporter: [
-    { to: '/transporter/dashboard', label: 'Dashboard', icon: FiTruck },
-  ],
+  transporter: [{ to: '/transporter/dashboard', label: 'Dashboard', icon: FiTruck }],
   ministry: [
     { to: '/admin/dashboard', label: 'Dashboard', icon: FiHome },
     { to: '/admin/users', label: 'Users', icon: FiUsers },
@@ -64,10 +63,15 @@ const roleMeta = {
   },
 }
 
-function UserDisplayName(user) {
+function userDisplayName(user) {
   if (!user) return 'User'
   if (user.name) return user.name
   return user.email || 'User'
+}
+
+function artVariant(role) {
+  if (role === 'ministry') return 'admin'
+  return role
 }
 
 export default function Layout({ role }) {
@@ -98,9 +102,12 @@ export default function Layout({ role }) {
       <div className="relative flex min-h-screen">
         <aside className="glass-panel hidden w-72 shrink-0 flex-col border-r border-white/50 bg-gradient-to-b from-[#fffdfa]/90 via-[#f6f5ec]/88 to-[#eef5ea]/85 text-slate-800 xl:flex">
           <div className="border-b border-[var(--line)] px-6 py-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">AgriGov Platform</p>
-            <h2 className="mt-2 text-2xl font-bold text-slate-900">{meta.badge}</h2>
-            <p className="mt-2 text-sm text-slate-600">{meta.subtitle}</p>
+            <BrandLogo size="sm" />
+            <div className="mt-5 rounded-[1.6rem] border border-white/60 bg-white/65 px-4 py-4 shadow-[0_16px_32px_rgba(41,76,54,0.08)]">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">{meta.badge}</p>
+              <h2 className="mt-2 text-2xl font-bold text-slate-900">{meta.label}</h2>
+              <p className="mt-2 text-sm leading-relaxed text-slate-600">{meta.subtitle}</p>
+            </div>
           </div>
 
           <nav className="flex-1 space-y-1 px-4 py-5">
@@ -112,14 +119,14 @@ export default function Layout({ role }) {
                   key={link.to}
                   to={link.to}
                   className={({ isActive }) =>
-                    `group flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-semibold transition ${
+                    `group lift-card flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-semibold transition ${
                       isActive
                         ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-white shadow-[0_16px_32px_rgba(53,132,71,0.28)]'
                         : 'text-slate-700 hover:bg-white/80 hover:text-slate-900'
                     }`
                   }
                 >
-                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 transition group-hover:bg-emerald-100">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 transition group-hover:scale-105 group-hover:bg-emerald-100">
                     <IconComponent className="text-base" />
                   </span>
                   {link.label}
@@ -127,6 +134,12 @@ export default function Layout({ role }) {
               )
             })}
           </nav>
+
+          <div className="px-4 pb-4">
+            <div className="media-shell p-3">
+              <AgriIllustration variant={artVariant(role)} className="h-44" />
+            </div>
+          </div>
 
           <div className="border-t border-[var(--line)] px-4 py-4">
             <button
@@ -142,16 +155,15 @@ export default function Layout({ role }) {
         <main className="flex min-w-0 flex-1 flex-col">
           <header className="glass-panel sticky top-0 z-30 border-b border-white/60 bg-white/70 px-4 py-4 md:px-8">
             <div className="mx-auto flex w-full max-w-7xl items-start justify-between gap-4">
-              <div>
+              <div className="motion-fade-up">
+                <BrandLogo size="sm" className="mb-3 xl:hidden" textClassName="hidden sm:block" />
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">{meta.badge}</p>
                 <h1 className="mt-1 text-2xl font-bold text-slate-900 md:text-3xl">{meta.label}</h1>
                 <p className="mt-1 text-sm text-slate-600">{activeLink?.label || meta.subtitle}</p>
               </div>
 
-              <div className="flex items-center gap-2">
-                <span className="badge-soft hidden px-3 py-2 text-sm md:inline-flex">
-                  {UserDisplayName(user)}
-                </span>
+              <div className="motion-fade-up motion-delay-1 flex items-center gap-2">
+                <span className="badge-soft hidden px-3 py-2 text-sm md:inline-flex">{userDisplayName(user)}</span>
                 <button
                   type="button"
                   onClick={handleLogout}
@@ -191,8 +203,11 @@ export default function Layout({ role }) {
             <Outlet />
           </div>
 
-          <footer className="border-t border-[var(--line)] bg-white/50 px-6 py-3 text-xs text-slate-500 backdrop-blur">
-            AgriGov Marketplace © 2026 · Ministry of Agriculture
+          <footer className="border-t border-[var(--line)] bg-white/50 px-6 py-5 text-xs text-slate-500 backdrop-blur">
+            <div className="mx-auto flex w-full max-w-7xl flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <BrandLogo size="sm" />
+              <p>AgriGov Market © 2026 · Direct agricultural trade, logistics, and ministry oversight</p>
+            </div>
           </footer>
         </main>
       </div>

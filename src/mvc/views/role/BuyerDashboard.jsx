@@ -1,5 +1,6 @@
-﻿import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { FiArrowRight, FiClipboard, FiCreditCard, FiSearch, FiShoppingCart } from 'react-icons/fi'
+import PageHero from '../../../components/PageHero'
 
 const actions = [
   {
@@ -37,16 +38,17 @@ const actions = [
 export default function BuyerDashboard() {
   return (
     <section className="agri-page space-y-5">
-      <div className="surface-card relative overflow-hidden p-6 md:p-7">
-        <div className="absolute -right-12 -top-14 h-44 w-44 rounded-full bg-emerald-200/50 blur-3xl" />
-        <div className="relative">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Buyer Control Panel</p>
-          <h2 className="mt-2 text-2xl font-bold text-slate-900 md:text-3xl">Source fresh produce with confidence</h2>
-          <p className="mt-2 text-sm text-slate-600 md:text-base">
-            Search verified suppliers, place orders, and track logistics in one marketplace workflow.
-          </p>
-        </div>
-      </div>
+      <PageHero
+        eyebrow="Buyer Control Panel"
+        title="Source fresh produce with confidence"
+        description="Discover verified farmers, compare listings with more visual clarity, and move from cart to delivery with a smoother marketplace journey."
+        variant="buyer"
+        stats={[
+          { label: 'Search', value: 'Fast', help: 'Filter by category, region, price, and quality' },
+          { label: 'Checkout', value: 'Structured', help: 'One-farmer orders keep procurement clean' },
+          { label: 'Tracking', value: 'Live', help: 'Order and logistics status in one place' },
+        ]}
+      />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {actions.map((action) => {
@@ -55,7 +57,7 @@ export default function BuyerDashboard() {
             <Link
               key={action.to}
               to={action.to}
-              className="surface-card group p-5 transition hover:-translate-y-0.5 hover:border-emerald-300"
+              className="surface-card group lift-card p-5 transition hover:-translate-y-0.5 hover:border-emerald-300"
             >
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
                 <Icon className="text-lg" />

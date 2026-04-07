@@ -12,6 +12,14 @@ const normalizeUser = (user) => ({
   farmAddress: user.farm_address || user.profile?.farm_address || '',
   vehicle: user.vehicle || user.profile?.vehicle || '',
   address: user.address || user.profile?.address || '',
+  wilayaId: Number(user.wilaya_id || user.profile?.wilaya_id || 0) || '',
+  wilayaName: user.wilaya_name || user.profile?.wilaya_name || '',
+  communeId: Number(user.commune_id || user.profile?.commune_id || 0) || '',
+  communeName: user.commune_name || user.profile?.commune_name || '',
+  locationLabel: user.location_label || user.profile?.location_label || '',
+  maxLoadKg: Number(user.max_load_kg || user.profile?.max_load_kg || 0) || '',
+  deliveryWilayas: user.delivery_wilayas || user.profile?.delivery_wilayas || [],
+  deliveryWilayaIds: user.delivery_wilaya_ids || user.profile?.delivery_wilaya_ids || [],
 })
 
 export const getNationalStats = () => apiRequest('/auth/admin/stats/')
@@ -20,6 +28,7 @@ export const getUsers = async (filters = {}) => {
   const search = new URLSearchParams()
   if (filters.role) search.set('role', filters.role)
   if (filters.approvalStatus) search.set('approval_status', filters.approvalStatus)
+  if (filters.wilaya) search.set('wilaya', filters.wilaya)
   const query = search.toString()
   const users = await apiRequest(`/auth/admin/users/${query ? `?${query}` : ''}`)
   return users.map(normalizeUser)

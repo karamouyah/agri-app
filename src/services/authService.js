@@ -29,6 +29,15 @@ const normalizeUser = (user) => {
     phone: phoneNumber,
     vehicle: getProfileValue(user, 'vehicle'),
     address: getProfileValue(user, 'address'),
+    streetAddress: getProfileValue(user, 'street_address'),
+    wilayaId: Number(getProfileValue(user, 'wilaya_id') || user.wilaya_id || 0) || '',
+    communeId: Number(getProfileValue(user, 'commune_id') || user.commune_id || 0) || '',
+    wilayaName: getProfileValue(user, 'wilaya_name') || user.wilaya_name || '',
+    communeName: getProfileValue(user, 'commune_name') || user.commune_name || '',
+    locationLabel: getProfileValue(user, 'location_label') || user.location_label || '',
+    maxLoadKg: Number(getProfileValue(user, 'max_load_kg') || user.max_load_kg || 0) || '',
+    deliveryWilayaIds: getProfileValue(user, 'delivery_wilaya_ids') || user.delivery_wilaya_ids || [],
+    deliveryWilayas: getProfileValue(user, 'delivery_wilayas') || user.delivery_wilayas || [],
     profile: user.profile || null,
   }
 }
@@ -42,6 +51,12 @@ const validateRegistrationPayload = (payload) => {
   const farmAddress = normalizeText(payload.farmAddress)
   const vehicle = normalizeText(payload.vehicle)
   const address = normalizeText(payload.address)
+  const wilayaId = Number(payload.wilayaId || payload.wilaya_id || 0)
+  const communeId = Number(payload.communeId || payload.commune_id || 0)
+  const maxLoadKg = Number(payload.maxLoadKg || payload.max_load_kg || 0)
+  const deliveryWilayaIds = Array.isArray(payload.deliveryWilayaIds || payload.delivery_wilaya_ids)
+    ? [...new Set((payload.deliveryWilayaIds || payload.delivery_wilaya_ids).map(Number).filter(Boolean))]
+    : []
 
   if (!name || !email || !password || !role) {
     throw new Error('Name, email, password, and role are required.')
@@ -71,8 +86,21 @@ const validateRegistrationPayload = (payload) => {
     throw new Error('Farm address is required for Farmer signup.')
   }
 
-  if (role === 'transporter' && !vehicle) {
-    throw new Error('Vehicle is required for Transporter signup.')
+  if (role === 'farmer' || role === 'buyer') {
+    if (!wilayaId) throw new Error('Wilaya is required.')
+    if (!communeId) throw new Error('Commune is required.')
+  }
+
+  if (role === 'transporter') {
+    if (!vehicle) {
+      throw new Error('Vehicle is required for Transporter signup.')
+    }
+    if (!Number.isFinite(maxLoadKg) || maxLoadKg <= 0) {
+      throw new Error('Maximum load capacity in KG is required and must be greater than zero.')
+    }
+    if (deliveryWilayaIds.length === 0) {
+      throw new Error('At least one delivery wilaya is required for Transporter signup.')
+    }
   }
 
   if (role === 'buyer' && !address) {
@@ -89,6 +117,10 @@ const validateRegistrationPayload = (payload) => {
     farmAddress,
     vehicle,
     address,
+    wilayaId,
+    communeId,
+    maxLoadKg,
+    deliveryWilayaIds,
   }
 }
 
@@ -124,6 +156,10 @@ export const registerUser = async (payload) => {
       farm_address: validated.farmAddress,
       vehicle: validated.vehicle,
       address: validated.address,
+      wilaya_id: validated.wilayaId,
+      commune_id: validated.communeId,
+      max_load_kg: validated.maxLoadKg,
+      delivery_wilaya_ids: validated.deliveryWilayaIds,
     },
   })
 

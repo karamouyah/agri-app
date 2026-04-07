@@ -2,14 +2,18 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { addToCart, buyerFilterOptions, searchProducts } from '../../controllers/buyerController'
 import { formatDzdPerUnit } from '../../../utils/currency'
+import LocationFields from '../../../components/LocationFields'
 import PageHero from '../../../components/PageHero'
 import AgriIllustration from '../../../components/AgriIllustration'
+import { Card, Input, Select, buttonStyles, cn } from '../../../components/ui'
 
 const initialFilters = {
   category: '',
   minPrice: '',
   maxPrice: '',
   location: '',
+  wilaya: '',
+  commune: '',
   quality: '',
 }
 
@@ -32,7 +36,11 @@ export default function BuyerSearch() {
 
   const handleFilterChange = (event) => {
     const { name, value } = event.target
-    setFilters((prev) => ({ ...prev, [name]: value }))
+    setFilters((prev) => ({
+      ...prev,
+      [name]: value,
+      ...(name === 'wilaya' ? { commune: '' } : {}),
+    }))
   }
 
   const handleSearch = async (event) => {
@@ -54,7 +62,7 @@ export default function BuyerSearch() {
   }
 
   return (
-    <section className="agri-page space-y-5">
+    <section className="app-page">
       <PageHero
         eyebrow="Fresh Marketplace"
         title="Browse approved produce listings"
@@ -68,39 +76,38 @@ export default function BuyerSearch() {
         ]}
       />
 
-      <div className="section-shell rounded-lg border border-slate-200 bg-white p-5">
+      <Card className="p-5">
         <form onSubmit={handleSearch} className="mt-1 flex flex-col gap-2 sm:flex-row">
-          <input
+          <Input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search products, farmers, keywords..."
-            className="w-full rounded-md border border-slate-300 px-3 py-2.5 outline-none focus:border-emerald-500"
           />
           <button type="submit" className="btn-primary px-4 py-2.5 text-sm font-medium text-white">
             Search
           </button>
         </form>
         {message ? (
-          <p className="mt-3 rounded-2xl border border-emerald-100 bg-gradient-to-r from-emerald-50 to-amber-50 px-3 py-2 text-sm text-emerald-700">
+          <p className="mt-3 rounded-2xl border border-emerald-100 bg-gradient-to-r from-emerald-50 to-amber-50 px-3 py-2 text-sm text-emerald-700 dark:border-emerald-900/40 dark:from-emerald-950/30 dark:to-slate-900 dark:text-emerald-300">
             {message}
           </p>
         ) : null}
-      </div>
+      </Card>
 
       <div className="grid gap-4 lg:grid-cols-[260px_1fr]">
-        <aside className="section-shell rounded-lg border border-slate-200 bg-white p-4">
-          <h3 className="text-sm font-semibold text-slate-800">Filters</h3>
+        <Card className="p-4">
+          <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">Filters</h3>
           <div className="mt-3 space-y-3 text-sm">
             <div>
-              <label htmlFor="category" className="mb-1 block text-slate-600">
+              <label htmlFor="category" className="mb-1 block text-slate-600 dark:text-slate-300">
                 Category
               </label>
-              <select
+              <Select
                 id="category"
                 name="category"
                 value={filters.category}
                 onChange={handleFilterChange}
-                className="w-full rounded-md border border-slate-300 px-2 py-1.5"
+                className="px-3 py-2"
               >
                 <option value="">All</option>
                 {buyerFilterOptions.categories.map((category) => (
@@ -108,69 +115,59 @@ export default function BuyerSearch() {
                     {category}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
 
             <div>
-              <label htmlFor="minPrice" className="mb-1 block text-slate-600">
+              <label htmlFor="minPrice" className="mb-1 block text-slate-600 dark:text-slate-300">
                 Min Price (DZD)
               </label>
-              <input
+              <Input
                 id="minPrice"
                 name="minPrice"
                 type="number"
                 min="0"
                 value={filters.minPrice}
                 onChange={handleFilterChange}
-                className="w-full rounded-md border border-slate-300 px-2 py-1.5"
+                className="px-3 py-2"
               />
             </div>
 
             <div>
-              <label htmlFor="maxPrice" className="mb-1 block text-slate-600">
+              <label htmlFor="maxPrice" className="mb-1 block text-slate-600 dark:text-slate-300">
                 Max Price (DZD)
               </label>
-              <input
+              <Input
                 id="maxPrice"
                 name="maxPrice"
                 type="number"
                 min="0"
                 value={filters.maxPrice}
                 onChange={handleFilterChange}
-                className="w-full rounded-md border border-slate-300 px-2 py-1.5"
+                className="px-3 py-2"
               />
             </div>
 
-            <div>
-              <label htmlFor="location" className="mb-1 block text-slate-600">
-                Farmer Region
-              </label>
-              <select
-                id="location"
-                name="location"
-                value={filters.location}
-                onChange={handleFilterChange}
-                className="w-full rounded-md border border-slate-300 px-2 py-1.5"
-              >
-                <option value="">All</option>
-                {buyerFilterOptions.locations.map((location) => (
-                  <option key={location} value={location}>
-                    {location}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <LocationFields
+              wilayaId={filters.wilaya}
+              communeId={filters.commune}
+              onChange={handleFilterChange}
+              wilayaName="wilaya"
+              communeName="commune"
+              hint="Filter listings by the farmer's Algeria wilaya and commune."
+              required={false}
+            />
 
             <div>
-              <label htmlFor="quality" className="mb-1 block text-slate-600">
+              <label htmlFor="quality" className="mb-1 block text-slate-600 dark:text-slate-300">
                 Quality
               </label>
-              <select
+              <Select
                 id="quality"
                 name="quality"
                 value={filters.quality}
                 onChange={handleFilterChange}
-                className="w-full rounded-md border border-slate-300 px-2 py-1.5"
+                className="px-3 py-2"
               >
                 <option value="">All</option>
                 {buyerFilterOptions.qualities.map((quality) => (
@@ -178,7 +175,7 @@ export default function BuyerSearch() {
                     {quality}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
 
             <button
@@ -199,30 +196,28 @@ export default function BuyerSearch() {
           <div className="media-shell mt-4 p-2">
             <AgriIllustration variant="hero" className="h-48" />
           </div>
-        </aside>
+        </Card>
 
         <div className="space-y-4">
           {data.items.length ? (
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {data.items.map((product) => (
-                <article
-                  key={product.id}
-                  className="section-shell lift-card rounded-lg border border-slate-200 bg-white p-4 transition hover:-translate-y-1"
-                >
+                <Card key={product.id} className="lift-card p-4">
                   <div className="media-shell mb-3 p-2">
                     <AgriIllustration variant="hero" className="h-28" />
                   </div>
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <h3 className="text-base font-semibold text-slate-800">{product.name}</h3>
-                      <p className="mt-1 text-xs uppercase tracking-[0.16em] text-emerald-700">{product.category}</p>
+                      <h3 className="text-base font-semibold text-slate-800 dark:text-slate-100">{product.name}</h3>
+                      <p className="mt-1 text-xs uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-300">{product.category}</p>
                     </div>
                     <span className="badge-soft px-2.5 py-1 text-[11px]">{product.unit}</span>
                   </div>
-                  <p className="mt-3 text-base font-bold text-slate-900">{formatDzdPerUnit(product.price, product.unit)}</p>
-                  <p className="mt-1 text-xs text-slate-500">Farmer: {product.farmerName}</p>
+                  <p className="mt-3 text-base font-bold text-slate-900 dark:text-slate-100">{formatDzdPerUnit(product.price, product.unit)}</p>
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Farmer: {product.farmerName}</p>
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Location: {product.farmerRegion || 'Unknown'}</p>
                   <div className="mt-4 flex items-center gap-2">
-                    <Link to={`/buyer/product/${product.id}`} className="btn-secondary px-3 py-1.5 text-xs">
+                    <Link to={`/buyer/product/${product.id}`} className={cn(buttonStyles.secondary, 'px-3 py-1.5 text-xs')}>
                       Details
                     </Link>
                     <button
@@ -233,7 +228,7 @@ export default function BuyerSearch() {
                       Add to Cart
                     </button>
                   </div>
-                </article>
+                </Card>
               ))}
             </div>
           ) : (
@@ -241,14 +236,14 @@ export default function BuyerSearch() {
               <div className="mx-auto max-w-sm">
                 <AgriIllustration variant="empty" className="mx-auto h-44" />
               </div>
-              <h3 className="mt-3 text-lg font-semibold text-slate-900">No products matched your filters</h3>
-              <p className="mt-2 text-sm text-slate-600">
+              <h3 className="mt-3 text-lg font-semibold text-slate-900 dark:text-slate-100">No products matched your filters</h3>
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
                 Try a broader search, remove a few filters, or explore another region.
               </p>
             </div>
           )}
 
-          <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm">
+          <Card className="flex items-center justify-between px-4 py-3 text-sm">
             <span>
               Showing page {page} of {data.totalPages} ({data.total} products)
             </span>
@@ -270,7 +265,7 @@ export default function BuyerSearch() {
                 Next
               </button>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
     </section>

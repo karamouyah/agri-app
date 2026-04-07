@@ -6,9 +6,9 @@ import {
   getProducts,
   updateProduct,
 } from '../../controllers/farmerController'
+import PageHero from '../../../components/PageHero'
+import { Card, Input, Select, StatusBadge, buttonStyles, cn } from '../../../components/ui'
 import { formatDzd, formatDzdRange } from '../../../utils/currency'
-import AgriIllustration from '../../../components/AgriIllustration'
-import Reveal from '../../../components/Reveal'
 
 const initialForm = {
   id: null,
@@ -192,115 +192,178 @@ export default function FarmerProducts() {
 
   return (
     <section className="space-y-4">
-      <Reveal>
-        <div className="grid gap-4 rounded-lg border border-slate-200 bg-white p-5 lg:grid-cols-[1fr_280px]">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Listings</p>
-              <h2 className="text-2xl font-semibold text-slate-800">Approved products only</h2>
-            </div>
+      <PageHero
+        eyebrow="Listings"
+        title="Approved products only"
+        description="Choose from the approved catalog, keep prices inside the DZD range, and manage the live listings buyers can order from."
+        variant="farmer"
+        actions={[
+          {
+            label: 'Add Product',
+            onClick: openCreateModal,
+            disabled: catalog.length === 0,
+          },
+        ]}
+        stats={[
+          {
+            label: 'Your listings',
+            value: products.length,
+            help: 'Farmer offers currently visible in the marketplace.',
+          },
+          {
+            label: 'Approved catalog',
+            value: catalog.length,
+            help: 'Products already validated for farmer selection.',
+          },
+          {
+            label: 'Pricing rule',
+            value: 'DZD',
+            help: 'Every listing is checked against the approved DZD range.',
+          },
+        ]}
+      />
+
+      {pageError && (
+        <Card className="border-amber-200/90 bg-amber-50/90 px-4 py-3 text-sm text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200">
+          {pageError}
+        </Card>
+      )}
+
+      <Card className="overflow-hidden p-4 sm:p-5">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-300">
+              Marketplace table
+            </p>
+            <h3 className="mt-2 text-xl font-bold text-slate-900 dark:text-slate-100">
+              Your approved product listings
+            </h3>
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+              Farmers can only list approved products, and every price stays inside the DZD range defined by the catalog.
+            </p>
+          </div>
+          <StatusBadge status={products.length > 0 ? 'Active' : 'No listings'} />
+        </div>
+
+        {isLoading ? (
+          <div className="rounded-2xl border border-dashed border-slate-300 px-4 py-12 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+            Loading approved products and your listings...
+          </div>
+        ) : products.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-slate-300 px-4 py-12 text-center dark:border-slate-700">
+            <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">No product listings yet</h4>
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+              Add your first approved product to start receiving buyer orders.
+            </p>
             <button
               type="button"
               onClick={openCreateModal}
-              className="btn-primary px-4 py-2 text-sm disabled:cursor-not-allowed disabled:bg-slate-300"
+              className={cn(buttonStyles.primary, 'mt-5')}
               disabled={catalog.length === 0}
             >
               Add Product
             </button>
           </div>
-          <div className="media-shell p-2">
-            <AgriIllustration variant="farmer" className="h-36" />
-          </div>
-        </div>
-      </Reveal>
-
-      {pageError && (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          {pageError}
-        </div>
-      )}
-
-      <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white p-4">
-        <table className="min-w-full text-left text-sm">
-          <thead className="bg-slate-100 text-slate-600">
-            <tr>
-              <th className="px-3 py-2">Product</th>
-              <th className="px-3 py-2">Category</th>
-              <th className="px-3 py-2">Allowed Range</th>
-              <th className="px-3 py-2">Your Price</th>
-              <th className="px-3 py-2">Quantity</th>
-              <th className="px-3 py-2">Status</th>
-              <th className="px-3 py-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading ? (
-              <tr>
-                <td colSpan="7" className="px-3 py-8 text-center text-slate-500">
-                  Loading approved products and your listings...
-                </td>
-              </tr>
-            ) : products.length === 0 ? (
-              <tr>
-                <td colSpan="7" className="px-3 py-8 text-center text-slate-500">
-                  No product listings yet.
-                </td>
-              </tr>
-            ) : (
-              products.map((product) => (
-                <tr key={product.id} className="border-b border-slate-100">
-                  <td className="px-3 py-2">{product.name}</td>
-                  <td className="px-3 py-2">{product.category}</td>
-                  <td className="px-3 py-2">
-                    {formatDzdRange(product.minPrice, product.maxPrice, product.unit)}
-                  </td>
-                  <td className="px-3 py-2">{formatDzd(product.price)}</td>
-                  <td className="px-3 py-2">
-                    {product.quantity} {product.unit}
-                  </td>
-                  <td className="px-3 py-2 capitalize">{product.status}</td>
-                  <td className="px-3 py-2">
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => openEditModal(product)}
-                        className="rounded-md border border-slate-300 px-2 py-1 text-xs hover:bg-slate-100"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(product.id)}
-                        className="rounded-md border border-red-300 px-2 py-1 text-xs text-red-700 hover:bg-red-50"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
+        ) : (
+          <div className="table-shell">
+            <table className="table-base min-w-full text-left text-sm">
+              <thead>
+                <tr>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                    Product
+                  </th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                    Category
+                  </th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                    Allowed Range
+                  </th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                    Your Price
+                  </th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                    Quantity
+                  </th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                    Actions
+                  </th>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                {products.map((product) => (
+                  <tr key={product.id} className="transition hover:bg-slate-50/80 dark:hover:bg-slate-800/50">
+                    <td className="px-4 py-3">
+                      <div>
+                        <p className="font-semibold text-slate-900 dark:text-slate-100">{product.name}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">Approved catalog item</p>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-slate-700 dark:text-slate-300">{product.category}</td>
+                    <td className="px-4 py-3 text-slate-700 dark:text-slate-300">
+                      {formatDzdRange(product.minPrice, product.maxPrice, product.unit)}
+                    </td>
+                    <td className="px-4 py-3 font-semibold text-emerald-700 dark:text-emerald-300">
+                      {formatDzd(product.price)}
+                    </td>
+                    <td className="px-4 py-3 text-slate-700 dark:text-slate-300">
+                      {product.quantity} {product.unit}
+                    </td>
+                    <td className="px-4 py-3">
+                      <StatusBadge status={product.status} />
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => openEditModal(product)}
+                          className={cn(buttonStyles.secondary, 'px-3 py-2 text-xs')}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(product.id)}
+                          className={cn(
+                            buttonStyles.secondary,
+                            'border-rose-200 text-rose-700 hover:border-rose-300 hover:bg-rose-50 dark:border-rose-900/40 dark:text-rose-300 dark:hover:border-rose-800 dark:hover:bg-rose-950/30',
+                            'px-3 py-2 text-xs',
+                          )}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
 
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 px-4">
-          <div className="w-full max-w-3xl rounded-lg border border-slate-200 bg-white p-5">
-            <h3 className="text-lg font-semibold text-slate-800">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/65 px-4 py-6 backdrop-blur-sm">
+          <Card className="w-full max-w-3xl p-5 sm:p-6">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
               {editing ? 'Edit Product Listing' : 'Add Product Listing'}
             </h3>
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+              Pick one approved catalog product, then set the quantity and DZD price inside the allowed range.
+            </p>
 
             {catalog.length === 0 ? (
               <div className="mt-4 space-y-4">
-                <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-700">
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-700 dark:border-slate-800 dark:bg-slate-950/40 dark:text-slate-300">
                   No approved products available yet.
                 </div>
                 <div className="flex justify-end">
                   <button
                     type="button"
                     onClick={closeModal}
-                    className="rounded-md border border-slate-300 px-4 py-2 text-sm hover:bg-slate-100"
+                    className={buttonStyles.secondary}
                   >
                     Close
                   </button>
@@ -309,50 +372,48 @@ export default function FarmerProducts() {
             ) : (
               <form onSubmit={handleSubmit} className="mt-4 space-y-4">
                 {submitError && (
-                  <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                  <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">
                     {submitError}
                   </p>
                 )}
 
                 <div className="grid gap-3 md:grid-cols-[2fr_1fr]">
                   <div>
-                    <label htmlFor="catalogSearch" className="mb-1 block text-sm font-medium text-slate-700">
+                    <label htmlFor="catalogSearch" className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Search product
                     </label>
-                    <input
+                    <Input
                       id="catalogSearch"
                       type="text"
                       value={catalogSearch}
                       onChange={(event) => setCatalogSearch(event.target.value)}
                       placeholder="Search approved vegetables, fruits, herbs..."
-                      className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-emerald-500"
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="catalogCategory" className="mb-1 block text-sm font-medium text-slate-700">
+                    <label htmlFor="catalogCategory" className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Category
                     </label>
-                    <select
+                    <Select
                       id="catalogCategory"
                       value={catalogCategory}
                       onChange={(event) => setCatalogCategory(event.target.value)}
-                      className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-emerald-500"
                     >
                       {categoryOptions.map((category) => (
                         <option key={category} value={category}>
                           {category}
                         </option>
                       ))}
-                    </select>
+                    </Select>
                   </div>
                 </div>
 
                 <div>
-                  <p className="mb-2 text-sm font-medium text-slate-700">Approved products</p>
-                  <div className="max-h-72 space-y-2 overflow-y-auto rounded-lg border border-slate-200 p-3">
+                  <p className="mb-2 text-sm font-medium text-slate-700 dark:text-slate-200">Approved products</p>
+                  <div className="max-h-72 space-y-2 overflow-y-auto rounded-2xl border border-slate-200/90 bg-slate-50/70 p-3 dark:border-slate-800 dark:bg-slate-950/30">
                     {filteredCatalog.length === 0 ? (
-                      <div className="rounded-md border border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-600">
+                      <div className="rounded-2xl border border-slate-200 bg-white px-4 py-5 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-900/90 dark:text-slate-300">
                         No approved products available yet.
                       </div>
                     ) : (
@@ -364,19 +425,20 @@ export default function FarmerProducts() {
                             key={item.id}
                             type="button"
                             onClick={() => handleSelectProduct(item.id)}
-                            className={`w-full rounded-lg border px-4 py-3 text-left transition ${
+                            className={cn(
+                              'w-full rounded-2xl border px-4 py-3 text-left transition duration-200',
                               isSelected
-                                ? 'border-emerald-500 bg-emerald-50'
-                                : 'border-slate-200 bg-white hover:border-emerald-300'
-                            }`}
+                                ? 'border-emerald-500 bg-emerald-50 text-slate-900 shadow-sm dark:bg-emerald-950/35 dark:text-slate-100'
+                                : 'border-slate-200 bg-white hover:border-emerald-300 hover:bg-emerald-50/50 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-emerald-500/40 dark:hover:bg-slate-800',
+                            )}
                           >
                             <div className="flex items-start justify-between gap-3">
                               <div>
-                                <p className="font-medium text-slate-800">{item.name}</p>
-                                <p className="text-sm text-slate-500">{item.category}</p>
+                                <p className="font-medium text-slate-800 dark:text-slate-100">{item.name}</p>
+                                <p className="text-sm text-slate-500 dark:text-slate-400">{item.category}</p>
                               </div>
-                              <p className="text-sm font-medium text-slate-700">
-                                {formatDzdRange(item.minPrice, item.maxPrice)}
+                              <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                                {formatDzdRange(item.minPrice, item.maxPrice, item.unit)}
                               </p>
                             </div>
                           </button>
@@ -386,7 +448,7 @@ export default function FarmerProducts() {
                   </div>
                 </div>
 
-                <div className="rounded-lg border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+                <div className="rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-200">
                   {selectedProduct ? (
                     <>
                       <strong>{selectedProduct.name}</strong> in <strong>{selectedProduct.category}</strong>
@@ -400,10 +462,10 @@ export default function FarmerProducts() {
 
                 <div className="grid gap-3 md:grid-cols-2">
                   <div>
-                    <label htmlFor="price" className="mb-1 block text-sm font-medium text-slate-700">
+                    <label htmlFor="price" className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Price (DZD)
                     </label>
-                    <input
+                    <Input
                       id="price"
                       name="price"
                       type="number"
@@ -413,15 +475,14 @@ export default function FarmerProducts() {
                       value={formData.price}
                       onChange={handleChange}
                       required
-                      className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-emerald-500"
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="quantity" className="mb-1 block text-sm font-medium text-slate-700">
+                    <label htmlFor="quantity" className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Quantity ({selectedProduct?.unit || 'kg'})
                     </label>
-                    <input
+                    <Input
                       id="quantity"
                       name="quantity"
                       type="number"
@@ -430,7 +491,6 @@ export default function FarmerProducts() {
                       value={formData.quantity}
                       onChange={handleChange}
                       required
-                      className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-emerald-500"
                     />
                   </div>
                 </div>
@@ -439,21 +499,21 @@ export default function FarmerProducts() {
                   <button
                     type="button"
                     onClick={closeModal}
-                    className="rounded-md border border-slate-300 px-4 py-2 text-sm hover:bg-slate-100"
+                    className={buttonStyles.secondary}
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmitting || !selectedProduct}
-                    className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                    className={buttonStyles.primary}
                   >
                     {isSubmitting ? 'Saving...' : editing ? 'Save Listing' : 'Create Listing'}
                   </button>
                 </div>
               </form>
             )}
-          </div>
+          </Card>
         </div>
       )}
     </section>

@@ -18,14 +18,23 @@ SHIPMENT_STATUS_CODES = {value: key for key, value in SHIPMENT_STATUS_SLUGS.item
 class MissionSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField(read_only=True)
     order_id = serializers.CharField(source="order.id", read_only=True)
-    pickup_location = serializers.CharField(source="order.pickup_address", read_only=True)
-    delivery_location = serializers.CharField(source="order.delivery_address", read_only=True)
+    pickup_location = serializers.SerializerMethodField(read_only=True)
+    delivery_location = serializers.SerializerMethodField(read_only=True)
     deadline = serializers.SerializerMethodField(read_only=True)
     shipping_fee = serializers.IntegerField(read_only=True)
     completed_at = serializers.SerializerMethodField(read_only=True)
     buyer_contact = serializers.CharField(source="order.buyer.person.phone_number", read_only=True)
     farmer_contact = serializers.CharField(source="order.farmer.person.phone_number", read_only=True)
     status = serializers.SerializerMethodField(read_only=True)
+    load_kg = serializers.SerializerMethodField(read_only=True)
+    pickup_wilaya_id = serializers.IntegerField(source="order.pickup_wilaya_id", read_only=True)
+    pickup_wilaya_name = serializers.CharField(source="order.pickup_wilaya.name", read_only=True)
+    pickup_commune_id = serializers.IntegerField(source="order.pickup_commune_id", read_only=True)
+    pickup_commune_name = serializers.CharField(source="order.pickup_commune.name", read_only=True)
+    delivery_wilaya_id = serializers.IntegerField(source="order.delivery_wilaya_id", read_only=True)
+    delivery_wilaya_name = serializers.CharField(source="order.delivery_wilaya.name", read_only=True)
+    delivery_commune_id = serializers.IntegerField(source="order.delivery_commune_id", read_only=True)
+    delivery_commune_name = serializers.CharField(source="order.delivery_commune.name", read_only=True)
 
     class Meta:
         model = Shipment
@@ -34,8 +43,17 @@ class MissionSerializer(serializers.ModelSerializer):
             "order_id",
             "pickup_location",
             "delivery_location",
+            "pickup_wilaya_id",
+            "pickup_wilaya_name",
+            "pickup_commune_id",
+            "pickup_commune_name",
+            "delivery_wilaya_id",
+            "delivery_wilaya_name",
+            "delivery_commune_id",
+            "delivery_commune_name",
             "deadline",
             "shipping_fee",
+            "load_kg",
             "completed_at",
             "buyer_contact",
             "farmer_contact",
@@ -54,6 +72,19 @@ class MissionSerializer(serializers.ModelSerializer):
         if obj.actual_delivery_date:
             return obj.actual_delivery_date.date()
         return None
+
+    def get_pickup_location(self, obj):
+        if obj.order.pickup_commune and obj.order.pickup_wilaya:
+            return f"{obj.order.pickup_commune.name}, {obj.order.pickup_wilaya.name}"
+        return obj.order.pickup_address
+
+    def get_delivery_location(self, obj):
+        if obj.order.delivery_commune and obj.order.delivery_wilaya:
+            return f"{obj.order.delivery_commune.name}, {obj.order.delivery_wilaya.name}"
+        return obj.order.delivery_address
+
+    def get_load_kg(self, obj):
+        return sum(item.quantity for item in obj.order.items.all())
 
     def get_status(self, obj):
         return SHIPMENT_STATUS_SLUGS.get(obj.status, "pending")

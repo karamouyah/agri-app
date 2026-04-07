@@ -1,10 +1,11 @@
-﻿from datetime import timedelta
+from datetime import timedelta
 
 from django.db import transaction
 from django.utils import timezone
 from rest_framework import serializers
 
 from apps.catalog.models import ProductList
+from apps.locations.models import Commune, Wilaya
 from apps.logistics.models import Shipment
 from apps.orders.models import Order, OrderItem, Payment
 
@@ -19,6 +20,51 @@ ORDER_STATUS_SLUGS = {
 }
 
 ORDER_STATUS_CODES = {value: key for key, value in ORDER_STATUS_SLUGS.items()}
+
+
+def clean_text(value):
+    if value is None:
+        return ""
+    if isinstance(value, str):
+        return value.strip()
+    return str(value).strip()
+
+
+def parse_int(value):
+    if value in (None, ""):
+        return None
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def compose_location_label(commune=None, wilaya=None, fallback=""):
+    if commune and wilaya:
+        return f"{commune.name}, {wilaya.name}"
+    if commune:
+        return commune.name
+    if wilaya:
+        return wilaya.name
+    return fallback
+
+
+def validate_location_pair(wilaya_id, commune_id):
+    wilaya = Wilaya.objects.filter(id=wilaya_id).first() if wilaya_id is not None else None
+    commune = Commune.objects.select_related("wilaya").filter(id=commune_id).first() if commune_id is not None else None
+
+    errors = {}
+    if not wilaya:
+        errors["wilaya_id"] = "Wilaya is required."
+    if not commune:
+        errors["commune_id"] = "Commune is required."
+    elif wilaya and commune.wilaya_id != wilaya.id:
+        errors["commune_id"] = "Selected commune does not belong to the wilaya."
+
+    if errors:
+        raise serializers.ValidationError(errors)
+
+    return wilaya, commune
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
@@ -37,7 +83,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
-    address = serializers.CharField(source="delivery_address", read_only=True)
+    address = serializers.SerializerMethodField()
     payment_method = serializers.SerializerMethodField()
     status = serializers.SerializerMethodField()
     estimated_delivery = serializers.SerializerMethodField()
@@ -45,6 +91,14 @@ class OrderSerializer(serializers.ModelSerializer):
     total = serializers.IntegerField(source="total_amount", read_only=True)
     currency = serializers.SerializerMethodField()
     items = OrderItemSerializer(many=True, read_only=True)
+    delivery_wilaya_id = serializers.IntegerField(source="delivery_wilaya_id", read_only=True)
+    delivery_wilaya_name = serializers.CharField(source="delivery_wilaya.name", read_only=True)
+    delivery_commune_id = serializers.IntegerField(source="delivery_commune_id", read_only=True)
+    delivery_commune_name = serializers.CharField(source="delivery_commune.name", read_only=True)
+    pickup_wilaya_id = serializers.IntegerField(source="pickup_wilaya_id", read_only=True)
+    pickup_wilaya_name = serializers.CharField(source="pickup_wilaya.name", read_only=True)
+    pickup_commune_id = serializers.IntegerField(source="pickup_commune_id", read_only=True)
+    pickup_commune_name = serializers.CharField(source="pickup_commune.name", read_only=True)
 
     class Meta:
         model = Order
@@ -58,7 +112,18 @@ class OrderSerializer(serializers.ModelSerializer):
             "total",
             "currency",
             "items",
+            "delivery_wilaya_id",
+            "delivery_wilaya_name",
+            "delivery_commune_id",
+            "delivery_commune_name",
+            "pickup_wilaya_id",
+            "pickup_wilaya_name",
+            "pickup_commune_id",
+            "pickup_commune_name",
         ]
+
+    def get_address(self, obj):
+        return compose_location_label(obj.delivery_commune, obj.delivery_wilaya, obj.delivery_address)
 
     def get_payment_method(self, obj):
         payment = obj.payments.order_by("id").first()
@@ -86,18 +151,38 @@ class CheckoutSerializer(serializers.Serializer):
     items = CheckoutItemInputSerializer(many=True)
     address = serializers.CharField(max_length=255)
     payment_method = serializers.CharField(max_length=100)
+    wilaya_id = serializers.IntegerField(required=False)
+    commune_id = serializers.IntegerField(required=False)
 
-    @transaction.atomic
-    def create(self, validated_data):
+    def validate(self, attrs):
         buyer_user = self.context["request"].user
         buyer = getattr(buyer_user, "buyer", None)
         if not buyer:
             raise serializers.ValidationError("Only buyers can place orders.")
 
+        wilaya_id = parse_int(attrs.get("wilaya_id")) or buyer.wilaya_id
+        commune_id = parse_int(attrs.get("commune_id")) or buyer.commune_id
+        wilaya, commune = validate_location_pair(wilaya_id, commune_id)
+        attrs["_delivery_wilaya"] = wilaya
+        attrs["_delivery_commune"] = commune
+        attrs["wilaya_id"] = wilaya.id
+        attrs["commune_id"] = commune.id
+        attrs["address"] = clean_text(attrs.get("address"))
+        return attrs
+
+    @transaction.atomic
+    def create(self, validated_data):
+        buyer_user = self.context["request"].user
+        buyer = buyer_user.buyer
+
         item_inputs = validated_data["items"]
         listings = {
             listing.id: listing
-            for listing in ProductList.objects.select_related("product", "farmer", "farmer__person").filter(
+            for listing in ProductList.objects.select_related(
+                "product",
+                "farmer",
+                "farmer__person",
+            ).prefetch_related("farmer__farms__wilaya", "farmer__farms__commune").filter(
                 id__in=[item["product_id"] for item in item_inputs]
             )
         }
@@ -110,7 +195,7 @@ class CheckoutSerializer(serializers.Serializer):
             raise serializers.ValidationError("Checkout supports one farmer per order.")
 
         farmer = next(iter(listings.values())).farmer
-        farm = farmer.farms.order_by("id").first()
+        farm = farmer.farms.select_related("wilaya", "commune").order_by("id").first()
         pickup_address = farm.location if farm else "Farmer pickup address not set"
 
         order = Order.objects.create(
@@ -118,6 +203,10 @@ class CheckoutSerializer(serializers.Serializer):
             farmer=farmer,
             delivery_address=validated_data["address"],
             pickup_address=pickup_address,
+            delivery_wilaya=validated_data["_delivery_wilaya"],
+            delivery_commune=validated_data["_delivery_commune"],
+            pickup_wilaya=farm.wilaya if farm else None,
+            pickup_commune=farm.commune if farm else None,
             status=Order.Status.PENDING,
             total_amount=0,
         )

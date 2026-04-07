@@ -1,4 +1,6 @@
 export {
+  getTransporterProfile,
+  updateTransporterProfile,
   getDeliveryRequests,
   getActiveDeliveries,
   getDeliveryById,

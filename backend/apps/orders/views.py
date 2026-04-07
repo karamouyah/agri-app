@@ -31,7 +31,12 @@ class MyOrdersView(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        base = Order.objects.prefetch_related("items", "items__product_list", "payments", "shipments")
+        base = Order.objects.select_related(
+            "delivery_wilaya",
+            "delivery_commune",
+            "pickup_wilaya",
+            "pickup_commune",
+        ).prefetch_related("items", "items__product_list", "payments", "shipments")
 
         if user.role == User.Role.BUYER and hasattr(user, "buyer"):
             return base.filter(buyer=user.buyer)

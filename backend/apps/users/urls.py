@@ -3,6 +3,7 @@ from rest_framework.routers import DefaultRouter
 
 from apps.users.views import (
     AdminUserViewSet,
+    BuyerProfileView,
     CurrentUserView,
     FarmProfileView,
     GenerateReportView,
@@ -10,6 +11,7 @@ from apps.users.views import (
     NationalStatsView,
     RefreshView,
     RegisterView,
+    TransporterProfileView,
 )
 
 router = DefaultRouter()
@@ -21,6 +23,8 @@ urlpatterns = [
     path("refresh/", RefreshView.as_view(), name="token-refresh"),
     path("me/", CurrentUserView.as_view(), name="current-user"),
     path("farmer/profile/", FarmProfileView.as_view(), name="farmer-profile"),
+    path("buyer/profile/", BuyerProfileView.as_view(), name="buyer-profile"),
+    path("transporter/profile/", TransporterProfileView.as_view(), name="transporter-profile"),
     path("admin/stats/", NationalStatsView.as_view(), name="national-stats"),
     path("admin/reports/", GenerateReportView.as_view(), name="generate-report"),
     path("", include(router.urls)),

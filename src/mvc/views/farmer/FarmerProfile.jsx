@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react'
 import { FiMapPin, FiPhone, FiSave, FiType } from 'react-icons/fi'
 import { getFarmProfile, updateFarmProfile } from '../../controllers/farmerController'
-import AgriIllustration from '../../../components/AgriIllustration'
-import Reveal from '../../../components/Reveal'
+import LocationFields from '../../../components/LocationFields'
+import PageHero from '../../../components/PageHero'
+import { Card, Input, Textarea } from '../../../components/ui'
 
 const initialForm = {
   name: '',
   location: '',
   description: '',
   contactInfo: '',
+  wilaya_id: '',
+  commune_id: '',
 }
 
 export default function FarmerProfile() {
@@ -28,7 +31,11 @@ export default function FarmerProfile() {
 
   const handleChange = (event) => {
     const { name, value } = event.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+      ...(name === 'wilaya_id' ? { commune_id: '' } : {}),
+    }))
   }
 
   const handleSubmit = async (event) => {
@@ -42,104 +49,99 @@ export default function FarmerProfile() {
   }
 
   if (loading) {
-    return <p className="text-sm text-slate-600">Loading farm profile...</p>
+    return <p className="text-sm text-slate-600 dark:text-slate-300">Loading farm profile...</p>
   }
 
   return (
-    <section className="agri-page space-y-5">
-      <Reveal>
-        <div className="grid gap-4 rounded-lg border border-slate-200 bg-white p-5 lg:grid-cols-[1fr_320px]">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Farm Profile</p>
-            <h2 className="mt-2 text-3xl font-bold text-slate-900">Update farm details</h2>
-            <div className="mt-4 grid gap-3 sm:grid-cols-3">
-              <div className="surface-muted p-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Farm</p>
-                <p className="mt-1 truncate text-lg font-bold text-slate-900">{formData.name || '-'}</p>
-              </div>
-              <div className="surface-muted p-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Location</p>
-                <p className="mt-1 truncate text-lg font-bold text-slate-900">{formData.location || '-'}</p>
-              </div>
-              <div className="surface-muted p-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Contact</p>
-                <p className="mt-1 truncate text-lg font-bold text-slate-900">{formData.contactInfo || '-'}</p>
-              </div>
-            </div>
-          </div>
+    <section className="app-page">
+      <PageHero
+        eyebrow="Farm Profile"
+        title="Update farm details"
+        description="Keep your public farm identity polished so buyers, transporters, and ministry users all see consistent information."
+        variant="farmer"
+        stats={[
+          { label: 'Farm', value: formData.name || '-', help: 'Current farm display name' },
+          { label: 'Location', value: formData.location_label || formData.locationLabel || formData.location || '-', help: 'Visible farm address and Algeria location' },
+          { label: 'Contact', value: formData.contactInfo || '-', help: 'Primary number shown on the platform' },
+        ]}
+      />
 
-          <div className="media-shell p-3">
-            <AgriIllustration variant="farmer" className="h-48" />
-          </div>
-        </div>
-      </Reveal>
-
-      <Reveal delay={70}>
-        <form onSubmit={handleSubmit} className="rounded-lg border border-slate-200 bg-white p-5">
+      <Card as="form" onSubmit={handleSubmit} className="p-5">
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label htmlFor="name" className="mb-1 block text-sm font-medium text-slate-700">
+              <label htmlFor="name" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
                 <span className="inline-flex items-center gap-2">
                   <FiType />
                   Farm name
                 </span>
               </label>
-              <input
+              <Input
                 id="name"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
                 required
-                className="field-control w-full px-3 py-2"
+                className="px-3 py-2"
               />
             </div>
 
-            <div>
-              <label htmlFor="location" className="mb-1 block text-sm font-medium text-slate-700">
+            <div className="md:col-span-2">
+              <label htmlFor="location" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
                 <span className="inline-flex items-center gap-2">
                   <FiMapPin />
                   Location
                 </span>
               </label>
-              <input
+              <Input
                 id="location"
                 name="location"
                 value={formData.location}
                 onChange={handleChange}
                 required
-                className="field-control w-full px-3 py-2"
+                className="px-3 py-2"
               />
             </div>
 
             <div className="md:col-span-2">
-              <label htmlFor="description" className="mb-1 block text-sm font-medium text-slate-700">
+              <LocationFields
+                wilayaId={formData.wilaya_id}
+                communeId={formData.commune_id}
+                onChange={handleChange}
+                wilayaName="wilaya_id"
+                communeName="commune_id"
+                hint="The farm commune must belong to the selected wilaya."
+              />
+            </div>
+
+            <div className="md:col-span-2">
+              <label htmlFor="description" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Short note
               </label>
-              <textarea
+              <Textarea
                 id="description"
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
                 rows={3}
                 required
-                className="field-control w-full px-3 py-2"
+                className="px-3 py-2"
               />
             </div>
 
             <div className="md:col-span-2">
-              <label htmlFor="contactInfo" className="mb-1 block text-sm font-medium text-slate-700">
+              <label htmlFor="contactInfo" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
                 <span className="inline-flex items-center gap-2">
                   <FiPhone />
                   Contact
                 </span>
               </label>
-              <input
+              <Input
                 id="contactInfo"
                 name="contactInfo"
                 value={formData.contactInfo}
                 onChange={handleChange}
                 required
-                className="field-control w-full px-3 py-2"
+                className="px-3 py-2"
               />
             </div>
 
@@ -150,11 +152,10 @@ export default function FarmerProfile() {
                   Save
                 </span>
               </button>
-              {message ? <span className="text-sm font-semibold text-emerald-700">{message}</span> : null}
+              {message ? <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">{message}</span> : null}
             </div>
           </div>
-        </form>
-      </Reveal>
+      </Card>
     </section>
   )
 }

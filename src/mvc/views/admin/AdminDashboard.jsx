@@ -15,6 +15,7 @@ import { FiActivity, FiBarChart2, FiShield, FiUsers } from 'react-icons/fi'
 import { getNationalStats } from '../../controllers/adminController'
 import { formatDzd } from '../../../utils/currency'
 import PageHero from '../../../components/PageHero'
+import { Card, SkeletonBlock, StatCard } from '../../../components/ui'
 
 export default function AdminDashboard() {
   const [data, setData] = useState(null)
@@ -29,17 +30,30 @@ export default function AdminDashboard() {
   }, [])
 
   if (!data) {
-    return <p className="text-sm text-slate-600">Loading national statistics...</p>
+    return (
+      <section className="app-page">
+        <SkeletonBlock className="h-[360px]" />
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <SkeletonBlock key={index} className="h-36" />
+          ))}
+        </div>
+        <div className="grid gap-4 xl:grid-cols-2">
+          <SkeletonBlock className="h-96" />
+          <SkeletonBlock className="h-96" />
+        </div>
+      </section>
+    )
   }
 
   const { summary, regionalSales, priceTrends } = data
 
   return (
-    <section className="agri-page space-y-5">
+    <section className="app-page">
       <PageHero
         eyebrow="Ministry Intelligence"
-        title="National agriculture oversight with clearer visibility"
-        description="Monitor approved participants, regional movement, and controlled pricing through a calmer, more professional analytical workspace."
+        title="National agriculture oversight with clearer market signals"
+        description="Review participant activity, regional movement, and controlled pricing through a calmer ministry analytics workspace."
         variant="admin"
         stats={[
           { label: 'Sales Volume', value: `${summary.totalSalesVolumeTons} tons`, help: 'Aggregated marketplace movement' },
@@ -49,84 +63,59 @@ export default function AdminDashboard() {
       />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <article className="surface-card p-5">
-          <p className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-slate-500">
-            <FiBarChart2 />
-            Total Sales Volume
-          </p>
-          <h3 className="mt-2 text-3xl font-bold text-slate-900">{summary.totalSalesVolumeTons} tons</h3>
-        </article>
-        <article className="surface-card p-5">
-          <p className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-slate-500">
-            <FiUsers />
-            Active Farmers
-          </p>
-          <h3 className="mt-2 text-3xl font-bold text-slate-900">{summary.activeFarmers}</h3>
-        </article>
-        <article className="surface-card p-5">
-          <p className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-slate-500">
-            <FiUsers />
-            Active Buyers
-          </p>
-          <h3 className="mt-2 text-3xl font-bold text-slate-900">{summary.activeBuyers}</h3>
-        </article>
-        <article className="surface-card p-5">
-          <p className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-slate-500">
-            <FiShield />
-            Active Transporters
-          </p>
-          <h3 className="mt-2 text-3xl font-bold text-slate-900">{summary.activeTransporters}</h3>
-        </article>
+        <StatCard icon={FiBarChart2} label="Sales Volume" value={`${summary.totalSalesVolumeTons} tons`} help="Current monitored trade volume" />
+        <StatCard icon={FiUsers} label="Active Farmers" value={summary.activeFarmers} help="Approved producers" tone="slate" />
+        <StatCard icon={FiUsers} label="Active Buyers" value={summary.activeBuyers} help="Verified buyers" tone="sky" />
+        <StatCard icon={FiShield} label="Transporters" value={summary.activeTransporters} help="Active logistics operators" />
       </div>
 
       <div className="grid gap-4 xl:grid-cols-2">
-        <div className="surface-card p-5">
-          <h3 className="text-base font-bold text-slate-900">Regional Sales Volumes</h3>
-          <p className="mt-1 text-xs text-slate-500">Compare production movement by pickup region</p>
-          <div className="mt-3 h-72">
+        <Card className="p-5 md:p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Regional Sales</p>
+          <h3 className="mt-2 text-xl font-bold text-slate-900">Volume by pickup region</h3>
+          <div className="mt-5 h-80">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={regionalSales}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#dce9dc" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#d1d5db" />
                 <XAxis dataKey="region" />
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="volume" fill="#1f7a3d" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="volume" fill="#16a34a" radius={[10, 10, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </Card>
 
-        <div className="surface-card p-5">
-          <h3 className="text-base font-bold text-slate-900">Price Trends (DZD)</h3>
-          <p className="mt-1 text-xs text-slate-500">Monthly movement for strategic market products in Algerian Dinar</p>
-          <div className="mt-3 h-72">
+        <Card className="p-5 md:p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Price Trends</p>
+          <h3 className="mt-2 text-xl font-bold text-slate-900">Strategic products in DZD</h3>
+          <div className="mt-5 h-80">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={priceTrends}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#dce9dc" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#d1d5db" />
                 <XAxis dataKey="month" />
                 <YAxis />
                 <Tooltip formatter={(value, name) => [formatDzd(value), name]} />
                 <Legend />
-                <Line type="monotone" dataKey="tomatoes" stroke="#1f7a3d" strokeWidth={2.5} />
+                <Line type="monotone" dataKey="tomatoes" stroke="#16a34a" strokeWidth={2.5} />
                 <Line type="monotone" dataKey="oranges" stroke="#0ea5a3" strokeWidth={2.5} />
-                <Line type="monotone" dataKey="potatoes" stroke="#f59e0b" strokeWidth={2.5} />
+                <Line type="monotone" dataKey="potatoes" stroke="#475569" strokeWidth={2.5} />
               </LineChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </Card>
       </div>
 
-      <div className="surface-card p-5">
-        <h3 className="inline-flex items-center gap-2 text-base font-bold text-slate-900">
+      <Card className="p-6">
+        <h3 className="inline-flex items-center gap-2 text-xl font-bold text-slate-900">
           <FiActivity />
-          Ministry Action Note
+          Action Note
         </h3>
-        <p className="mt-2 text-sm text-slate-600">
-          Use the user and product modules to keep quality standards high, then export reports for policy and
-          seasonal interventions.
+        <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600">
+          Use the user and product modules to keep quality standards high, then generate reports to support seasonal planning, regulatory review, and intervention decisions.
         </p>
-      </div>
+      </Card>
     </section>
   )
 }

@@ -1,6 +1,7 @@
 ﻿import { useCallback, useEffect, useMemo, useState } from 'react'
 import { acceptOrder, declineOrder, getOrders } from '../../controllers/farmerController'
 import { formatDzd } from '../../../utils/currency'
+import { StatusBadge, buttonStyles, cn } from '../../../components/ui'
 
 export default function FarmerOrders() {
   const [orders, setOrders] = useState([])
@@ -131,8 +132,8 @@ export default function FarmerOrders() {
                   }}
                   className={`whitespace-nowrap border-b-2 px-5 py-4 text-sm font-bold transition-colors ${
                     isActive
-                      ? 'border-emerald-700 text-emerald-700'
-                      : 'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700'
+                      ? 'border-emerald-700 text-emerald-700 dark:border-emerald-400 dark:text-emerald-300'
+                      : 'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700 dark:text-slate-400 dark:hover:border-slate-600 dark:hover:text-slate-200'
                   }`}
                 >
                   {tab.label}
@@ -163,9 +164,9 @@ export default function FarmerOrders() {
                   <th className="px-6 py-4 text-center font-bold">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-sm">
+              <tbody className="divide-y divide-slate-100 text-sm dark:divide-slate-800">
                 {filteredOrders.map((order) => (
-                  <tr key={order.id} className="transition-colors hover:bg-emerald-50/30">
+                  <tr key={order.id} className="transition-colors hover:bg-emerald-50/30 dark:hover:bg-slate-800/60">
                     <td className="px-6 py-4">
                       <input
                         type="checkbox"
@@ -174,19 +175,17 @@ export default function FarmerOrders() {
                         className="rounded border-slate-300 text-emerald-700 focus:ring-emerald-700"
                       />
                     </td>
-                    <td className="px-6 py-4 font-semibold text-slate-900">{order.id}</td>
-                    <td className="px-6 py-4">{order.buyerName}</td>
-                    <td className="px-6 py-4 text-slate-500">{order.orderDate}</td>
+                    <td className="px-6 py-4 font-semibold text-slate-900 dark:text-slate-100">{order.id}</td>
+                    <td className="px-6 py-4 text-slate-700 dark:text-slate-300">{order.buyerName}</td>
+                    <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{order.orderDate}</td>
                     <td className="px-6 py-4">
-                      <div className="font-medium text-slate-800">{order.product}</div>
-                      <div className="text-xs text-slate-500">{order.quantity} units</div>
+                      <div className="font-medium text-slate-800 dark:text-slate-100">{order.product}</div>
+                      <div className="text-xs text-slate-500 dark:text-slate-400">{order.quantity} units</div>
                     </td>
-                    <td className="px-6 py-4 font-semibold text-slate-900">{formatDzd(order.amount)}</td>
-                    <td className="px-6 py-4 text-slate-600">{order.deliveryAddress}</td>
+                    <td className="px-6 py-4 font-semibold text-slate-900 dark:text-slate-100">{formatDzd(order.amount)}</td>
+                    <td className="px-6 py-4 text-slate-600 dark:text-slate-300">{order.deliveryAddress}</td>
                     <td className="px-6 py-4">
-                      <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold capitalize text-slate-700">
-                        {order.status}
-                      </span>
+                      <StatusBadge status={order.status} />
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex flex-wrap justify-center gap-2">
@@ -195,14 +194,14 @@ export default function FarmerOrders() {
                             <button
                               type="button"
                               onClick={() => handleAccept(order.id)}
-                              className="rounded-lg border border-emerald-300 px-2 py-1 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50"
+                              className="rounded-lg border border-emerald-300 px-2 py-1 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50 dark:border-emerald-800/50 dark:text-emerald-300 dark:hover:bg-emerald-950/30"
                             >
                               Confirm
                             </button>
                             <button
                               type="button"
                               onClick={() => handleDecline(order.id)}
-                              className="rounded-lg border border-red-300 px-2 py-1 text-xs font-semibold text-red-700 transition hover:bg-red-50"
+                              className="rounded-lg border border-rose-300 px-2 py-1 text-xs font-semibold text-rose-700 transition hover:bg-rose-50 dark:border-rose-900/40 dark:text-rose-300 dark:hover:bg-rose-950/30"
                             >
                               Decline
                             </button>
@@ -211,7 +210,7 @@ export default function FarmerOrders() {
                         <button
                           type="button"
                           onClick={() => setSelectedOrder(order)}
-                          className="rounded-lg border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                          className={cn(buttonStyles.secondary, 'px-2 py-1 text-xs')}
                         >
                           View
                         </button>
@@ -230,7 +229,7 @@ export default function FarmerOrders() {
             </table>
           </div>
 
-          <div className="flex items-center justify-between border-t border-slate-100 px-6 py-4 text-sm text-slate-500">
+          <div className="flex items-center justify-between border-t border-slate-100 px-6 py-4 text-sm text-slate-500 dark:border-slate-800 dark:text-slate-400">
             <p>
               Showing {filteredOrders.length} of {orders.length} orders
             </p>
@@ -239,7 +238,7 @@ export default function FarmerOrders() {
         </div>
 
         <aside className="surface-card h-fit p-5 xl:sticky xl:top-24">
-          <h3 className="text-base font-bold text-slate-900">Bulk Actions</h3>
+          <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">Bulk Actions</h3>
           <div className="mt-4 space-y-3">
             <button
               type="button"
@@ -263,7 +262,7 @@ export default function FarmerOrders() {
             </button>
           </div>
 
-          <div className="mt-6 border-t border-slate-100 pt-4 text-xs leading-relaxed text-slate-500">
+          <div className="mt-6 border-t border-slate-100 pt-4 text-xs leading-relaxed text-slate-500 dark:border-slate-800 dark:text-slate-400">
             Tip: Use bulk confirm to accept multiple pending orders at once and speed up daily dispatch.
           </div>
         </aside>
@@ -271,8 +270,8 @@ export default function FarmerOrders() {
 
       {selectedOrder && (
         <div className="surface-card p-5">
-          <h3 className="text-lg font-semibold text-slate-800">Order Details</h3>
-          <div className="mt-3 grid gap-2 text-sm text-slate-700 md:grid-cols-2">
+          <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Order Details</h3>
+          <div className="mt-3 grid gap-2 text-sm text-slate-700 dark:text-slate-300 md:grid-cols-2">
             <p>
               <span className="font-medium">Order ID:</span> {selectedOrder.id}
             </p>

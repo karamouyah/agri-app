@@ -4,7 +4,7 @@ import { FiMapPin, FiPackage, FiPlus, FiShield, FiUser } from 'react-icons/fi'
 import { addToCart, getProductById, getRelatedProducts } from '../../controllers/buyerController'
 import { formatDzd, formatDzdPerUnit } from '../../../utils/currency'
 import AgriIllustration from '../../../components/AgriIllustration'
-import Reveal from '../../../components/Reveal'
+import { Card } from '../../../components/ui'
 
 export default function BuyerProductDetails() {
   const { id } = useParams()
@@ -28,7 +28,7 @@ export default function BuyerProductDetails() {
   }, [id])
 
   if (!product) {
-    return <p className="text-sm text-slate-600">Product not found.</p>
+    return <p className="text-sm text-slate-600 dark:text-slate-300">Product not found.</p>
   }
 
   const handleAddToCart = async () => {
@@ -38,53 +38,52 @@ export default function BuyerProductDetails() {
   }
 
   return (
-    <section className="agri-page space-y-5">
-      <Reveal>
-        <div className="grid gap-4 rounded-lg border border-slate-200 bg-white p-5 md:grid-cols-[1.1fr_0.9fr]">
+    <section className="app-page">
+      <Card className="grid gap-4 p-5 md:grid-cols-[1.1fr_0.9fr]">
           <div className="media-shell p-3">
             <AgriIllustration variant="hero" className="h-72" />
           </div>
 
           <div className="space-y-4">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">{product.category}</p>
-              <h2 className="mt-2 text-3xl font-bold text-slate-900">{product.name}</h2>
-              <p className="mt-2 text-lg font-bold text-emerald-700">{formatDzdPerUnit(product.price, product.unit)}</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-300">{product.category}</p>
+              <h2 className="mt-2 text-3xl font-bold text-slate-900 dark:text-slate-100">{product.name}</h2>
+              <p className="mt-2 text-lg font-bold text-emerald-700 dark:text-emerald-300">{formatDzdPerUnit(product.price, product.unit)}</p>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="surface-muted p-3 text-sm">
-                <p className="inline-flex items-center gap-2 font-semibold text-slate-800">
+                <p className="inline-flex items-center gap-2 font-semibold text-slate-800 dark:text-slate-100">
                   <FiPackage />
                   Stock
                 </p>
-                <p className="mt-1 text-slate-600">{product.quantityAvailable} {product.unit}</p>
+                <p className="mt-1 text-slate-600 dark:text-slate-300">{product.quantityAvailable} {product.unit}</p>
               </div>
               <div className="surface-muted p-3 text-sm">
-                <p className="inline-flex items-center gap-2 font-semibold text-slate-800">
+                <p className="inline-flex items-center gap-2 font-semibold text-slate-800 dark:text-slate-100">
                   <FiShield />
                   Quality
                 </p>
-                <p className="mt-1 text-slate-600">{product.quality}</p>
+                <p className="mt-1 text-slate-600 dark:text-slate-300">{product.quality}</p>
               </div>
               <div className="surface-muted p-3 text-sm">
-                <p className="inline-flex items-center gap-2 font-semibold text-slate-800">
+                <p className="inline-flex items-center gap-2 font-semibold text-slate-800 dark:text-slate-100">
                   <FiUser />
                   Farmer
                 </p>
-                <p className="mt-1 text-slate-600">{product.farmerName}</p>
+                <p className="mt-1 text-slate-600 dark:text-slate-300">{product.farmerName}</p>
               </div>
               <div className="surface-muted p-3 text-sm">
-                <p className="inline-flex items-center gap-2 font-semibold text-slate-800">
+                <p className="inline-flex items-center gap-2 font-semibold text-slate-800 dark:text-slate-100">
                   <FiMapPin />
                   Region
                 </p>
-                <p className="mt-1 text-slate-600">{product.farmerRegion}</p>
+                <p className="mt-1 text-slate-600 dark:text-slate-300">{product.farmerRegion}</p>
               </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
-              <label htmlFor="quantity" className="text-sm font-medium text-slate-700">
+              <label htmlFor="quantity" className="text-sm font-medium text-slate-700 dark:text-slate-200">
                 Qty
               </label>
               <input
@@ -104,15 +103,13 @@ export default function BuyerProductDetails() {
               </button>
             </div>
 
-            {message ? <p className="text-sm font-semibold text-emerald-700">{message}</p> : null}
+            {message ? <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">{message}</p> : null}
           </div>
-        </div>
-      </Reveal>
+      </Card>
 
-      <Reveal delay={80}>
-        <div className="rounded-lg border border-slate-200 bg-white p-5">
+      <Card className="p-5">
           <div className="mb-4 flex items-center justify-between gap-3">
-            <h3 className="text-lg font-bold text-slate-900">Related</h3>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">Related</h3>
             <span className="badge-soft px-3 py-1 text-xs">Same category</span>
           </div>
 
@@ -126,13 +123,12 @@ export default function BuyerProductDetails() {
                 <div className="media-shell mb-3 p-2">
                   <AgriIllustration variant="buyer" className="h-24" />
                 </div>
-                <p className="font-semibold text-slate-800">{item.name}</p>
-                <p className="mt-1 text-sm text-emerald-700">{formatDzd(item.price)}</p>
+                <p className="font-semibold text-slate-800 dark:text-slate-100">{item.name}</p>
+                <p className="mt-1 text-sm text-emerald-700 dark:text-emerald-300">{formatDzd(item.price)}</p>
               </Link>
             ))}
           </div>
-        </div>
-      </Reveal>
+      </Card>
     </section>
   )
 }

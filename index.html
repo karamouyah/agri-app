@@ -6,6 +6,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#2d8b4d" />
     <title>AgriGov Market</title>
+    <script>
+      ;(() => {
+        const storageKey = 'agri-theme-mode'
+        const root = document.documentElement
+        const stored = window.localStorage.getItem(storageKey)
+        const mode = ['auto', 'dark', 'light'].includes(stored) ? stored : 'auto'
+        const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+        const resolvedTheme = mode === 'auto' ? (systemDark ? 'dark' : 'light') : mode
+        root.classList.toggle('dark', resolvedTheme === 'dark')
+        root.dataset.themeMode = mode
+        root.style.colorScheme = resolvedTheme
+        const meta = document.querySelector('meta[name="theme-color"]')
+        if (meta) {
+          meta.setAttribute('content', resolvedTheme === 'dark' ? '#0f172a' : '#2d8b4d')
+        }
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

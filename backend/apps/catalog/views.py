@@ -13,6 +13,7 @@ from apps.catalog.serializers import (
     ProductSerializer,
 )
 from apps.common.permissions import IsFarmer, IsMinistry
+from apps.locations.models import Commune, Wilaya
 from apps.users.models import Farmer, Farm
 
 
@@ -50,6 +51,8 @@ class ProductViewSet(ModelViewSet):
         query = self.request.query_params.get("q", "").strip()
         category = self.request.query_params.get("category")
         location = self.request.query_params.get("location")
+        wilaya = self.request.query_params.get("wilaya")
+        commune = self.request.query_params.get("commune")
 
         if getattr(user, "role", None) == user.Role.FARMER and hasattr(user, "farmer"):
             queryset = queryset.filter(farmer=user.farmer)
@@ -63,7 +66,15 @@ class ProductViewSet(ModelViewSet):
         if category:
             queryset = queryset.filter(product__category__name=category)
         if location:
-            queryset = queryset.filter(farmer__farms__location__icontains=location)
+            queryset = queryset.filter(
+                Q(farmer__farms__location__icontains=location)
+                | Q(farmer__farms__wilaya__name__icontains=location)
+                | Q(farmer__farms__commune__name__icontains=location)
+            )
+        if wilaya:
+            queryset = queryset.filter(farmer__farms__wilaya_id=wilaya)
+        if commune:
+            queryset = queryset.filter(farmer__farms__commune_id=commune)
 
         return queryset.distinct()
 
@@ -111,13 +122,21 @@ class BuyerFilterOptionsView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        locations = list(Farm.objects.values_list("location", flat=True).distinct())
+        wilayas = list(Wilaya.objects.order_by("id").values("id", "code", "name"))
+        communes = list(Commune.objects.select_related("wilaya").order_by("name").values("id", "name", "wilaya_id"))
+        locations = list(
+            Farm.objects.select_related("wilaya", "commune")
+            .values_list("location", flat=True)
+            .distinct()
+        )
         return Response(
             {
                 "categories": list(
                     Category.objects.filter(products__is_active=True).distinct().values_list("name", flat=True)
                 ),
                 "locations": sorted(set(locations)),
+                "wilayas": wilayas,
+                "communes": communes,
                 "qualities": ["A"],
             }
         )

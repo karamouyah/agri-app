@@ -1,7 +1,6 @@
-﻿from collections import defaultdict
+from collections import defaultdict
 
-from django.db import IntegrityError
-from django.db.models import Count, Sum
+from django.db.models import Count, Q, Sum
 from django.utils import timezone
 from rest_framework import generics, status
 from rest_framework.decorators import action
@@ -14,12 +13,17 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from apps.common.permissions import IsMinistry
 from apps.orders.models import OrderItem
-from apps.users.models import Farmer, Farm, JoinRequest, User
+from apps.users.models import Buyer, Farmer, Farm, JoinRequest, Transporter, User
 from apps.users.serializers import (
+    BuyerAccountSerializer,
+    FarmerAccountSerializer,
     RegisterSerializer,
+    TransporterAccountSerializer,
     UserApprovalUpdateSerializer,
     UserSerializer,
     UserTokenSerializer,
+    clean_text,
+    primary_farm,
 )
 
 
@@ -50,8 +54,19 @@ class CurrentUserView(APIView):
 
 class AdminUserViewSet(ModelViewSet):
     queryset = (
-        User.objects.select_related("farmer", "buyer", "transporter", "admin_profile")
-        .prefetch_related("farmer__farms")
+        User.objects.select_related(
+            "farmer",
+            "buyer",
+            "buyer__wilaya",
+            "buyer__commune",
+            "transporter",
+            "admin_profile",
+        )
+        .prefetch_related(
+            "farmer__farms__wilaya",
+            "farmer__farms__commune",
+            "transporter__delivery_wilayas",
+        )
         .all()
         .order_by("-date_joined")
     )
@@ -60,8 +75,9 @@ class AdminUserViewSet(ModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        role = (self.request.query_params.get("role") or "").strip().lower()
-        approval_status = (self.request.query_params.get("approval_status") or "").strip().lower()
+        role = clean_text(self.request.query_params.get("role")).lower()
+        approval_status = clean_text(self.request.query_params.get("approval_status")).lower()
+        wilaya = clean_text(self.request.query_params.get("wilaya"))
 
         if role:
             role_code = User.role_from_slug(role)
@@ -77,7 +93,23 @@ class AdminUserViewSet(ModelViewSet):
             else:
                 queryset = queryset.none()
 
-        return queryset
+        if wilaya:
+            wilaya_filter = (
+                Q(farmer__farms__wilaya_id=wilaya)
+                | Q(buyer__wilaya_id=wilaya)
+                | Q(transporter__delivery_wilayas__id=wilaya)
+            )
+
+            if not wilaya.isdigit():
+                wilaya_filter = (
+                    Q(farmer__farms__wilaya__name__iexact=wilaya)
+                    | Q(buyer__wilaya__name__iexact=wilaya)
+                    | Q(transporter__delivery_wilayas__name__iexact=wilaya)
+                )
+
+            queryset = queryset.filter(wilaya_filter)
+
+        return queryset.distinct()
 
     def get_serializer_class(self):
         if self.action in {"partial_update", "update"}:
@@ -141,12 +173,15 @@ class NationalStatsView(APIView):
         totals = {row["role"]: row["total"] for row in grouped}
 
         region_rows = (
-            OrderItem.objects.values("order__pickup_address")
+            OrderItem.objects.values("order__pickup_wilaya__name", "order__pickup_address")
             .annotate(volume=Sum("quantity"))
-            .order_by("order__pickup_address")
+            .order_by("order__pickup_wilaya__name", "order__pickup_address")
         )
         regional_sales = [
-            {"region": row["order__pickup_address"] or "Unknown", "volume": row["volume"] or 0}
+            {
+                "region": row["order__pickup_wilaya__name"] or row["order__pickup_address"] or "Unknown",
+                "volume": row["volume"] or 0,
+            }
             for row in region_rows
         ]
 
@@ -175,18 +210,25 @@ class GenerateReportView(APIView):
     permission_classes = [IsMinistry]
 
     def get(self, request):
-        region = request.query_params.get("region")
-        category = request.query_params.get("category")
+        region = clean_text(request.query_params.get("region"))
+        category = clean_text(request.query_params.get("category"))
 
-        items = OrderItem.objects.select_related("order", "product_list__product__category")
+        items = OrderItem.objects.select_related(
+            "order",
+            "order__pickup_wilaya",
+            "product_list__product__category",
+        )
         if region:
-            items = items.filter(order__pickup_address__icontains=region)
+            if region.isdigit():
+                items = items.filter(order__pickup_wilaya_id=int(region))
+            else:
+                items = items.filter(order__pickup_wilaya__name__iexact=region)
         if category:
-            items = items.filter(product_list__product__category__name=category)
+            items = items.filter(product_list__product__category__name__iexact=category)
 
         grouped = defaultdict(lambda: {"volume": 0, "revenue": 0})
         for item in items:
-            region_name = item.order.pickup_address or "Unknown"
+            region_name = item.order.pickup_wilaya.name if item.order.pickup_wilaya else item.order.pickup_address or "Unknown"
             category_name = item.product_list.product.category.name
             key = (region_name, category_name)
             grouped[key]["volume"] += item.quantity
@@ -213,7 +255,7 @@ class FarmProfileView(APIView):
         if not farmer:
             farmer = Farmer.objects.create(person=user)
 
-        farm = farmer.farms.order_by("id").first()
+        farm = primary_farm(farmer)
         if not farm:
             farm = Farm.objects.create(
                 farmer=farmer,
@@ -228,52 +270,20 @@ class FarmProfileView(APIView):
         if user.role != User.Role.FARMER:
             return Response({"detail": "Only farmers can access profile."}, status=status.HTTP_403_FORBIDDEN)
 
-        _, farm = self._ensure_farmer_farm(user)
-
-        return Response(
-            {
-                "name": farm.name,
-                "location": farm.location,
-                "description": user.documents_url,
-                "contactInfo": user.phone_number,
-                "farmAddress": farm.location,
-            }
-        )
+        self._ensure_farmer_farm(user)
+        return Response(FarmerAccountSerializer().to_representation(user))
 
     def patch(self, request):
         user = request.user
         if user.role != User.Role.FARMER:
             return Response({"detail": "Only farmers can update profile."}, status=status.HTTP_403_FORBIDDEN)
 
-        _, farm = self._ensure_farmer_farm(user)
-
-        farm_name = request.data.get("name", farm.name)
-        location_value = request.data.get("location", farm.location)
-        farm_address = request.data.get("farmAddress", location_value)
-        description = request.data.get("description", user.documents_url)
-        contact_info = request.data.get("contactInfo", user.phone_number)
-
-        if isinstance(farm_name, str):
-            farm_name = farm_name.strip()
-        if isinstance(location_value, str):
-            location_value = location_value.strip()
-        if isinstance(farm_address, str):
-            farm_address = farm_address.strip()
-        if isinstance(description, str):
-            description = description.strip()
-        if isinstance(contact_info, str):
-            contact_info = contact_info.strip()
-
-        next_location = farm_address or location_value or farm.location
-
-        farm.name = farm_name or farm.name
-        farm.location = next_location
-        user.documents_url = description
-        user.phone_number = contact_info
+        self._ensure_farmer_farm(user)
+        serializer = FarmerAccountSerializer(data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
 
         try:
-            user.save(update_fields=["documents_url", "phone_number"])
-            farm.save(update_fields=["name", "location"])
+            serializer.update(user, serializer.validated_data)
         except IntegrityError:
             return Response(
                 {
@@ -285,12 +295,52 @@ class FarmProfileView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        return Response(
-            {
-                "name": farm.name,
-                "location": farm.location,
-                "description": user.documents_url,
-                "contactInfo": user.phone_number,
-                "farmAddress": farm.location,
-            }
-        )
+        return Response(serializer.to_representation(user))
+
+
+class BuyerProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if request.user.role != User.Role.BUYER:
+            return Response({"detail": "Only buyers can access profile."}, status=status.HTTP_403_FORBIDDEN)
+
+        if not hasattr(request.user, "buyer"):
+            Buyer.objects.create(person=request.user)
+        return Response(BuyerAccountSerializer().to_representation(request.user))
+
+    def patch(self, request):
+        if request.user.role != User.Role.BUYER:
+            return Response({"detail": "Only buyers can update profile."}, status=status.HTTP_403_FORBIDDEN)
+
+        if not hasattr(request.user, "buyer"):
+            Buyer.objects.create(person=request.user)
+
+        serializer = BuyerAccountSerializer(data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.update(request.user, serializer.validated_data)
+        return Response(serializer.to_representation(request.user))
+
+
+class TransporterProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if request.user.role != User.Role.TRANSPORTER:
+            return Response({"detail": "Only transporters can access profile."}, status=status.HTTP_403_FORBIDDEN)
+
+        if not hasattr(request.user, "transporter"):
+            Transporter.objects.create(person=request.user)
+        return Response(TransporterAccountSerializer().to_representation(request.user))
+
+    def patch(self, request):
+        if request.user.role != User.Role.TRANSPORTER:
+            return Response({"detail": "Only transporters can update profile."}, status=status.HTTP_403_FORBIDDEN)
+
+        if not hasattr(request.user, "transporter"):
+            Transporter.objects.create(person=request.user)
+
+        serializer = TransporterAccountSerializer(data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.update(request.user, serializer.validated_data)
+        return Response(serializer.to_representation(request.user))

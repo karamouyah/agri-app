@@ -21,6 +21,38 @@ class Order(models.Model):
     status = models.PositiveSmallIntegerField(choices=Status.choices, default=Status.PENDING, db_column="Status")
     delivery_address = models.CharField(max_length=255, blank=True, db_column="DeliveryAddress")
     pickup_address = models.CharField(max_length=255, blank=True, db_column="PickupAddress")
+    delivery_wilaya = models.ForeignKey(
+        "locations.Wilaya",
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        db_column="DeliveryWilaya",
+        related_name="delivery_orders",
+    )
+    delivery_commune = models.ForeignKey(
+        "locations.Commune",
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        db_column="DeliveryCommune",
+        related_name="delivery_orders",
+    )
+    pickup_wilaya = models.ForeignKey(
+        "locations.Wilaya",
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        db_column="PickupWilaya",
+        related_name="pickup_orders",
+    )
+    pickup_commune = models.ForeignKey(
+        "locations.Commune",
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        db_column="PickupCommune",
+        related_name="pickup_orders",
+    )
 
     class Meta:
         db_table = "Orders"

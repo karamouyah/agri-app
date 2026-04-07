@@ -10,6 +10,8 @@ export {
   clearCart,
   calculateCartTotals,
   getShippingProfile,
+  getBuyerProfile,
+  updateBuyerProfile,
   placeOrder,
   getBuyerOrders,
   getBuyerOrderById,

@@ -143,12 +143,36 @@ class Farmer(models.Model):
 class Buyer(models.Model):
     id = models.AutoField(primary_key=True, db_column="IDBuyer")
     person = models.OneToOneField(User, on_delete=models.CASCADE, db_column="IDPerson", related_name="buyer")
+    wilaya = models.ForeignKey(
+        "locations.Wilaya",
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        db_column="IDWilaya",
+        related_name="buyers",
+    )
+    commune = models.ForeignKey(
+        "locations.Commune",
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        db_column="IDCommune",
+        related_name="buyers",
+    )
 
     class Meta:
         db_table = "Buyer"
 
     def __str__(self):
         return f"Buyer<{self.person.email}>"
+
+    @property
+    def location_label(self):
+        if self.commune and self.wilaya:
+            return f"{self.commune.name}, {self.wilaya.name}"
+        if self.wilaya:
+            return self.wilaya.name
+        return self.person.address
 
 
 class AdminProfile(models.Model):
@@ -175,6 +199,13 @@ class Transporter(models.Model):
     capacity = models.IntegerField(null=True, blank=True, db_column="Capacity")
     service_area = models.CharField(max_length=255, blank=True, db_column="ServiceArea")
     vehicle_type = models.CharField(max_length=100, blank=True, db_column="VehicleType")
+    max_load_kg = models.PositiveIntegerField(null=True, blank=True, db_column="MaxLoadKg")
+    delivery_wilayas = models.ManyToManyField(
+        "locations.Wilaya",
+        related_name="transporters",
+        blank=True,
+        db_table="TransporterDeliveryWilaya",
+    )
     average_rating = models.IntegerField(null=True, blank=True, db_column="AverageRating")
     total_reviews = models.IntegerField(null=True, blank=True, db_column="TotalReviews")
 
@@ -184,6 +215,11 @@ class Transporter(models.Model):
     def __str__(self):
         return f"Transporter<{self.person.email}>"
 
+    @property
+    def coverage_label(self):
+        wilayas = list(self.delivery_wilayas.order_by("id").values_list("name", flat=True))
+        return ", ".join(wilayas) if wilayas else self.service_area
+
 
 class Farm(models.Model):
     id = models.AutoField(primary_key=True, db_column="IDFarm")
@@ -191,6 +227,22 @@ class Farm(models.Model):
     location = models.CharField(max_length=255, db_column="Location")
     name = models.CharField(max_length=150, blank=True, db_column="Name")
     area = models.IntegerField(null=True, blank=True, db_column="Area")
+    wilaya = models.ForeignKey(
+        "locations.Wilaya",
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        db_column="IDWilaya",
+        related_name="farms",
+    )
+    commune = models.ForeignKey(
+        "locations.Commune",
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        db_column="IDCommune",
+        related_name="farms",
+    )
 
     class Meta:
         db_table = "Farm"
@@ -200,6 +252,14 @@ class Farm(models.Model):
 
     def __str__(self):
         return self.name or self.location
+
+    @property
+    def location_label(self):
+        if self.commune and self.wilaya:
+            return f"{self.commune.name}, {self.wilaya.name}"
+        if self.wilaya:
+            return self.wilaya.name
+        return self.location
 
 
 class JoinRequest(models.Model):

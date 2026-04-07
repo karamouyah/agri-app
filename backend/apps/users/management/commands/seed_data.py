@@ -12,6 +12,8 @@ from faker import Faker
 from apps.catalog.catalog_data import sync_controlled_catalog
 from apps.catalog.models import Category, OfficialPrice, Product, ProductList, Season
 from apps.logistics.models import ItemReview, Shipment, TransporterReview
+from apps.locations.data import sync_algeria_locations
+from apps.locations.models import Commune, Wilaya
 from apps.orders.models import Order, OrderItem, Payment
 from apps.users.models import AdminProfile, Buyer, Farm, Farmer, JoinRequest, Transporter, User
 
@@ -76,19 +78,6 @@ ALGERIAN_LAST_NAMES = [
     "Touati",
     "Yahiaoui",
     "Zerrouki",
-]
-
-ALGERIAN_WILAYAS = [
-    ("Algiers", ["Bab Ezzouar", "Bir Mourad Rais", "Draria", "El Harrach", "Kouba"]),
-    ("Blida", ["Beni Tamou", "Boufarik", "Chebli", "Meftah", "Mouzaia"]),
-    ("Boumerdes", ["Boudouaou", "Corso", "Dellys", "Khemis El Khechna", "Thenia"]),
-    ("Tipaza", ["Cherchell", "Douaouda", "Hadjout", "Kolea", "Tipaza"]),
-    ("Medea", ["Berrouaghia", "Ksar El Boukhari", "Medea", "Ouzera", "Tablat"]),
-    ("Setif", ["Ain Arnat", "Ain Oulmene", "El Eulma", "Guidjel", "Setif"]),
-    ("Oran", ["Arzew", "Bir El Djir", "Es Senia", "Misserghin", "Oran"]),
-    ("Mostaganem", ["Ain Nouissy", "Bouguirat", "Mazagran", "Mostaganem", "Sidi Ali"]),
-    ("Tlemcen", ["Chetouane", "Ghazaouet", "Maghnia", "Mansourah", "Remchi"]),
-    ("Constantine", ["Ain Smara", "El Khroub", "Hamma Bouziane", "Constantine", "Zighoud Youcef"]),
 ]
 
 FARM_NAME_PREFIXES = ["Domaine", "Exploitation", "Ferme", "Jardin", "Parc Agricole", "Verger"]
@@ -198,6 +187,9 @@ class Command(BaseCommand):
                 self._reset_generated_data()
 
             sync_controlled_catalog(Category, Product)
+            sync_algeria_locations(Wilaya, Commune)
+            self.wilaya_pool = list(Wilaya.objects.order_by("id"))
+            self.commune_pool = list(Commune.objects.select_related("wilaya").order_by("id"))
             season = self._get_current_season()
             ministries = self._seed_ministry_users(max(1, options["ministries"]))
             farmers = self._seed_farmer_users(options["farmers"])
@@ -351,12 +343,15 @@ class Command(BaseCommand):
         ]
         return first_name, last_name
 
+    @staticmethod
+    def _location_name(value):
+        return value.name if hasattr(value, "name") else str(value)
+
     def _pick_city(self, index, offset):
-        wilaya, cities = ALGERIAN_WILAYAS[
-            (index + offset + self.random.randint(0, len(ALGERIAN_WILAYAS) - 1)) % len(ALGERIAN_WILAYAS)
+        commune = self.commune_pool[
+            (index + offset + self.random.randint(0, len(self.commune_pool) - 1)) % len(self.commune_pool)
         ]
-        city = cities[(index + offset + self.random.randint(0, len(cities) - 1)) % len(cities)]
-        return city, wilaya
+        return commune, commune.wilaya
 
     def _build_home_address(self, city, wilaya, index, offset):
         street_name = HOME_STREET_NAMES[
@@ -364,7 +359,10 @@ class Command(BaseCommand):
         ]
         block = self.fake.numerify("##")
         building = self.fake.numerify("##")
-        return f"Bloc {block}, Immeuble {building}, {street_name}, {city}, {wilaya}, Algeria"
+        return (
+            f"Bloc {block}, Immeuble {building}, {street_name}, "
+            f"{self._location_name(city)}, {self._location_name(wilaya)}, Algeria"
+        )
 
     def _build_farm_name(self, index):
         prefix = FARM_NAME_PREFIXES[(index + self.random.randint(0, len(FARM_NAME_PREFIXES) - 1)) % len(FARM_NAME_PREFIXES)]
@@ -377,15 +375,26 @@ class Command(BaseCommand):
                 (index + self.random.randint(0, len(FARM_ROUTE_NAMES) - 1)) % len(FARM_ROUTE_NAMES)
             ]
             parcel = self.fake.numerify("###")
-            location = f"Parcelle {parcel}, {route_name}, {city}, {wilaya}, Algeria"
+            location = (
+                f"Parcelle {parcel}, {route_name}, "
+                f"{self._location_name(city)}, {self._location_name(wilaya)}, Algeria"
+            )
             if location.lower() not in self.used_farm_locations:
                 self.used_farm_locations.add(location.lower())
                 return location
 
     def _build_service_area(self, city, wilaya):
-        extra_pairs = self.random.sample(ALGERIAN_WILAYAS, k=2)
-        nearby_segments = [f"{extra_cities[0]}, {extra_wilaya}" for extra_wilaya, extra_cities in extra_pairs]
-        return f"{city}, {wilaya} -> " + " -> ".join(nearby_segments)
+        base_wilaya = wilaya if hasattr(wilaya, "id") else None
+        extra_pool = [item for item in self.wilaya_pool if not base_wilaya or item.id != base_wilaya.id]
+        extras = self.random.sample(extra_pool, k=min(2, len(extra_pool)))
+        coverage = [self._location_name(wilaya)] + [item.name for item in extras]
+        return ", ".join(dict.fromkeys(coverage))
+
+    def _build_delivery_wilayas(self, wilaya):
+        extra_pool = [item for item in self.wilaya_pool if item.id != wilaya.id]
+        extra_count = min(len(extra_pool), self.random.randint(1, 4))
+        extras = self.random.sample(extra_pool, k=extra_count)
+        return list(dict.fromkeys([wilaya, *extras]))
 
     def _generate_phone_number(self):
         prefix = self.random.choice(["5", "6", "7"])
@@ -442,6 +451,8 @@ class Command(BaseCommand):
                 defaults={
                     "name": self._build_farm_name(index),
                     "location": self._build_unique_farm_location(index, city, wilaya),
+                    "wilaya": wilaya,
+                    "commune": city,
                     "area": self.random.randint(4, 90),
                 },
             )
@@ -462,7 +473,13 @@ class Command(BaseCommand):
                 status=status,
                 address=self._build_home_address(city, wilaya, index, offset=900),
             )
-            buyer, _ = Buyer.objects.get_or_create(person=user)
+            buyer, _ = Buyer.objects.update_or_create(
+                person=user,
+                defaults={
+                    "wilaya": wilaya,
+                    "commune": city,
+                },
+            )
             buyers.append(buyer)
         return buyers
 
@@ -480,16 +497,20 @@ class Command(BaseCommand):
                 status=status,
                 address=self._build_home_address(city, wilaya, index, offset=1200),
             )
+            max_load_kg = self.random.randint(900, 12000)
+            delivery_wilayas = self._build_delivery_wilayas(wilaya)
             transporter, _ = Transporter.objects.update_or_create(
                 person=user,
                 defaults={
-                    "capacity": self.random.randint(900, 12000),
+                    "capacity": max_load_kg,
+                    "max_load_kg": max_load_kg,
                     "service_area": self._build_service_area(city, wilaya),
                     "vehicle_type": self.random.choice(VEHICLE_TYPES),
                     "average_rating": self.random.randint(3, 5) if status == User.Status.APPROVED else None,
                     "total_reviews": self.random.randint(2, 40) if status == User.Status.APPROVED else None,
                 },
             )
+            transporter.delivery_wilayas.set(delivery_wilayas)
             transporters.append(transporter)
         return transporters
 
@@ -561,7 +582,7 @@ class Command(BaseCommand):
             status = self.random.choices(statuses, weights=weights, k=1)[0]
             buyer = buyer_pool[(index - 1) % len(buyer_pool)]
             farmer = chosen_listings[0].farmer
-            farm = farmer.farms.order_by("id").first()
+            farm = farmer.farms.select_related("wilaya", "commune").order_by("id").first()
             order_date = self.fake.date_time_between(
                 start_date="-120d",
                 end_date="-1d",
@@ -573,6 +594,10 @@ class Command(BaseCommand):
                 farmer=farmer,
                 delivery_address=buyer.person.address,
                 pickup_address=farm.location if farm else farmer.person.address,
+                delivery_wilaya=buyer.wilaya,
+                delivery_commune=buyer.commune,
+                pickup_wilaya=farm.wilaya if farm else None,
+                pickup_commune=farm.commune if farm else None,
                 status=status,
                 total_amount=0,
             )
@@ -598,6 +623,7 @@ class Command(BaseCommand):
                 for listing, quantity in reserved_quantities:
                     remaining_quantities[listing.id] -= quantity
 
+            total_load_kg = sum(quantity for _listing, quantity in reserved_quantities)
             order.total_amount = total_amount
             order.order_date = order_date
             order.save(update_fields=["total_amount", "order_date"])
@@ -612,7 +638,14 @@ class Command(BaseCommand):
 
             transporter = None
             if status in {Order.Status.ACCEPTED, Order.Status.SHIPPED, Order.Status.IN_TRANSIT, Order.Status.DELIVERED}:
-                transporter = transporter_pool[(index - 1) % len(transporter_pool)] if transporter_pool else None
+                eligible_transporters = [
+                    item
+                    for item in transporter_pool
+                    if item.max_load_kg
+                    and item.max_load_kg >= total_load_kg
+                    and item.delivery_wilayas.filter(id=buyer.wilaya_id).exists()
+                ]
+                transporter = eligible_transporters[(index - 1) % len(eligible_transporters)] if eligible_transporters else None
 
             pickup_date = order_date + timedelta(hours=self.random.randint(12, 72))
             estimated_delivery = pickup_date + timedelta(days=self.random.randint(1, 4))

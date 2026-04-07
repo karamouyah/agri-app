@@ -119,6 +119,10 @@ class ProductSerializer(serializers.ModelSerializer):
     quantity_available = serializers.IntegerField(source="quantity", min_value=0)
     farmer_name = serializers.SerializerMethodField()
     farmer_region = serializers.SerializerMethodField()
+    farmer_wilaya_id = serializers.SerializerMethodField()
+    farmer_wilaya = serializers.SerializerMethodField()
+    farmer_commune_id = serializers.SerializerMethodField()
+    farmer_commune = serializers.SerializerMethodField()
     quality = serializers.SerializerMethodField()
     image_url = serializers.SerializerMethodField()
     description = serializers.SerializerMethodField()
@@ -143,6 +147,10 @@ class ProductSerializer(serializers.ModelSerializer):
             "quantity_available",
             "farmer_name",
             "farmer_region",
+            "farmer_wilaya_id",
+            "farmer_wilaya",
+            "farmer_commune_id",
+            "farmer_commune",
             "quality",
             "image_url",
             "description",
@@ -181,7 +189,23 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def get_farmer_region(self, obj):
         farm = obj.farmer.farms.order_by("id").first()
-        return farm.location if farm else "Unknown"
+        return farm.location_label if farm else "Unknown"
+
+    def get_farmer_wilaya_id(self, obj):
+        farm = obj.farmer.farms.order_by("id").first()
+        return farm.wilaya_id if farm else None
+
+    def get_farmer_wilaya(self, obj):
+        farm = obj.farmer.farms.select_related("wilaya").order_by("id").first()
+        return farm.wilaya.name if farm and farm.wilaya else ""
+
+    def get_farmer_commune_id(self, obj):
+        farm = obj.farmer.farms.order_by("id").first()
+        return farm.commune_id if farm else None
+
+    def get_farmer_commune(self, obj):
+        farm = obj.farmer.farms.select_related("commune").order_by("id").first()
+        return farm.commune.name if farm and farm.commune else ""
 
     def get_quality(self, _obj):
         return "A"

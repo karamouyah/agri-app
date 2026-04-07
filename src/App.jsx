@@ -10,7 +10,9 @@ import FarmerRevenues from './mvc/views/farmer/FarmerRevenues'
 import LoginPage from './mvc/views/LoginPage'
 import RegisterPage from './mvc/views/RegisterPage'
 import BuyerDashboard from './mvc/views/role/BuyerDashboard'
+import BuyerProfile from './mvc/views/buyer/BuyerProfile'
 import TransporterDashboard from './mvc/views/transporter/TransporterDashboard'
+import TransporterProfile from './mvc/views/transporter/TransporterProfile'
 import LandingPage from './mvc/views/LandingPage'
 import { getDashboardPath } from './utils/roleRoutes'
 import BuyerSearch from './mvc/views/buyer/BuyerSearch'
@@ -59,6 +61,7 @@ function App() {
       <Route element={<PrivateRoute allowedRoles={['buyer']} />}>
         <Route path="/buyer" element={<Layout role="buyer" />}>
           <Route path="dashboard" element={<BuyerDashboard />} />
+          <Route path="profile" element={<BuyerProfile />} />
           <Route path="search" element={<BuyerSearch />} />
           <Route path="product/:id" element={<BuyerProductDetails />} />
           <Route path="cart" element={<BuyerCart />} />
@@ -73,6 +76,7 @@ function App() {
       <Route element={<PrivateRoute allowedRoles={['transporter']} />}>
         <Route path="/transporter" element={<Layout role="transporter" />}>
           <Route path="dashboard" element={<TransporterDashboard />} />
+          <Route path="profile" element={<TransporterProfile />} />
           <Route path="delivery/:id" element={<TransporterDeliveryDetails />} />
           <Route index element={<Navigate to="dashboard" replace />} />
         </Route>

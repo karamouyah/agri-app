@@ -1,15 +1,23 @@
 import { useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { FiCheckCircle, FiFeather, FiShield, FiTruck } from 'react-icons/fi'
+import { FiCheckCircle, FiLogIn, FiShield, FiTruck, FiUser } from 'react-icons/fi'
 import { useAuth } from '../../context/AuthContext'
 import { getDashboardPath } from '../../utils/roleRoutes'
-import BrandLogo from '../../components/BrandLogo'
 import AgriIllustration from '../../components/AgriIllustration'
+import BrandLogo from '../../components/BrandLogo'
+import ThemeToggle from '../../components/ThemeToggle'
+import {
+  Card,
+  FormField,
+  Input,
+  SoftCard,
+  buttonStyles,
+} from '../../components/ui'
 
 const trustPoints = [
-  { icon: FiFeather, text: 'Fresh-produce marketplace workflows' },
-  { icon: FiTruck, text: 'Integrated logistics and delivery tracking' },
-  { icon: FiShield, text: 'Ministry-controlled approvals and trust' },
+  { icon: FiUser, text: 'Role-based access for farmers, buyers, transporters, and ministry users.' },
+  { icon: FiTruck, text: 'Operational visibility from product discovery through delivery tracking.' },
+  { icon: FiShield, text: 'Verified access with controlled workflows and approval-aware routing.' },
 ]
 
 export default function LoginPage() {
@@ -46,116 +54,99 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden px-4 py-8 md:px-8">
-      <div className="absolute left-[-5rem] top-[12rem] -z-10 h-64 w-64 rounded-full bg-lime-200/40 blur-3xl" />
-      <div className="absolute bottom-[-5rem] right-[-5rem] -z-10 h-72 w-72 rounded-full bg-amber-100/35 blur-3xl" />
-      <div className="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-        <aside className="surface-card section-shell relative overflow-hidden p-6 md:p-8">
-          <div className="absolute -right-12 -top-10 h-48 w-48 rounded-full bg-emerald-200/60 blur-3xl" />
-          <div className="absolute -bottom-14 -left-10 h-56 w-56 rounded-full bg-lime-200/55 blur-3xl" />
+    <div className="relative min-h-screen overflow-hidden px-4 py-6 md:px-6">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(circle_at_top_left,_rgba(167,243,208,0.4),_transparent_28%),radial-gradient(circle_at_top_right,_rgba(236,253,245,0.85),_transparent_30%)] dark:bg-[radial-gradient(circle_at_top_left,_rgba(34,197,94,0.18),_transparent_26%),radial-gradient(circle_at_top_right,_rgba(15,23,42,0.7),_transparent_30%)]" />
 
-          <div className="relative">
+      <div className="relative mx-auto max-w-6xl">
+        <div className="mb-4 flex justify-end">
+          <ThemeToggle />
+        </div>
+        <div className="grid gap-6 lg:grid-cols-[1.02fr_0.98fr]">
+          <Card className="overflow-hidden p-6 md:p-8">
             <BrandLogo size="sm" />
-            <p className="badge-soft mt-4 px-3 py-1 text-xs">
+            <p className="mt-6 inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/40 dark:text-emerald-300">
               <FiCheckCircle />
-              AgriGov Secure Access
+              Secure platform access
             </p>
-            <h1 className="mt-4 text-3xl font-bold leading-tight text-slate-900 md:text-4xl">
-              Welcome back to the
-              <span className="block text-emerald-700">Agri Marketplace Hub</span>
+            <h1 className="mt-5 max-w-xl text-4xl font-bold leading-tight text-slate-900">
+              Sign in to a fresher agricultural workspace.
             </h1>
-            <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-600 md:text-base">
-              Sign in to manage agricultural operations, marketplace activity, and logistics flows with a
-              trusted, ministry-supervised platform.
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 md:text-base">
+              Manage sourcing, deliveries, approvals, and marketplace activity from one clean, responsive interface.
             </p>
 
             <div className="mt-6 space-y-3">
               {trustPoints.map((item) => {
                 const Icon = item.icon
                 return (
-                  <div
-                    key={item.text}
-                    className="surface-muted lift-card flex items-center gap-3 px-3 py-3 text-sm shadow-[0_10px_24px_rgba(65,88,74,0.06)]"
-                  >
-                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-100 to-amber-50 text-emerald-700">
+                  <SoftCard key={item.text} className="flex items-start gap-3">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-emerald-700 shadow-sm ring-1 ring-emerald-100 dark:bg-slate-800 dark:text-emerald-300 dark:ring-slate-700">
                       <Icon />
                     </span>
-                    <span className="text-slate-700">{item.text}</span>
-                  </div>
+                    <p className="text-sm leading-6 text-slate-600">{item.text}</p>
+                  </SoftCard>
                 )
               })}
             </div>
 
-            <div className="media-shell mt-6 p-3">
-              <AgriIllustration variant="auth" className="h-60" />
+            <div className="mt-6 media-frame">
+              <AgriIllustration variant="auth" className="h-72" />
             </div>
-          </div>
-        </aside>
+          </Card>
 
-        <section className="surface-card section-shell motion-fade-up p-6 md:p-8">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Account Login</p>
-            <h2 className="mt-2 text-2xl font-bold text-slate-900">Sign in to your workspace</h2>
-            <p className="mt-1 text-sm text-slate-600">Use your approved account to continue.</p>
+          <Card className="p-6 md:p-8">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">Account Login</p>
+            <h2 className="mt-2 text-3xl font-bold text-slate-900">Welcome back</h2>
+            <p className="mt-2 text-sm text-slate-600">Use your approved account credentials to open your workspace.</p>
+
             {notice ? (
-              <p className="mt-3 rounded-2xl border border-emerald-100 bg-gradient-to-r from-emerald-50 to-amber-50 px-3 py-2.5 text-sm text-emerald-700">
+              <div className="mt-4 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/40 dark:text-emerald-300">
                 {notice}
-              </p>
+              </div>
             ) : null}
-          </div>
 
-          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-            <div>
-              <label htmlFor="email" className="mb-1 block text-sm font-semibold text-slate-700">
-                Email
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                value={formData.email}
-                onChange={handleChange}
-                className="field-control w-full px-3 py-2.5"
-                placeholder="you@agri.gov"
-              />
-            </div>
+            <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+              <FormField label="Email">
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="you@agrigov.com"
+                />
+              </FormField>
 
-            <div>
-              <label htmlFor="password" className="mb-1 block text-sm font-semibold text-slate-700">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                minLength={4}
-                value={formData.password}
-                onChange={handleChange}
-                className="field-control w-full px-3 py-2.5"
-                placeholder="••••••••"
-              />
-            </div>
+              <FormField label="Password">
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  minLength={4}
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Enter your password"
+                />
+              </FormField>
 
-            {error ? <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p> : null}
+              {error ? <div className="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">{error}</div> : null}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary w-full px-4 py-2.5 text-sm disabled:cursor-not-allowed disabled:opacity-70"
-            >
-              {loading ? 'Signing in...' : 'Login'}
-            </button>
-          </form>
+              <button type="submit" disabled={loading} className={`${buttonStyles.primary} w-full`}>
+                <FiLogIn />
+                {loading ? 'Signing In...' : 'Login'}
+              </button>
+            </form>
 
-          <p className="mt-4 text-sm text-slate-600">
-            New to the platform?{' '}
-            <Link to="/register" className="font-semibold text-emerald-700 hover:underline">
-              Create account
-            </Link>
-          </p>
-        </section>
+            <p className="mt-5 text-sm text-slate-600">
+              New to the platform?{' '}
+              <Link to="/register" className="font-semibold text-emerald-700 hover:text-emerald-800">
+                Create account
+              </Link>
+            </p>
+          </Card>
+        </div>
       </div>
     </div>
   )

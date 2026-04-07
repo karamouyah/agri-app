@@ -43,8 +43,9 @@ class FarmerAdmin(admin.ModelAdmin):
 
 @admin.register(Buyer)
 class BuyerAdmin(admin.ModelAdmin):
-    list_display = ["id", "person"]
-    search_fields = ["person__email"]
+    list_display = ["id", "person", "wilaya", "commune"]
+    list_filter = ["wilaya"]
+    search_fields = ["person__email", "wilaya__name", "commune__name"]
 
 
 @admin.register(AdminProfile)
@@ -55,14 +56,17 @@ class AdminProfileAdmin(admin.ModelAdmin):
 
 @admin.register(Transporter)
 class TransporterAdmin(admin.ModelAdmin):
-    list_display = ["id", "person", "vehicle_type", "service_area", "capacity"]
-    search_fields = ["person__email", "vehicle_type"]
+    list_display = ["id", "person", "vehicle_type", "max_load_kg", "service_area", "capacity"]
+    list_filter = ["delivery_wilayas"]
+    filter_horizontal = ["delivery_wilayas"]
+    search_fields = ["person__email", "vehicle_type", "delivery_wilayas__name"]
 
 
 @admin.register(Farm)
 class FarmAdmin(admin.ModelAdmin):
-    list_display = ["id", "farmer", "name", "location", "area"]
-    search_fields = ["name", "location", "farmer__person__email"]
+    list_display = ["id", "farmer", "name", "location", "wilaya", "commune", "area"]
+    list_filter = ["wilaya"]
+    search_fields = ["name", "location", "wilaya__name", "commune__name", "farmer__person__email"]
 
 
 @admin.register(JoinRequest)

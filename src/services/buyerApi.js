@@ -18,6 +18,8 @@ const toStorage = (key, data) => {
 export const buyerFilterOptions = {
   categories: [],
   locations: [],
+  wilayas: [],
+  communes: [],
   qualities: ['A', 'B', 'Premium'],
 }
 
@@ -25,6 +27,8 @@ apiRequest('/catalog/filters/')
   .then((payload) => {
     buyerFilterOptions.categories = payload.categories || []
     buyerFilterOptions.locations = payload.locations || []
+    buyerFilterOptions.wilayas = payload.wilayas || []
+    buyerFilterOptions.communes = payload.communes || []
     buyerFilterOptions.qualities = payload.qualities || buyerFilterOptions.qualities
   })
   .catch(() => {
@@ -43,6 +47,10 @@ const normalizeProduct = (item) => ({
   quantityAvailable: item.quantity_available,
   farmerName: item.farmer_name,
   farmerRegion: item.farmer_region,
+  farmerWilayaId: Number(item.farmer_wilaya_id || 0) || '',
+  farmerWilaya: item.farmer_wilaya || '',
+  farmerCommuneId: Number(item.farmer_commune_id || 0) || '',
+  farmerCommune: item.farmer_commune || '',
   quality: item.quality,
   imageUrl: item.image_url || '',
   description: item.description || '',
@@ -72,6 +80,14 @@ const normalizeOrder = (order) => ({
   estimatedDelivery: order.estimated_delivery,
   paymentMethod: order.payment_method,
   address: order.address,
+  deliveryWilayaId: Number(order.delivery_wilaya_id || 0) || '',
+  deliveryWilayaName: order.delivery_wilaya_name || '',
+  deliveryCommuneId: Number(order.delivery_commune_id || 0) || '',
+  deliveryCommuneName: order.delivery_commune_name || '',
+  pickupWilayaId: Number(order.pickup_wilaya_id || 0) || '',
+  pickupWilayaName: order.pickup_wilaya_name || '',
+  pickupCommuneId: Number(order.pickup_commune_id || 0) || '',
+  pickupCommuneName: order.pickup_commune_name || '',
   items: order.items.map((item) => ({
     productId: item.product_id,
     name: item.name,
@@ -87,6 +103,8 @@ export const searchProducts = async (query = '', filters = {}, page = 1, pageSiz
   if (query) params.set('q', query)
   if (filters.category) params.set('category', filters.category)
   if (filters.location) params.set('location', filters.location)
+  if (filters.wilaya) params.set('wilaya', filters.wilaya)
+  if (filters.commune) params.set('commune', filters.commune)
   if (filters.quality) params.set('quality', filters.quality)
 
   const products = await apiRequest(`/catalog/products/${params.toString() ? `?${params.toString()}` : ''}`)
@@ -179,14 +197,80 @@ export const calculateCartTotals = (cartItems) => {
   return { subtotal, taxes, total, currency: PLATFORM_CURRENCY }
 }
 
-export const getShippingProfile = async () =>
-  fromStorage(KEYS.shipping, {
-    fullName: '',
-    phone: '',
-    address: '',
-    city: '',
-    postalCode: '',
+export const getShippingProfile = async () => {
+  try {
+    const profile = await apiRequest('/auth/buyer/profile/')
+    const shippingProfile = {
+      fullName: '',
+      phone: profile.phone_number || profile.phone || '',
+      address: profile.street_address || '',
+      city: profile.commune_name || '',
+      postalCode: '',
+      wilayaId: Number(profile.wilaya_id || profile.wilayaId || 0) || '',
+      communeId: Number(profile.commune_id || profile.communeId || 0) || '',
+    }
+    toStorage(KEYS.shipping, shippingProfile)
+    return shippingProfile
+  } catch (_error) {
+    return fromStorage(KEYS.shipping, {
+      fullName: '',
+      phone: '',
+      address: '',
+      city: '',
+      postalCode: '',
+      wilayaId: '',
+      communeId: '',
+    })
+  }
+}
+
+export const getBuyerProfile = async () => {
+  const profile = await apiRequest('/auth/buyer/profile/')
+  return {
+    address: profile.address || '',
+    streetAddress: profile.street_address || '',
+    phoneNumber: profile.phone_number || profile.phone || '',
+    wilayaId: Number(profile.wilaya_id || profile.wilayaId || 0) || '',
+    wilayaName: profile.wilaya_name || '',
+    communeId: Number(profile.commune_id || profile.communeId || 0) || '',
+    communeName: profile.commune_name || '',
+    locationLabel: profile.location_label || '',
+  }
+}
+
+export const updateBuyerProfile = async (profile) => {
+  const payload = await apiRequest('/auth/buyer/profile/', {
+    method: 'PATCH',
+    body: {
+      address: profile.address,
+      phone_number: profile.phoneNumber,
+      wilaya_id: Number(profile.wilayaId),
+      commune_id: Number(profile.communeId),
+    },
   })
+
+  const shippingProfile = {
+    fullName: profile.fullName || '',
+    phone: payload.phone_number || profile.phoneNumber || '',
+    address: payload.street_address || profile.address || '',
+    city: payload.commune_name || '',
+    postalCode: profile.postalCode || '',
+    wilayaId: Number(payload.wilaya_id || payload.wilayaId || 0) || '',
+    communeId: Number(payload.commune_id || payload.communeId || 0) || '',
+  }
+  toStorage(KEYS.shipping, shippingProfile)
+
+  return {
+    address: payload.address || '',
+    streetAddress: payload.street_address || '',
+    phoneNumber: payload.phone_number || '',
+    wilayaId: Number(payload.wilaya_id || payload.wilayaId || 0) || '',
+    wilayaName: payload.wilaya_name || '',
+    communeId: Number(payload.commune_id || payload.communeId || 0) || '',
+    communeName: payload.commune_name || '',
+    locationLabel: payload.location_label || '',
+  }
+}
 
 export const placeOrder = async (cartItems, address, paymentMethod) => {
   const farmerNames = [...new Set(cartItems.map((item) => item.farmerName).filter(Boolean))]
@@ -198,7 +282,9 @@ export const placeOrder = async (cartItems, address, paymentMethod) => {
     method: 'POST',
     body: {
       items: cartItems.map((item) => ({ product_id: item.productId, quantity: Number(item.quantity) })),
-      address: `${address.address}, ${address.city} ${address.postalCode}`,
+      address: address.address,
+      wilaya_id: Number(address.wilayaId),
+      commune_id: Number(address.communeId),
       payment_method: paymentMethod,
     },
   })

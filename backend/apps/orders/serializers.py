@@ -91,13 +91,13 @@ class OrderSerializer(serializers.ModelSerializer):
     total = serializers.IntegerField(source="total_amount", read_only=True)
     currency = serializers.SerializerMethodField()
     items = OrderItemSerializer(many=True, read_only=True)
-    delivery_wilaya_id = serializers.IntegerField(source="delivery_wilaya_id", read_only=True)
+    delivery_wilaya_id = serializers.IntegerField(read_only=True)
     delivery_wilaya_name = serializers.CharField(source="delivery_wilaya.name", read_only=True)
-    delivery_commune_id = serializers.IntegerField(source="delivery_commune_id", read_only=True)
+    delivery_commune_id = serializers.IntegerField(read_only=True)
     delivery_commune_name = serializers.CharField(source="delivery_commune.name", read_only=True)
-    pickup_wilaya_id = serializers.IntegerField(source="pickup_wilaya_id", read_only=True)
+    pickup_wilaya_id = serializers.IntegerField(read_only=True)
     pickup_wilaya_name = serializers.CharField(source="pickup_wilaya.name", read_only=True)
-    pickup_commune_id = serializers.IntegerField(source="pickup_commune_id", read_only=True)
+    pickup_commune_id = serializers.IntegerField(read_only=True)
     pickup_commune_name = serializers.CharField(source="pickup_commune.name", read_only=True)
 
     class Meta:

@@ -1,11 +1,17 @@
 import os
 from datetime import timedelta
 from pathlib import Path
+from urllib.parse import parse_qsl, unquote, urlparse
 
+from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
+
+INSECURE_SECRET_KEY = "insecure-dev-only-secret-key-change-me"
+DEFAULT_ALLOWED_HOSTS = "127.0.0.1,localhost"
+DEFAULT_FRONTEND_ORIGINS = "http://localhost:5173,http://127.0.0.1:5173"
 
 
 def get_bool(name: str, default: bool = False) -> bool:
@@ -30,7 +36,42 @@ def get_int(name: str, default: int) -> int:
         return default
 
 
+def get_database_url_config(database_url: str) -> dict:
+    parsed = urlparse(database_url)
+    engine_map = {
+        "postgres": "django.db.backends.postgresql",
+        "postgresql": "django.db.backends.postgresql",
+    }
+    engine = engine_map.get(parsed.scheme)
+
+    if not engine:
+        raise ImproperlyConfigured(
+            "DATABASE_URL must use a supported PostgreSQL scheme such as postgres:// or postgresql://."
+        )
+
+    database = {
+        "ENGINE": engine,
+        "NAME": unquote(parsed.path.lstrip("/")),
+        "USER": unquote(parsed.username or ""),
+        "PASSWORD": unquote(parsed.password or ""),
+        "HOST": parsed.hostname or "",
+        "PORT": str(parsed.port or ""),
+        "CONN_MAX_AGE": get_int("DB_CONN_MAX_AGE", 60),
+        "CONN_HEALTH_CHECKS": get_bool("DB_CONN_HEALTH_CHECKS", True),
+    }
+
+    options = dict(parse_qsl(parsed.query, keep_blank_values=False))
+    if options:
+        database["OPTIONS"] = options
+
+    return database
+
+
 def get_database_config() -> dict:
+    database_url = os.getenv("DATABASE_URL", "").strip()
+    if database_url:
+        return get_database_url_config(database_url)
+
     engine = os.getenv("DB_ENGINE", "django.db.backends.postgresql").strip()
 
     if engine == "django.db.backends.sqlite3":
@@ -47,6 +88,7 @@ def get_database_config() -> dict:
         "HOST": os.getenv("DB_HOST", "127.0.0.1"),
         "PORT": os.getenv("DB_PORT", "5432"),
         "CONN_MAX_AGE": get_int("DB_CONN_MAX_AGE", 60),
+        "CONN_HEALTH_CHECKS": get_bool("DB_CONN_HEALTH_CHECKS", True),
     }
 
     sslmode = os.getenv("DB_SSLMODE")
@@ -56,9 +98,15 @@ def get_database_config() -> dict:
     return database
 
 
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "insecure-dev-only-secret-key-change-me")
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", INSECURE_SECRET_KEY)
 DEBUG = get_bool("DJANGO_DEBUG", True)
-ALLOWED_HOSTS = get_list("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost")
+ALLOWED_HOSTS = get_list("DJANGO_ALLOWED_HOSTS", DEFAULT_ALLOWED_HOSTS)
+
+if not DEBUG and SECRET_KEY == INSECURE_SECRET_KEY:
+    raise ImproperlyConfigured("DJANGO_SECRET_KEY must be set to a secure value when DJANGO_DEBUG is False.")
+
+if not DEBUG and not ALLOWED_HOSTS:
+    raise ImproperlyConfigured("DJANGO_ALLOWED_HOSTS must be set when DJANGO_DEBUG is False.")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -79,6 +127,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -124,14 +173,27 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "users.User"
 
 # Security: keep browser and proxy hardening enabled in production.
 SECURE_SSL_REDIRECT = get_bool("SECURE_SSL_REDIRECT", not DEBUG)
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+USE_X_FORWARDED_HOST = get_bool("USE_X_FORWARDED_HOST", not DEBUG)
+SECURE_HSTS_SECONDS = get_int("SECURE_HSTS_SECONDS", 0 if DEBUG else 31536000)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = get_bool("SECURE_HSTS_INCLUDE_SUBDOMAINS", not DEBUG)
+SECURE_HSTS_PRELOAD = get_bool("SECURE_HSTS_PRELOAD", False)
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SECURE = not DEBUG
@@ -143,11 +205,11 @@ SECURE_REFERRER_POLICY = "same-origin"
 
 CORS_ALLOWED_ORIGINS = get_list(
     "CORS_ALLOWED_ORIGINS",
-    "http://localhost:5173,http://127.0.0.1:5173",
+    DEFAULT_FRONTEND_ORIGINS,
 )
 CSRF_TRUSTED_ORIGINS = get_list(
     "CSRF_TRUSTED_ORIGINS",
-    "http://localhost:5173,http://127.0.0.1:5173",
+    DEFAULT_FRONTEND_ORIGINS,
 )
 
 REST_FRAMEWORK = {

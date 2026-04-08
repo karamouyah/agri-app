@@ -1,4 +1,13 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api'
+const DEFAULT_DEV_API_BASE_URL = 'http://127.0.0.1:8000/api'
+
+const normalizeBaseUrl = (value) => {
+  const trimmed = value?.trim()
+  return trimmed ? trimmed.replace(/\/+$/, '') : ''
+}
+
+const API_BASE_URL =
+  normalizeBaseUrl(import.meta.env.VITE_API_BASE_URL) ||
+  (import.meta.env.DEV ? DEFAULT_DEV_API_BASE_URL : '')
 
 const TOKENS_KEY = 'agri_auth_tokens'
 
@@ -60,21 +69,37 @@ const buildHeaders = (headers = {}, hasBody = false) => {
   return merged
 }
 
+const getApiUrl = (path) => {
+  if (!API_BASE_URL) {
+    throw new Error(
+      'VITE_API_BASE_URL is not configured. Set it in Vercel before using the production build.',
+    )
+  }
+
+  return `${API_BASE_URL}${path}`
+}
+
 export const apiRequest = async (path, options = {}) => {
   const method = options.method || 'GET'
   const hasBody = options.body !== undefined
   let response
 
   try {
-    response = await fetch(`${API_BASE_URL}${path}`, {
+    response = await fetch(getApiUrl(path), {
       ...options,
       method,
       headers: buildHeaders(options.headers, hasBody),
       body: hasBody && typeof options.body !== 'string' ? JSON.stringify(options.body) : options.body,
     })
-  } catch (_error) {
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('VITE_API_BASE_URL')) {
+      throw error
+    }
+
     throw new Error(
-      `Cannot reach backend API at ${API_BASE_URL}. Start Django server and verify CORS/URL settings.`,
+      import.meta.env.DEV
+        ? `Cannot reach backend API at ${API_BASE_URL}. Start Django server and verify CORS/URL settings.`
+        : `Cannot reach backend API at ${API_BASE_URL}. Verify the deployed API URL and backend CORS settings.`,
     )
   }
 

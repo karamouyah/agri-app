@@ -144,23 +144,36 @@ export const loginUser = async (credentials) => {
 export const registerUser = async (payload) => {
   const validated = validateRegistrationPayload(payload)
 
+  const body = {
+    name: validated.name,
+    email: validated.email,
+    password: validated.password,
+    role: validated.role,
+    phone_number: validated.phoneNumber,
+  }
+
+  if (validated.role === 'farmer') {
+    body.farm_name = validated.farmName
+    body.farm_address = validated.farmAddress
+    body.wilaya_id = validated.wilayaId
+    body.commune_id = validated.communeId
+  }
+
+  if (validated.role === 'buyer') {
+    body.address = validated.address
+    body.wilaya_id = validated.wilayaId
+    body.commune_id = validated.communeId
+  }
+
+  if (validated.role === 'transporter') {
+    body.vehicle = validated.vehicle
+    body.max_load_kg = validated.maxLoadKg
+    body.delivery_wilaya_ids = validated.deliveryWilayaIds
+  }
+
   const created = await apiRequest('/auth/register/', {
     method: 'POST',
-    body: {
-      name: validated.name,
-      email: validated.email,
-      password: validated.password,
-      role: validated.role,
-      farm_name: validated.farmName,
-      phone_number: validated.phoneNumber,
-      farm_address: validated.farmAddress,
-      vehicle: validated.vehicle,
-      address: validated.address,
-      wilaya_id: validated.wilayaId,
-      commune_id: validated.communeId,
-      max_load_kg: validated.maxLoadKg,
-      delivery_wilaya_ids: validated.deliveryWilayaIds,
-    },
+    body,
   })
 
   return normalizeUser(created)

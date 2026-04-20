@@ -7,7 +7,7 @@ const normalizeBaseUrl = (value) => {
 
 const API_BASE_URL =
   normalizeBaseUrl(import.meta.env.VITE_API_BASE_URL) ||
-  (import.meta.env.DEV ? DEFAULT_DEV_API_BASE_URL : '')
+  (import.meta.env.DEV ? DEFAULT_DEV_API_BASE_URL : '/_/backend/api')
 
 const TOKENS_KEY = 'agri_auth_tokens'
 

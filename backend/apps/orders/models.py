@@ -1,4 +1,4 @@
-﻿from django.db import models
+from django.db import models
 
 from apps.catalog.models import ProductList
 from apps.users.models import Buyer, Farmer

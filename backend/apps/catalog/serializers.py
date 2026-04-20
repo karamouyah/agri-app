@@ -1,4 +1,4 @@
-﻿from rest_framework import serializers
+from rest_framework import serializers
 
 from apps.catalog.models import Category, OfficialPrice, Product, ProductList, Season
 from apps.users.models import AdminProfile, Farmer

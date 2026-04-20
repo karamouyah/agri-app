@@ -1,4 +1,4 @@
-﻿from django.db import models
+from django.db import models
 
 from apps.orders.models import Order, OrderItem
 from apps.users.models import Buyer, Transporter

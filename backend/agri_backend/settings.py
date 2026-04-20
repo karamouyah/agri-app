@@ -10,8 +10,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
 INSECURE_SECRET_KEY = "insecure-dev-only-secret-key-change-me"
-DEFAULT_ALLOWED_HOSTS = "127.0.0.1,localhost"
-DEFAULT_FRONTEND_ORIGINS = "http://localhost:5173,http://127.0.0.1:5173"
+DEFAULT_ALLOWED_HOSTS = "*"
+DEFAULT_FRONTEND_ORIGINS = "http://localhost:5173,http://127.0.0.1:5173,https://agri-app-peach.vercel.app"
 
 
 def get_bool(name: str, default: bool = False) -> bool:

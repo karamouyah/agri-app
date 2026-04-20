@@ -1,108 +1,230 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   addCategory,
+  addProduct,
   deleteCategory,
+  deleteProduct,
   getCategories,
-  getOfficialPrices,
-  setOfficialPrice,
+  getProducts,
   updateCategory,
+  updateProduct,
 } from '../../controllers/adminController'
-import { formatDzd } from '../../../utils/currency'
 import PageHero from '../../../components/PageHero'
-import { Card, Input, SectionHeader, buttonStyles, cn } from '../../../components/ui'
+import { Card, Input, SectionHeader, Select, buttonStyles, cn } from '../../../components/ui'
+import { formatDzd } from '../../../utils/currency'
 
-const emptyPrice = { min: '', max: '', suggested: '' }
+const initialProductForm = {
+  id: null,
+  name: '',
+  categoryId: '',
+  minPrice: '',
+  maxPrice: '',
+  suggestedPrice: '',
+}
 
 export default function AdminProducts() {
   const [categories, setCategories] = useState([])
-  const [prices, setPrices] = useState([])
+  const [products, setProducts] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [pageError, setPageError] = useState('')
+  const [categoryError, setCategoryError] = useState('')
+  const [productError, setProductError] = useState('')
   const [newCategory, setNewCategory] = useState('')
   const [editingCategory, setEditingCategory] = useState(null)
   const [editName, setEditName] = useState('')
-  const [priceDrafts, setPriceDrafts] = useState({})
+  const [productForm, setProductForm] = useState(initialProductForm)
+  const [isSavingProduct, setIsSavingProduct] = useState(false)
 
-  const load = async () => {
-    const [categoryData, priceData] = await Promise.all([getCategories(), getOfficialPrices()])
-    setCategories(categoryData)
-    setPrices(priceData)
+  const isEditingProduct = useMemo(() => Boolean(productForm.id), [productForm.id])
 
-    const drafts = {}
-    priceData.forEach((item) => {
-      drafts[item.categoryId] = {
-        min: String(item.min),
-        max: String(item.max),
-        suggested: String(item.suggested),
-      }
+  const resetProductForm = (nextCategories = categories) => {
+    setProductError('')
+    setProductForm({
+      ...initialProductForm,
+      categoryId: nextCategories[0]?.id ? String(nextCategories[0].id) : '',
     })
-    setPriceDrafts(drafts)
+  }
+
+  const loadData = async () => {
+    setIsLoading(true)
+    setPageError('')
+
+    const [categoriesResult, productsResult] = await Promise.allSettled([getCategories(), getProducts()])
+
+    if (categoriesResult.status === 'fulfilled') {
+      setCategories(categoriesResult.value)
+      setProductForm((current) => {
+        if (current.categoryId || current.id) return current
+        return {
+          ...current,
+          categoryId: categoriesResult.value[0]?.id ? String(categoriesResult.value[0].id) : '',
+        }
+      })
+    } else {
+      setCategories([])
+      setPageError(categoriesResult.reason?.message || 'Unable to load categories right now.')
+    }
+
+    if (productsResult.status === 'fulfilled') {
+      setProducts(productsResult.value)
+    } else {
+      setProducts([])
+      setPageError((current) => current || productsResult.reason?.message || 'Unable to load products right now.')
+    }
+
+    setIsLoading(false)
   }
 
   useEffect(() => {
-    load()
+    loadData()
   }, [])
 
   const handleAddCategory = async (event) => {
     event.preventDefault()
     if (!newCategory.trim()) return
 
-    await addCategory(newCategory.trim())
-    setNewCategory('')
-    await load()
+    try {
+      setCategoryError('')
+      await addCategory(newCategory.trim())
+      setNewCategory('')
+      await loadData()
+    } catch (error) {
+      setCategoryError(error?.message || 'Unable to add this category right now.')
+    }
   }
 
   const handleDeleteCategory = async (id) => {
     const confirmed = window.confirm('Delete this category?')
     if (!confirmed) return
 
-    await deleteCategory(id)
-    await load()
+    try {
+      setCategoryError('')
+      await deleteCategory(id)
+      await loadData()
+    } catch (error) {
+      setCategoryError(error?.message || 'Unable to delete this category right now.')
+    }
   }
 
   const handleSaveCategory = async () => {
     if (!editingCategory || !editName.trim()) return
 
-    await updateCategory(editingCategory.id, editName.trim())
-    setEditingCategory(null)
-    setEditName('')
-    await load()
+    try {
+      setCategoryError('')
+      await updateCategory(editingCategory.id, editName.trim())
+      setEditingCategory(null)
+      setEditName('')
+      await loadData()
+    } catch (error) {
+      setCategoryError(error?.message || 'Unable to save this category right now.')
+    }
   }
 
-  const handlePriceChange = (categoryId, field, value) => {
-    setPriceDrafts((prev) => ({
-      ...prev,
-      [categoryId]: {
-        ...(prev[categoryId] || emptyPrice),
-        [field]: value,
-      },
-    }))
+  const handleProductChange = (event) => {
+    const { name, value } = event.target
+    setProductError('')
+    setProductForm((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSavePrice = async (categoryId) => {
-    const draft = priceDrafts[categoryId] || emptyPrice
-    await setOfficialPrice(categoryId, {
-      min: Number(draft.min || 0),
-      max: Number(draft.max || 0),
-      suggested: Number(draft.suggested || 0),
+  const startProductEdit = (product) => {
+    setProductError('')
+    setProductForm({
+      id: product.id,
+      name: product.name,
+      categoryId: String(product.categoryId),
+      minPrice: String(product.minPrice),
+      maxPrice: String(product.maxPrice),
+      suggestedPrice: product.suggestedPrice === null ? '' : String(product.suggestedPrice),
     })
-    await load()
   }
 
-  const getPriceByCategory = (categoryId) =>
-    prices.find((price) => price.categoryId === categoryId) || { min: 0, max: 0, suggested: 0 }
+  const validateProductForm = () => {
+    const name = productForm.name.trim()
+    if (!name) return 'Product name is required.'
+    if (!productForm.categoryId) return 'Category is required.'
+
+    const minPrice = Number(productForm.minPrice)
+    const maxPrice = Number(productForm.maxPrice)
+
+    if (!Number.isFinite(minPrice) || minPrice < 0) return 'Minimum price must be 0 or higher.'
+    if (!Number.isFinite(maxPrice) || maxPrice < minPrice) {
+      return 'Maximum price must be greater than or equal to the minimum price.'
+    }
+
+    if (productForm.suggestedPrice !== '') {
+      const suggestedPrice = Number(productForm.suggestedPrice)
+      if (!Number.isFinite(suggestedPrice) || suggestedPrice < minPrice || suggestedPrice > maxPrice) {
+        return 'Suggested price must stay between the minimum and maximum prices.'
+      }
+    }
+
+    return ''
+  }
+
+  const handleProductSubmit = async (event) => {
+    event.preventDefault()
+    const validationError = validateProductForm()
+    if (validationError) {
+      setProductError(validationError)
+      return
+    }
+
+    try {
+      setIsSavingProduct(true)
+      setProductError('')
+
+      if (isEditingProduct) {
+        await updateProduct(productForm.id, productForm)
+      } else {
+        await addProduct(productForm)
+      }
+
+      const freshProducts = await getProducts()
+      setProducts(freshProducts)
+      resetProductForm()
+    } catch (error) {
+      setProductError(error?.message || 'Unable to save this product right now.')
+    } finally {
+      setIsSavingProduct(false)
+    }
+  }
+
+  const handleDeleteProduct = async (productId) => {
+    const confirmed = window.confirm('Delete this product?')
+    if (!confirmed) return
+
+    try {
+      setProductError('')
+      await deleteProduct(productId)
+      const freshProducts = await getProducts()
+      setProducts(freshProducts)
+      if (productForm.id === productId) {
+        resetProductForm()
+      }
+    } catch (error) {
+      setProductError(error?.message || 'Unable to delete this product right now.')
+    }
+  }
 
   return (
-    <section className="app-page">
+    <section className="app-page space-y-4">
       <PageHero
         eyebrow="Catalog Governance"
-        title="Manage categories and official price guidance"
-        description="Update marketplace categories and keep official DZD pricing ranges aligned across the controlled catalog."
+        title="Manage categories and marketplace products"
+        description="Keep category management in place and maintain the approved product catalog with direct product add, edit, and delete controls."
         variant="admin"
         stats={[
           { label: 'Categories', value: categories.length, help: 'Active catalog groupings' },
-          { label: 'Price Sheets', value: prices.length, help: 'Official pricing records' },
-          { label: 'Currency', value: 'DZD', help: 'Single marketplace currency standard' },
+          { label: 'Products', value: products.length, help: 'Approved products in the marketplace catalog' },
+          { label: 'Pricing fields', value: 'Min / Max / Suggested', help: 'Per-product DZD values used in the admin catalog' },
         ]}
       />
+
+      {pageError && (
+        <Card className="border-amber-200/90 bg-amber-50/90 px-4 py-3 text-sm text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200">
+          {pageError}
+        </Card>
+      )}
 
       <div className="grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
         <Card className="p-5 md:p-6">
@@ -122,6 +244,12 @@ export default function AdminProducts() {
               Add
             </button>
           </form>
+
+          {categoryError && (
+            <p className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">
+              {categoryError}
+            </p>
+          )}
 
           <div className="mt-5 space-y-3">
             {categories.map((category) => (
@@ -171,89 +299,208 @@ export default function AdminProducts() {
           </div>
         </Card>
 
-        <Card className="overflow-hidden">
-          <div className="px-5 py-5 md:px-6">
-            <SectionHeader
-              eyebrow="Official Pricing"
-              title="Maintain pricing ranges in DZD"
-              description="Review each category range, then save updated minimum, maximum, and suggested values."
-            />
-          </div>
+        <Card className="p-5 md:p-6">
+          <SectionHeader
+            eyebrow="Products"
+            title={isEditingProduct ? 'Edit approved product' : 'Add approved product'}
+            description="Create and maintain products linked to existing categories, with minimum, maximum, and optional suggested DZD prices."
+          />
 
-          <div className="table-shell mx-5 mb-6 mt-0 md:mx-6">
+          {categories.length === 0 ? (
+            <div className="mt-5 rounded-2xl border border-dashed border-slate-300 px-4 py-12 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+              Add at least one category before creating products.
+            </div>
+          ) : (
+            <form onSubmit={handleProductSubmit} className="mt-5 space-y-4">
+              {productError && (
+                <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">
+                  {productError}
+                </p>
+              )}
+
+              <div>
+                <label htmlFor="name" className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                  Product name
+                </label>
+                <Input
+                  id="name"
+                  name="name"
+                  value={productForm.name}
+                  onChange={handleProductChange}
+                  placeholder="Enter product name"
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="categoryId" className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                  Category
+                </label>
+                <Select
+                  id="categoryId"
+                  name="categoryId"
+                  value={productForm.categoryId}
+                  onChange={handleProductChange}
+                  required
+                >
+                  <option value="">Select a category</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-2">
+                <div>
+                  <label htmlFor="minPrice" className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    Min price (DZD)
+                  </label>
+                  <Input
+                    id="minPrice"
+                    name="minPrice"
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={productForm.minPrice}
+                    onChange={handleProductChange}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="maxPrice" className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    Max price (DZD)
+                  </label>
+                  <Input
+                    id="maxPrice"
+                    name="maxPrice"
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={productForm.maxPrice}
+                    onChange={handleProductChange}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="suggestedPrice"
+                  className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200"
+                >
+                  Suggested price (optional)
+                </label>
+                <Input
+                  id="suggestedPrice"
+                  name="suggestedPrice"
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={productForm.suggestedPrice}
+                  onChange={handleProductChange}
+                  placeholder="Optional suggested price"
+                />
+              </div>
+
+              <div className="flex flex-wrap justify-end gap-2">
+                {isEditingProduct ? (
+                  <button type="button" onClick={() => resetProductForm()} className={buttonStyles.secondary}>
+                    Cancel
+                  </button>
+                ) : null}
+                <button type="submit" disabled={isSavingProduct} className={buttonStyles.primary}>
+                  {isSavingProduct ? 'Saving...' : 'Save'}
+                </button>
+              </div>
+            </form>
+          )}
+        </Card>
+      </div>
+
+      <Card className="overflow-hidden">
+        <div className="px-5 py-5 md:px-6">
+          <SectionHeader
+            eyebrow="Product List"
+            title="View and manage all approved products"
+            description="Review every product in the catalog, inspect its category and prices, and edit or delete it from the same admin page."
+          />
+        </div>
+
+        <div className="table-shell mx-5 mb-6 mt-0 md:mx-6">
+          {isLoading ? (
+            <div className="rounded-2xl border border-dashed border-slate-300 px-4 py-12 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+              Loading products...
+            </div>
+          ) : products.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-slate-300 px-4 py-12 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+              No products available yet.
+            </div>
+          ) : (
             <div className="overflow-x-auto">
               <table className="table-base">
                 <thead>
                   <tr>
+                    <th>Name</th>
                     <th>Category</th>
-                    <th>Min (DZD)</th>
-                    <th>Max (DZD)</th>
-                    <th>Suggested (DZD)</th>
-                    <th>Action</th>
+                    <th>Prices</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {categories.map((category) => {
-                    const current = getPriceByCategory(category.id)
-                    const draft = priceDrafts[category.id] || {
-                      min: String(current.min),
-                      max: String(current.max),
-                      suggested: String(current.suggested),
-                    }
-
-                    return (
-                      <tr key={category.id}>
-                        <td>
-                          <div className="font-semibold text-slate-900 dark:text-slate-100">{category.name}</div>
-                          <div className="text-xs text-slate-500 dark:text-slate-400">
-                            Current range: {formatDzd(current.min)} - {formatDzd(current.max)}
+                  {products.map((product) => (
+                    <tr key={product.id}>
+                      <td>
+                        <div className="font-semibold text-slate-900 dark:text-slate-100">{product.name}</div>
+                      </td>
+                      <td className="text-slate-700 dark:text-slate-300">{product.categoryName}</td>
+                      <td>
+                        <div className="space-y-1 text-sm text-slate-600 dark:text-slate-300">
+                          <div>
+                            Min: <span className="font-medium">{formatDzd(product.minPrice)}</span>
                           </div>
-                        </td>
-                        <td>
-                          <Input
-                            type="number"
-                            min="0"
-                            value={draft.min}
-                            onChange={(event) => handlePriceChange(category.id, 'min', event.target.value)}
-                            className="w-24 px-3 py-2"
-                          />
-                        </td>
-                        <td>
-                          <Input
-                            type="number"
-                            min="0"
-                            value={draft.max}
-                            onChange={(event) => handlePriceChange(category.id, 'max', event.target.value)}
-                            className="w-24 px-3 py-2"
-                          />
-                        </td>
-                        <td>
-                          <Input
-                            type="number"
-                            min="0"
-                            value={draft.suggested}
-                            onChange={(event) => handlePriceChange(category.id, 'suggested', event.target.value)}
-                            className="w-28 px-3 py-2"
-                          />
-                        </td>
-                        <td>
+                          <div>
+                            Max: <span className="font-medium">{formatDzd(product.maxPrice)}</span>
+                          </div>
+                          <div>
+                            Suggested:{' '}
+                            <span className="font-medium">
+                              {product.suggestedPrice === null ? 'Not set' : formatDzd(product.suggestedPrice)}
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="flex flex-wrap gap-2">
                           <button
                             type="button"
-                            onClick={() => handleSavePrice(category.id)}
-                            className={cn(buttonStyles.primary, 'px-3 py-2 text-xs')}
+                            onClick={() => startProductEdit(product)}
+                            className={cn(buttonStyles.secondary, 'px-3 py-2 text-xs')}
                           >
-                            Save
+                            Edit
                           </button>
-                        </td>
-                      </tr>
-                    )
-                  })}
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteProduct(product.id)}
+                            className={cn(
+                              buttonStyles.secondary,
+                              'border-rose-200 px-3 py-2 text-xs text-rose-700 hover:border-rose-300 hover:bg-rose-50 dark:border-rose-900/40 dark:text-rose-300 dark:hover:bg-rose-950/30',
+                            )}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
-          </div>
-        </Card>
-      </div>
+          )}
+        </div>
+      </Card>
     </section>
   )
 }

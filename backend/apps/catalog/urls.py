@@ -5,14 +5,12 @@ from apps.catalog.views import (
     BuyerFilterOptionsView,
     CategoryViewSet,
     ControlledProductListView,
-    OfficialPriceViewSet,
     ProductViewSet,
     RelatedProductsView,
 )
 
 router = DefaultRouter()
 router.register("categories", CategoryViewSet, basename="categories")
-router.register("official-prices", OfficialPriceViewSet, basename="official-prices")
 router.register("products", ProductViewSet, basename="products")
 
 urlpatterns = [

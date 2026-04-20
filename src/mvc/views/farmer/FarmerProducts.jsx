@@ -345,8 +345,9 @@ export default function FarmerProducts() {
       </Card>
 
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/65 px-4 py-6 backdrop-blur-sm">
-          <Card className="w-full max-w-3xl p-5 sm:p-6">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/65 px-4 py-4 backdrop-blur-sm sm:py-6">
+          <div className="flex min-h-full items-start justify-center sm:items-center">
+          <Card className="my-auto w-full max-w-3xl max-h-[calc(100vh-2rem)] overflow-y-auto p-5 sm:max-h-[calc(100vh-3rem)] sm:p-6">
             <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
               {editing ? 'Edit Product Listing' : 'Add Product Listing'}
             </h3>
@@ -514,6 +515,7 @@ export default function FarmerProducts() {
               </form>
             )}
           </Card>
+          </div>
         </div>
       )}
     </section>

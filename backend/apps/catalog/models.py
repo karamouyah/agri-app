@@ -1,6 +1,6 @@
 from django.db import models
 
-from apps.users.models import AdminProfile, Farmer
+from apps.users.models import Farmer
 
 
 class Category(models.Model):
@@ -22,6 +22,7 @@ class Product(models.Model):
     unit = models.CharField(max_length=20, db_column="Unit", default="kg")
     min_price = models.IntegerField(db_column="MinPrice", default=0)
     max_price = models.IntegerField(db_column="MaxPrice", default=0)
+    suggested_price = models.IntegerField(db_column="SuggestedPrice", null=True, blank=True)
     is_active = models.BooleanField(db_column="IsActive", default=True)
 
     class Meta:
@@ -30,29 +31,6 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class Season(models.Model):
-    id = models.AutoField(primary_key=True, db_column="IDSeason")
-    name = models.CharField(max_length=100, db_column="Name")
-
-    class Meta:
-        db_table = "Season"
-        ordering = ["name"]
-
-    def __str__(self):
-        return self.name
-
-
-class OfficialPrice(models.Model):
-    id = models.AutoField(primary_key=True, db_column="IDOfficialPrice")
-    max_price = models.IntegerField(db_column="MaxPrice")
-    season = models.ForeignKey(Season, on_delete=models.PROTECT, db_column="IDSeason", related_name="official_prices")
-    product = models.ForeignKey(Product, on_delete=models.PROTECT, db_column="IDProduct", related_name="official_prices")
-    admin = models.ForeignKey(AdminProfile, on_delete=models.PROTECT, db_column="IDAdmin", related_name="official_prices")
-
-    class Meta:
-        db_table = "OfficialPrice"
 
 
 class ProductList(models.Model):

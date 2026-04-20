@@ -10,7 +10,7 @@ from django.utils.text import slugify
 from faker import Faker
 
 from apps.catalog.catalog_data import sync_controlled_catalog
-from apps.catalog.models import Category, OfficialPrice, Product, ProductList, Season
+from apps.catalog.models import Category, Product, ProductList
 from apps.logistics.models import ItemReview, Shipment, TransporterReview
 from apps.locations.data import sync_algeria_locations
 from apps.locations.models import Commune, Wilaya
@@ -190,8 +190,7 @@ class Command(BaseCommand):
             sync_algeria_locations(Wilaya, Commune)
             self.wilaya_pool = list(Wilaya.objects.order_by("id"))
             self.commune_pool = list(Commune.objects.select_related("wilaya").order_by("id"))
-            season = self._get_current_season()
-            ministries = self._seed_ministry_users(max(1, options["ministries"]))
+            self._seed_ministry_users(max(1, options["ministries"]))
             farmers = self._seed_farmer_users(options["farmers"])
             buyers = self._seed_buyer_users(options["buyers"])
             transporters = self._seed_transporter_users(options["transporters"])
@@ -207,7 +206,6 @@ class Command(BaseCommand):
 
             target_listings = min(max(options["listings"], 30), Product.objects.filter(is_active=True).count())
             listings = self._seed_product_listings(target_listings, approved_farmers)
-            self._seed_official_prices(ministries[0], season, listings)
             orders = self._seed_orders(options["orders"], approved_buyers, approved_transporters, listings)
             self._seed_reviews(orders)
             self._seed_join_requests()
@@ -224,7 +222,6 @@ class Command(BaseCommand):
             "farms": Farm.objects.filter(farmer__person__email__iendswith=f"@{SEED_EMAIL_DOMAIN}").count(),
             "catalog_products": Product.objects.filter(is_active=True).count(),
             "product_listings": ProductList.objects.filter(farmer__person__email__iendswith=f"@{SEED_EMAIL_DOMAIN}").count(),
-            "official_prices": OfficialPrice.objects.filter(admin__person__email__iendswith=f"@{SEED_EMAIL_DOMAIN}").count(),
             "orders": Order.objects.filter(buyer__person__email__iendswith=f"@{SEED_EMAIL_DOMAIN}").count(),
             "payments": Payment.objects.filter(order__buyer__person__email__iendswith=f"@{SEED_EMAIL_DOMAIN}").count(),
             "shipments": Shipment.objects.filter(order__buyer__person__email__iendswith=f"@{SEED_EMAIL_DOMAIN}").count(),
@@ -290,7 +287,6 @@ class Command(BaseCommand):
         OrderItem.objects.filter(order__in=seed_orders).delete()
         seed_orders.delete()
 
-        OfficialPrice.objects.filter(admin__person_id__in=seed_user_ids).delete()
         ProductList.objects.filter(farmer__person_id__in=seed_user_ids).delete()
         Farm.objects.filter(farmer__person_id__in=seed_user_ids).delete()
         JoinRequest.objects.filter(email__iendswith=f"@{SEED_EMAIL_DOMAIN}").delete()
@@ -300,11 +296,6 @@ class Command(BaseCommand):
         Buyer.objects.filter(person_id__in=seed_user_ids).delete()
         Farmer.objects.filter(person_id__in=seed_user_ids).delete()
         User.objects.filter(id__in=seed_user_ids).delete()
-
-    def _get_current_season(self):
-        season_name = f"{timezone.now().year} Main Season"
-        season, _ = Season.objects.get_or_create(name=season_name)
-        return season
 
     def _upsert_user(self, role_slug, index, first_name, last_name, status, address, is_staff=False, is_superuser=False):
         role = User.role_from_slug(role_slug)
@@ -535,19 +526,6 @@ class Command(BaseCommand):
             listings.append(listing)
 
         return listings
-
-    def _seed_official_prices(self, admin_profile, season, listings):
-        used_products = {listing.product for listing in listings}
-        for product in used_products:
-            official_price, _ = OfficialPrice.objects.get_or_create(
-                product=product,
-                season=season,
-                admin=admin_profile,
-                defaults={"max_price": product.max_price},
-            )
-            if official_price.max_price != product.max_price:
-                official_price.max_price = product.max_price
-                official_price.save(update_fields=["max_price"])
 
     def _seed_orders(self, total, buyers, transporters, listings):
         listings_by_farmer = defaultdict(list)

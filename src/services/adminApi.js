@@ -63,40 +63,54 @@ export const deleteCategory = async (id) => {
   return true
 }
 
-export const getOfficialPrices = async () => {
-  const prices = await apiRequest('/catalog/official-prices/')
-  return prices.map((item) => ({
-    categoryId: item.category,
-    min: Number(item.minimum),
-    max: Number(item.maximum),
-    suggested: Number(item.suggested),
-  }))
+const normalizeAdminProduct = (item) => ({
+  id: item.id,
+  name: item.name,
+  categoryId: Number(item.category),
+  categoryName: item.category_name || '',
+  minPrice: Number(item.min_price_dzd ?? 0),
+  maxPrice: Number(item.max_price_dzd ?? 0),
+  suggestedPrice:
+    item.suggested_price_dzd === null || item.suggested_price_dzd === undefined
+      ? null
+      : Number(item.suggested_price_dzd),
+})
+
+const buildProductPayload = (product) => ({
+  name: product.name.trim(),
+  category: Number(product.categoryId),
+  min_price_dzd: Number(product.minPrice),
+  max_price_dzd: Number(product.maxPrice),
+  suggested_price_dzd:
+    product.suggestedPrice === '' || product.suggestedPrice === null || product.suggestedPrice === undefined
+      ? null
+      : Number(product.suggestedPrice),
+})
+
+export const getProducts = async () => {
+  const products = await apiRequest('/products/')
+  return products.map(normalizeAdminProduct)
 }
 
-export const setOfficialPrice = async (categoryId, price) => {
-  const all = await apiRequest('/catalog/official-prices/')
-  const existing = all.find((item) => item.category === categoryId)
-
-  if (existing) {
-    return apiRequest(`/catalog/official-prices/${existing.id}/`, {
-      method: 'PATCH',
-      body: {
-        minimum: Number(price.min),
-        maximum: Number(price.max),
-        suggested: Number(price.suggested),
-      },
-    })
-  }
-
-  return apiRequest('/catalog/official-prices/', {
+export const addProduct = async (product) => {
+  const created = await apiRequest('/products/', {
     method: 'POST',
-    body: {
-      category: categoryId,
-      minimum: Number(price.min),
-      maximum: Number(price.max),
-      suggested: Number(price.suggested),
-    },
+    body: buildProductPayload(product),
   })
+  return normalizeAdminProduct(created)
+}
+
+export const updateProduct = async (id, product) => {
+  const updated = await apiRequest(`/products/${id}/`, {
+    method: 'PUT',
+    body: buildProductPayload(product),
+  })
+  return normalizeAdminProduct(updated)
+}
+
+export const deleteProduct = async (id) => {
+  await apiRequest(`/products/${id}/`, { method: 'DELETE' })
+  return true
 }
 
 export const generateReport = ({ region, category, fromDate, toDate }) => {

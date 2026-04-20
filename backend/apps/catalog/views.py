@@ -1,15 +1,16 @@
 from django.db.models import Q
 from rest_framework import generics
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from apps.catalog.models import Category, OfficialPrice, Product, ProductList
+from apps.catalog.models import Category, Product, ProductList
 from apps.catalog.serializers import (
+    AdminProductSerializer,
     CategorySerializer,
     ControlledProductSerializer,
-    OfficialPriceSerializer,
     ProductSerializer,
 )
 from apps.common.permissions import IsFarmer, IsMinistry
@@ -27,14 +28,36 @@ class CategoryViewSet(ModelViewSet):
         return [IsMinistry()]
 
 
-class OfficialPriceViewSet(ModelViewSet):
-    queryset = OfficialPrice.objects.select_related("product", "product__category", "season", "admin").all()
-    serializer_class = OfficialPriceSerializer
+class AdminProductViewSet(ModelViewSet):
+    queryset = Product.objects.select_related("category").all().order_by("category__name", "name")
+    serializer_class = AdminProductSerializer
+    permission_classes = [IsMinistry]
 
-    def get_permissions(self):
-        if self.action in {"list", "retrieve"}:
-            return [IsAuthenticated()]
-        return [IsMinistry()]
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        query = self.request.query_params.get("q", "").strip()
+        category = self.request.query_params.get("category", "").strip()
+
+        if query:
+            queryset = queryset.filter(name__icontains=query)
+
+        if category:
+            category_filters = Q(category__name__iexact=category)
+            if category.isdigit():
+                category_filters |= Q(category_id=int(category))
+            queryset = queryset.filter(category_filters)
+
+        return queryset
+
+    def perform_destroy(self, instance):
+        listings = instance.listings.all()
+
+        if listings.filter(order_items__isnull=False).exists():
+            raise ValidationError({"detail": "This product cannot be deleted because it is linked to existing orders."})
+
+        # Remove unused farmer listings first so the catalog product can be deleted safely.
+        listings.delete()
+        instance.delete()
 
 
 class ProductViewSet(ModelViewSet):

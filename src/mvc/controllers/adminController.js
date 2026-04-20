@@ -9,7 +9,9 @@ export {
   addCategory,
   updateCategory,
   deleteCategory,
-  getOfficialPrices,
-  setOfficialPrice,
+  getProducts,
+  addProduct,
+  updateProduct,
+  deleteProduct,
   generateReport,
 } from '../models/adminModel'

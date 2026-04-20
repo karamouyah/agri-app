@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
-from apps.catalog.models import Category, OfficialPrice, Product, ProductList, Season
-from apps.users.models import AdminProfile, Farmer
+from apps.catalog.models import Category, Product, ProductList
+from apps.users.models import Farmer
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -10,97 +10,61 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ["id", "name"]
 
 
-class OfficialPriceSerializer(serializers.ModelSerializer):
-    category = serializers.IntegerField(required=False)
-    category_name = serializers.SerializerMethodField(read_only=True)
-    minimum = serializers.IntegerField(required=False, min_value=0)
-    maximum = serializers.IntegerField(required=False, min_value=0)
-    suggested = serializers.IntegerField(required=False, min_value=0)
+class AdminProductSerializer(serializers.ModelSerializer):
+    category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
+    category_name = serializers.CharField(source="category.name", read_only=True)
+    min_price_dzd = serializers.IntegerField(source="min_price", min_value=0)
+    max_price_dzd = serializers.IntegerField(source="max_price", min_value=0)
+    suggested_price_dzd = serializers.IntegerField(
+        source="suggested_price",
+        min_value=0,
+        required=False,
+        allow_null=True,
+    )
 
     class Meta:
-        model = OfficialPrice
-        fields = ["id", "category", "category_name", "minimum", "maximum", "suggested"]
+        model = Product
+        fields = [
+            "id",
+            "name",
+            "category",
+            "category_name",
+            "unit",
+            "min_price_dzd",
+            "max_price_dzd",
+            "suggested_price_dzd",
+            "is_active",
+        ]
+        read_only_fields = ["unit", "is_active", "category_name"]
 
-    def get_category_name(self, obj):
-        return obj.product.category.name
+    def validate_name(self, value):
+        name = value.strip()
+        if not name:
+            raise serializers.ValidationError("Product name is required.")
 
-    @staticmethod
-    def _pick_price_value(validated_data, fallback=0):
-        for key in ("maximum", "suggested", "minimum"):
-            if key in validated_data and validated_data.get(key) is not None:
-                return validated_data.get(key)
-        return fallback
+        queryset = Product.objects.filter(name__iexact=name)
+        if self.instance:
+            queryset = queryset.exclude(id=self.instance.id)
 
-    def to_representation(self, instance):
-        return {
-            "id": instance.id,
-            "category": instance.product.category_id,
-            "category_name": instance.product.category.name,
-            "minimum": instance.max_price,
-            "maximum": instance.max_price,
-            "suggested": instance.max_price,
-        }
+        if queryset.exists():
+            raise serializers.ValidationError("A product with this name already exists.")
 
-    def _resolve_admin(self):
-        request = self.context.get("request")
-        user = getattr(request, "user", None)
-        if user and hasattr(user, "admin_profile"):
-            return user.admin_profile
+        return name
 
-        admin_profile = AdminProfile.objects.select_related("person").first()
-        if admin_profile:
-            return admin_profile
+    def validate(self, attrs):
+        min_price = attrs.get("min_price", self.instance.min_price if self.instance else 0)
+        max_price = attrs.get("max_price", self.instance.max_price if self.instance else 0)
+        suggested_price = attrs.get("suggested_price", self.instance.suggested_price if self.instance else None)
 
-        if user:
-            return AdminProfile.objects.create(person=user)
+        if max_price < min_price:
+            raise serializers.ValidationError({"max_price_dzd": "Maximum price must be greater than or equal to minimum price."})
 
-        raise serializers.ValidationError({"detail": "No admin profile available for official price update."})
+        if suggested_price is not None and not (min_price <= suggested_price <= max_price):
+            raise serializers.ValidationError(
+                {"suggested_price_dzd": "Suggested price must be between the minimum and maximum prices."}
+            )
 
-    @staticmethod
-    def _resolve_default_season():
-        season = Season.objects.order_by("id").first()
-        if season:
-            return season
-        return Season.objects.create(name="Default")
-
-    def _resolve_target_product(self, category_id):
-        category = Category.objects.filter(id=category_id).first()
-        if not category:
-            raise serializers.ValidationError({"category": "Category does not exist."})
-
-        product = Product.objects.filter(category=category).order_by("id").first()
-        if product:
-            return product
-
-        return Product.objects.create(name=f"{category.name} Official Product", category=category)
-
-    def create(self, validated_data):
-        category_id = validated_data.get("category")
-        if not category_id:
-            raise serializers.ValidationError({"category": "Category is required."})
-
-        max_price = self._pick_price_value(validated_data, fallback=0)
-
-        product = self._resolve_target_product(category_id)
-        season = self._resolve_default_season()
-        admin_profile = self._resolve_admin()
-
-        return OfficialPrice.objects.create(
-            max_price=max_price,
-            season=season,
-            product=product,
-            admin=admin_profile,
-        )
-
-    def update(self, instance, validated_data):
-        category_id = validated_data.get("category")
-        if category_id:
-            instance.product = self._resolve_target_product(category_id)
-
-        max_price = self._pick_price_value(validated_data, fallback=instance.max_price)
-        instance.max_price = max_price
-        instance.save(update_fields=["product", "max_price"])
-        return instance
+        return attrs
 
 
 class ProductSerializer(serializers.ModelSerializer):

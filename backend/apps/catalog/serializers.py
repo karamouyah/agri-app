@@ -66,6 +66,14 @@ class AdminProductSerializer(serializers.ModelSerializer):
 
         return attrs
 
+    def create(self, validated_data):
+        validated_data.pop("suggested_price", None)
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        validated_data.pop("suggested_price", None)
+        return super().update(instance, validated_data)
+
 
 class ProductSerializer(serializers.ModelSerializer):
     product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.filter(is_active=True))

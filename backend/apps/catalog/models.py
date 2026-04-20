@@ -22,7 +22,6 @@ class Product(models.Model):
     unit = models.CharField(max_length=20, db_column="Unit", default="kg")
     min_price = models.IntegerField(db_column="MinPrice", default=0)
     max_price = models.IntegerField(db_column="MaxPrice", default=0)
-    suggested_price = models.IntegerField(db_column="SuggestedPrice", null=True, blank=True)
     is_active = models.BooleanField(db_column="IsActive", default=True)
 
     class Meta:
@@ -31,6 +30,10 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def suggested_price(self):
+        return None
 
 
 class ProductList(models.Model):

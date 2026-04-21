@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Prefetch, Q
 from rest_framework import generics
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
@@ -63,13 +63,20 @@ class AdminProductViewSet(ModelViewSet):
 class ProductViewSet(ModelViewSet):
     queryset = (
         ProductList.objects.select_related("product", "product__category", "farmer", "farmer__person")
+        .prefetch_related(
+            Prefetch(
+                "farmer__farms",
+                queryset=Farm.objects.select_related("wilaya", "commune").order_by("id"),
+                to_attr="prefetched_farms",
+            )
+        )
         .filter(product__is_active=True)
         .all()
     )
     serializer_class = ProductSerializer
 
     def get_queryset(self):
-        queryset = super().get_queryset().prefetch_related("farmer__farms")
+        queryset = super().get_queryset()
         user = self.request.user
         query = self.request.query_params.get("q", "").strip()
         category = self.request.query_params.get("category")

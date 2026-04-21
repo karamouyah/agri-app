@@ -155,28 +155,35 @@ class ProductSerializer(serializers.ModelSerializer):
     def get_currency(self, _obj):
         return "DZD"
 
+    def _get_primary_farm(self, obj):
+        prefetched_farms = getattr(obj.farmer, "prefetched_farms", None)
+        if prefetched_farms is not None:
+            return prefetched_farms[0] if prefetched_farms else None
+
+        return obj.farmer.farms.select_related("wilaya", "commune").order_by("id").first()
+
     def get_farmer_name(self, obj):
         full = f"{obj.farmer.person.first_name} {obj.farmer.person.last_name}".strip()
         return full or obj.farmer.person.email
 
     def get_farmer_region(self, obj):
-        farm = obj.farmer.farms.order_by("id").first()
+        farm = self._get_primary_farm(obj)
         return farm.location_label if farm else "Unknown"
 
     def get_farmer_wilaya_id(self, obj):
-        farm = obj.farmer.farms.order_by("id").first()
+        farm = self._get_primary_farm(obj)
         return farm.wilaya_id if farm else None
 
     def get_farmer_wilaya(self, obj):
-        farm = obj.farmer.farms.select_related("wilaya").order_by("id").first()
+        farm = self._get_primary_farm(obj)
         return farm.wilaya.name if farm and farm.wilaya else ""
 
     def get_farmer_commune_id(self, obj):
-        farm = obj.farmer.farms.order_by("id").first()
+        farm = self._get_primary_farm(obj)
         return farm.commune_id if farm else None
 
     def get_farmer_commune(self, obj):
-        farm = obj.farmer.farms.select_related("commune").order_by("id").first()
+        farm = self._get_primary_farm(obj)
         return farm.commune.name if farm and farm.commune else ""
 
     def get_quality(self, _obj):

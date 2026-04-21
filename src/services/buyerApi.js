@@ -23,6 +23,11 @@ export const buyerFilterOptions = {
   qualities: ['A', 'B', 'Premium'],
 }
 
+let productSearchCache = {
+  key: '',
+  items: [],
+}
+
 apiRequest('/catalog/filters/')
   .then((payload) => {
     buyerFilterOptions.categories = payload.categories || []
@@ -106,9 +111,25 @@ export const searchProducts = async (query = '', filters = {}, page = 1, pageSiz
   if (filters.wilaya) params.set('wilaya', filters.wilaya)
   if (filters.commune) params.set('commune', filters.commune)
   if (filters.quality) params.set('quality', filters.quality)
+  const cacheKey = JSON.stringify({
+    query,
+    category: filters.category || '',
+    location: filters.location || '',
+    wilaya: filters.wilaya || '',
+    commune: filters.commune || '',
+    quality: filters.quality || '',
+  })
+  let normalized = productSearchCache.key === cacheKey ? productSearchCache.items : null
 
-  const products = await apiRequest(`/catalog/products/${params.toString() ? `?${params.toString()}` : ''}`)
-  const normalized = products.map(normalizeProduct)
+  if (!normalized) {
+    const products = await apiRequest(`/catalog/products/${params.toString() ? `?${params.toString()}` : ''}`)
+    normalized = products.map(normalizeProduct)
+    productSearchCache = {
+      key: cacheKey,
+      items: normalized,
+    }
+  }
+
   const min = Number(filters.minPrice || 0)
   const max = Number(filters.maxPrice || Number.MAX_SAFE_INTEGER)
   const filtered = normalized.filter((item) => item.price >= min && item.price <= max)
@@ -211,7 +232,7 @@ export const getShippingProfile = async () => {
     }
     toStorage(KEYS.shipping, shippingProfile)
     return shippingProfile
-  } catch (_error) {
+  } catch {
     return fromStorage(KEYS.shipping, {
       fullName: '',
       phone: '',

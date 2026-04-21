@@ -22,21 +22,32 @@ export default function BuyerSearch() {
   const [page, setPage] = useState(1)
   const [data, setData] = useState({ items: [], total: 0, totalPages: 1 })
   const [message, setMessage] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
-  const load = async (nextPage = 1) => {
-    const response = await searchProducts(query, filters, nextPage, 6)
-    setData(response)
-    setPage(response.page)
+  const load = async (nextPage = 1, nextQuery = query, nextFilters = filters) => {
+    setLoading(true)
+    setError('')
+
+    try {
+      const response = await searchProducts(nextQuery, nextFilters, nextPage, 6)
+      setData(response)
+      setPage(response.page)
+    } catch (loadError) {
+      setError(loadError instanceof Error ? loadError.message : 'Unable to load catalog products right now.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
     const syncResults = async () => {
-      const response = await searchProducts('', initialFilters, 1, 6)
-      setData(response)
-      setPage(response.page)
+      await load(1, '', initialFilters)
     }
 
     syncResults()
+    // Initial browse view should load the first catalog page once.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleFilterChange = (event) => {
@@ -50,11 +61,11 @@ export default function BuyerSearch() {
 
   const handleSearch = async (event) => {
     event.preventDefault()
-    await load(1)
+    await load(1, query, filters)
   }
 
   const handlePage = async (nextPage) => {
-    await load(nextPage)
+    await load(nextPage, query, filters)
   }
 
   const handleAddToCart = async (product) => {
@@ -88,10 +99,19 @@ export default function BuyerSearch() {
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search products, farmers, keywords..."
           />
-          <button type="submit" className="btn-primary px-4 py-2.5 text-sm font-medium text-white">
-            Search
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn-primary px-4 py-2.5 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {loading ? 'Searching...' : 'Search'}
           </button>
         </form>
+        {error ? (
+          <p className="mt-3 rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">
+            {error}
+          </p>
+        ) : null}
         {message ? (
           <p className="mt-3 rounded-2xl border border-emerald-100 bg-gradient-to-r from-emerald-50 to-amber-50 px-3 py-2 text-sm text-emerald-700 dark:border-emerald-900/40 dark:from-emerald-950/30 dark:to-slate-900 dark:text-emerald-300">
             {message}
@@ -188,11 +208,10 @@ export default function BuyerSearch() {
               onClick={async () => {
                 setFilters(initialFilters)
                 setQuery('')
-                const response = await searchProducts('', initialFilters, 1, 6)
-                setData(response)
-                setPage(response.page)
+                await load(1, '', initialFilters)
               }}
-              className="btn-secondary w-full px-3 py-2"
+              disabled={loading}
+              className="btn-secondary w-full px-3 py-2 disabled:cursor-not-allowed disabled:opacity-60"
             >
               Clear Filters
             </button>
@@ -209,7 +228,14 @@ export default function BuyerSearch() {
         </Card>
 
         <div className="space-y-4">
-          {data.items.length ? (
+          {loading && !data.items.length ? (
+            <div className="empty-state px-6 py-10 text-center">
+              <h3 className="mt-3 text-lg font-semibold text-slate-900 dark:text-slate-100">Loading approved products</h3>
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                Fetching the latest catalog listings for this buyer workspace.
+              </p>
+            </div>
+          ) : data.items.length ? (
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {data.items.map((product) => (
                 <Card key={product.id} className="lift-card p-4">
@@ -262,7 +288,7 @@ export default function BuyerSearch() {
               </button>
               <button
                 type="button"
-                disabled={page >= data.totalPages}
+                disabled={loading || page >= data.totalPages}
                 onClick={() => handlePage(page + 1)}
                 className="btn-secondary px-3 py-1 disabled:opacity-50"
               >

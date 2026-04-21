@@ -52,11 +52,11 @@ export default function AdminDashboard() {
     <section className="app-page">
       <PageHero
         eyebrow="Ministry Intelligence"
-        title="National agriculture oversight with clearer market signals"
-        description="Review participant activity, regional movement, and controlled pricing through a calmer ministry analytics workspace."
+        title="Monitor approvals, marketplace activity, and regional trade signals"
+        description="Use this dashboard to follow active participants, market movement by region, and price trends that may require review or intervention."
         variant="admin"
         stats={[
-          { label: 'Sales Volume', value: `${summary.totalSalesVolumeTons} tons`, help: 'Aggregated marketplace movement' },
+          { label: 'Sales Volume', value: `${summary.totalSalesVolumeTons} tons`, help: 'Tracked marketplace movement across current data' },
           { label: 'Active Farmers', value: summary.activeFarmers, help: 'Approved sellers on the platform' },
           { label: 'Transporters', value: summary.activeTransporters, help: 'Active delivery operators' },
         ]}
@@ -110,10 +110,10 @@ export default function AdminDashboard() {
       <Card className="p-6">
         <h3 className="inline-flex items-center gap-2 text-xl font-bold text-slate-900">
           <FiActivity />
-          Action Note
+          Oversight Focus
         </h3>
         <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600">
-          Use the user and product modules to keep quality standards high, then generate reports to support seasonal planning, regulatory review, and intervention decisions.
+          Review pending user approvals and product activity first, then use reports to compare regional movement, pricing behavior, and delivery performance before taking policy or moderation action.
         </p>
       </Card>
     </section>

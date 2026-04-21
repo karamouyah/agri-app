@@ -1,8 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { FiCheckCircle, FiFeather, FiShield, FiTruck, FiUserPlus } from 'react-icons/fi'
+import { FiCheckCircle, FiClock, FiFeather, FiShield, FiTruck, FiUserPlus } from 'react-icons/fi'
 import { register as registerUser } from '../controllers/authController'
-import AgriIllustration from '../../components/AgriIllustration'
 import BrandLogo from '../../components/BrandLogo'
 import LocationFields from '../../components/LocationFields'
 import ThemeToggle from '../../components/ThemeToggle'
@@ -64,9 +63,10 @@ const roleFieldConfig = {
 }
 
 const trustPoints = [
-  { icon: FiShield, text: 'New accounts are reviewed before they become active in the platform.' },
-  { icon: FiFeather, text: 'Role-specific onboarding keeps each workflow focused and relevant.' },
-  { icon: FiTruck, text: 'Designed for real agricultural operations, logistics, and purchasing teams.' },
+  { icon: FiShield, text: 'Every new account is reviewed before marketplace access is approved.' },
+  { icon: FiFeather, text: 'Farmers register product and farm details so listings can be linked to a real origin.' },
+  { icon: FiTruck, text: 'Transporters declare vehicle type, capacity, and delivery wilayas during onboarding.' },
+  { icon: FiClock, text: 'Buyers and farmers provide wilaya and commune data so orders and deliveries can be routed correctly.' },
 ]
 
 const validateForm = (formData) => {
@@ -166,10 +166,10 @@ export default function RegisterPage() {
               Ministry-reviewed onboarding
             </p>
             <h1 className="mt-5 max-w-xl text-4xl font-bold leading-tight text-slate-900">
-              Join the clean, professional agri marketplace.
+              Create the account your role needs to operate on the marketplace.
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 md:text-base">
-              Set up your role-based profile and step into a more modern agricultural platform built for real work.
+              Complete the required details for your role so the platform can approve your access, route your operations, and connect you to the right workflow.
             </p>
 
             <div className="mt-6 space-y-3">
@@ -186,9 +186,14 @@ export default function RegisterPage() {
               })}
             </div>
 
-            <div className="mt-6 media-frame">
-              <AgriIllustration variant="auth" className="h-72" />
-            </div>
+            <Card className="mt-6 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Approval Flow</p>
+              <div className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-300">
+                <p>1. Submit your role details with contact and location information.</p>
+                <p>2. Ministry staff review your account and any role-specific requirements.</p>
+                <p>3. Once approved, you can sign in and access your dashboard tools.</p>
+              </div>
+            </Card>
           </Card>
 
           <Card className="p-6 md:p-8">

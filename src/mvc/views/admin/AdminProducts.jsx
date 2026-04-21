@@ -22,6 +22,8 @@ const initialProductForm = {
   suggestedPrice: '',
 }
 
+const PRODUCTS_PER_PAGE = 8
+
 export default function AdminProducts() {
   const [categories, setCategories] = useState([])
   const [products, setProducts] = useState([])
@@ -34,8 +36,26 @@ export default function AdminProducts() {
   const [editName, setEditName] = useState('')
   const [productForm, setProductForm] = useState(initialProductForm)
   const [isSavingProduct, setIsSavingProduct] = useState(false)
+  const [productSearch, setProductSearch] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
 
   const isEditingProduct = useMemo(() => Boolean(productForm.id), [productForm.id])
+  const filteredProducts = useMemo(() => {
+    const normalizedQuery = productSearch.trim().toLowerCase()
+
+    if (!normalizedQuery) return products
+
+    return products.filter(
+      (product) =>
+        product.name.toLowerCase().includes(normalizedQuery) ||
+        product.categoryName.toLowerCase().includes(normalizedQuery),
+    )
+  }, [products, productSearch])
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE))
+  const paginatedProducts = useMemo(() => {
+    const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE
+    return filteredProducts.slice(startIndex, startIndex + PRODUCTS_PER_PAGE)
+  }, [currentPage, filteredProducts])
 
   const resetProductForm = (nextCategories = categories) => {
     setProductError('')
@@ -78,6 +98,16 @@ export default function AdminProducts() {
   useEffect(() => {
     loadData()
   }, [])
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [productSearch])
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages)
+    }
+  }, [currentPage, totalPages])
 
   const handleAddCategory = async (event) => {
     event.preventDefault()
@@ -427,6 +457,15 @@ export default function AdminProducts() {
             title="View and manage all approved products"
             description="Review every product in the catalog, inspect its category and prices, and edit or delete it from the same admin page."
           />
+          <div className="mt-4 max-w-xs">
+            <Input
+              value={productSearch}
+              onChange={(event) => setProductSearch(event.target.value)}
+              placeholder="Search products"
+              aria-label="Search products"
+              className="py-2.5"
+            />
+          </div>
         </div>
 
         <div className="table-shell mx-5 mb-6 mt-0 md:mx-6">
@@ -434,69 +473,99 @@ export default function AdminProducts() {
             <div className="rounded-2xl border border-dashed border-slate-300 px-4 py-12 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
               Loading products...
             </div>
-          ) : products.length === 0 ? (
+          ) : filteredProducts.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-slate-300 px-4 py-12 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
-              No products available yet.
+              {products.length === 0 ? 'No products available yet.' : 'No products match your search.'}
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="table-base">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Category</th>
-                    <th>Prices</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {products.map((product) => (
-                    <tr key={product.id}>
-                      <td>
-                        <div className="font-semibold text-slate-900 dark:text-slate-100">{product.name}</div>
-                      </td>
-                      <td className="text-slate-700 dark:text-slate-300">{product.categoryName}</td>
-                      <td>
-                        <div className="space-y-1 text-sm text-slate-600 dark:text-slate-300">
-                          <div>
-                            Min: <span className="font-medium">{formatDzd(product.minPrice)}</span>
-                          </div>
-                          <div>
-                            Max: <span className="font-medium">{formatDzd(product.maxPrice)}</span>
-                          </div>
-                          <div>
-                            Suggested:{' '}
-                            <span className="font-medium">
-                              {product.suggestedPrice === null ? 'Not set' : formatDzd(product.suggestedPrice)}
-                            </span>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="flex flex-wrap gap-2">
-                          <button
-                            type="button"
-                            onClick={() => startProductEdit(product)}
-                            className={cn(buttonStyles.secondary, 'px-3 py-2 text-xs')}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteProduct(product.id)}
-                            className={cn(
-                              buttonStyles.secondary,
-                              'border-rose-200 px-3 py-2 text-xs text-rose-700 hover:border-rose-300 hover:bg-rose-50 dark:border-rose-900/40 dark:text-rose-300 dark:hover:bg-rose-950/30',
-                            )}
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </td>
+            <div className="space-y-4">
+              <div className="overflow-x-auto">
+                <table className="table-base">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Category</th>
+                      <th>Prices</th>
+                      <th>Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {paginatedProducts.map((product) => (
+                      <tr key={product.id}>
+                        <td>
+                          <div className="font-semibold text-slate-900 dark:text-slate-100">{product.name}</div>
+                        </td>
+                        <td className="text-slate-700 dark:text-slate-300">{product.categoryName}</td>
+                        <td>
+                          <div className="space-y-1 text-sm text-slate-600 dark:text-slate-300">
+                            <div>
+                              Min: <span className="font-medium">{formatDzd(product.minPrice)}</span>
+                            </div>
+                            <div>
+                              Max: <span className="font-medium">{formatDzd(product.maxPrice)}</span>
+                            </div>
+                            <div>
+                              Suggested:{' '}
+                              <span className="font-medium">
+                                {product.suggestedPrice === null ? 'Not set' : formatDzd(product.suggestedPrice)}
+                              </span>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div className="flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              onClick={() => startProductEdit(product)}
+                              className={cn(buttonStyles.secondary, 'px-3 py-2 text-xs')}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteProduct(product.id)}
+                              className={cn(
+                                buttonStyles.secondary,
+                                'border-rose-200 px-3 py-2 text-xs text-rose-700 hover:border-rose-300 hover:bg-rose-50 dark:border-rose-900/40 dark:text-rose-300 dark:hover:bg-rose-950/30',
+                              )}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="flex flex-col gap-3 border-t border-slate-200 pt-4 text-sm text-slate-600 dark:border-slate-800 dark:text-slate-300 sm:flex-row sm:items-center sm:justify-between">
+                <p>
+                  Showing {(currentPage - 1) * PRODUCTS_PER_PAGE + 1}-
+                  {Math.min(currentPage * PRODUCTS_PER_PAGE, filteredProducts.length)} of {filteredProducts.length}
+                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                    disabled={currentPage === 1}
+                    className={cn(buttonStyles.secondary, 'px-3 py-2 text-xs')}
+                  >
+                    Previous
+                  </button>
+                  <span className="px-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                    Page {currentPage} / {totalPages}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                    disabled={currentPage === totalPages}
+                    className={cn(buttonStyles.secondary, 'px-3 py-2 text-xs')}
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
             </div>
           )}
         </div>

@@ -76,7 +76,28 @@ export default function AdminUsers() {
   }
 
   useEffect(() => {
-    load()
+    const syncUsers = async () => {
+      setLoading(true)
+      setError('')
+      try {
+        const [list, pending] = await Promise.all([
+          getUsers({
+            role: roleFilter || undefined,
+            approvalStatus: approvalFilter || undefined,
+            wilaya: wilayaFilter || undefined,
+          }),
+          getPendingUsers(),
+        ])
+        setUsers(list)
+        setPendingCount(pending.length)
+      } catch (loadError) {
+        setError(loadError.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    syncUsers()
   }, [roleFilter, approvalFilter, wilayaFilter])
 
   const closeModal = () => {
@@ -180,7 +201,7 @@ export default function AdminUsers() {
           <div className="px-5 py-6 md:px-6">
             <EmptyState
               title="No users found"
-              description="No users match the current role and approval filters."
+              description="No users match the current role, approval, or wilaya filters. Adjust the filters or refresh the queue."
             />
           </div>
         ) : (

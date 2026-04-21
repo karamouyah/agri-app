@@ -59,7 +59,7 @@ export default function FarmerDashboard() {
       <PageHero
         eyebrow="Farm Command Center"
         title={`Welcome back, ${user?.farmName || user?.name || 'Farmer'}`}
-        description="Monitor demand, protect pricing, and keep your approved produce listings performing through one bright operational workspace."
+        description="Use this dashboard to follow orders, track earnings, and keep your farm products available with updated stock and product details."
         variant="farmer"
         stats={[
           { label: 'Monthly Earnings', value: formatDzd(revenue.total), help: 'Tracked revenue for the current period' },
@@ -99,7 +99,7 @@ export default function FarmerDashboard() {
 
         <Card className="p-5 md:p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Quick Actions</p>
-          <h3 className="mt-2 text-xl font-bold text-slate-900">Move faster through daily farm operations</h3>
+          <h3 className="mt-2 text-xl font-bold text-slate-900">Daily farm tasks</h3>
           <div className="mt-5 space-y-3">
             <Link to="/farmer/products" className="group flex items-center justify-between rounded-2xl border border-emerald-100 bg-emerald-50/50 px-4 py-4 text-sm font-semibold text-slate-700 transition hover:border-emerald-200 hover:bg-emerald-50 dark:border-emerald-900/40 dark:bg-emerald-950/25 dark:text-slate-100 dark:hover:border-emerald-700/50 dark:hover:bg-emerald-950/35">
               <span className="inline-flex items-center gap-3">
@@ -125,6 +125,15 @@ export default function FarmerDashboard() {
                   <FiDollarSign />
                 </span>
                 Track revenue details
+              </span>
+              <FiArrowRight className="transition group-hover:translate-x-0.5" />
+            </Link>
+            <Link to="/farmer/profile" className="group flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-4 text-sm font-semibold text-slate-700 transition hover:border-emerald-200 hover:bg-emerald-50/60 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 dark:hover:border-emerald-700/40 dark:hover:bg-slate-800">
+              <span className="inline-flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-50 text-slate-700 shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700">
+                  <FiClipboard />
+                </span>
+                Review farm profile and approval details
               </span>
               <FiArrowRight className="transition group-hover:translate-x-0.5" />
             </Link>
@@ -173,7 +182,7 @@ export default function FarmerDashboard() {
                 {recentOrders.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="px-4 py-8 text-center text-slate-500">
-                      No recent orders yet.
+                      No recent orders yet. Once buyers place orders for your products, they will appear here.
                     </td>
                   </tr>
                 ) : null}

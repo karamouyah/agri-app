@@ -23,7 +23,14 @@ export default function TransporterDashboard() {
   }
 
   useEffect(() => {
-    load()
+    const syncDashboard = async () => {
+      const [pendingData, activeData] = await Promise.all([getDeliveryRequests(), getActiveDeliveries()])
+      setRequests(pendingData)
+      setActiveDeliveries(activeData)
+      setLoading(false)
+    }
+
+    syncDashboard()
   }, [])
 
   const handleAccept = async (id) => {
@@ -63,8 +70,8 @@ export default function TransporterDashboard() {
     <section className="app-page">
       <PageHero
         eyebrow="Logistics Workspace"
-        title="Keep deliveries moving with better field visibility"
-        description="Handle mission requests, monitor active loads, and update agricultural deliveries from a cleaner dispatch dashboard."
+        title="Manage delivery missions from acceptance to arrival"
+        description="Review available pickup requests, accept missions that match your coverage, and update delivery status while loads are in transit."
         variant="transporter"
         stats={[
           { label: 'Pending Requests', value: stats.pending, help: 'Available missions waiting for action' },
@@ -137,7 +144,7 @@ export default function TransporterDashboard() {
                 {requests.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="px-4 py-8 text-center text-slate-500">
-                      No pending delivery requests.
+                      No pending delivery missions right now. New requests will appear here when orders need transport.
                     </td>
                   </tr>
                 ) : null}
@@ -189,7 +196,7 @@ export default function TransporterDashboard() {
                 {activeDeliveries.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="px-4 py-8 text-center text-slate-500">
-                      No active deliveries.
+                      No active deliveries at the moment. Accepted missions will appear here until they are completed.
                     </td>
                   </tr>
                 ) : null}

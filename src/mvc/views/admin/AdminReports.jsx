@@ -56,8 +56,8 @@ export default function AdminReports() {
     <section className="app-page">
       <PageHero
         eyebrow="Reporting Suite"
-        title="Generate market reports with clearer filters and better contrast"
-        description="Filter by region, product category, and reporting period to export ministry-ready market summaries."
+        title="Generate regional market reports for oversight and planning"
+        description="Filter by region, product category, and reporting period to review marketplace volume and revenue before exporting report data."
         variant="admin"
         stats={[
           { label: 'Regions', value: metrics.regions.size || 0, help: 'Regions represented in the current result set' },
@@ -137,7 +137,7 @@ export default function AdminReports() {
             <EmptyState
               icon={FiBarChart2}
               title="No report data yet"
-              description="Generate a report to view regional volume and revenue insights here."
+              description="No report generated yet. Select filters and run a report to review regional volume and revenue data."
             />
           </div>
         ) : (

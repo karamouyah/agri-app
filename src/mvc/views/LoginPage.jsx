@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { FiCheckCircle, FiLogIn, FiShield, FiTruck, FiUser } from 'react-icons/fi'
+import { FiCheckCircle, FiClock, FiLogIn, FiShield, FiTruck, FiUser } from 'react-icons/fi'
 import { useAuth } from '../../context/AuthContext'
 import { getDashboardPath } from '../../utils/roleRoutes'
-import AgriIllustration from '../../components/AgriIllustration'
 import BrandLogo from '../../components/BrandLogo'
 import ThemeToggle from '../../components/ThemeToggle'
 import {
@@ -15,9 +14,10 @@ import {
 } from '../../components/ui'
 
 const trustPoints = [
-  { icon: FiUser, text: 'Role-based access for farmers, buyers, transporters, and ministry users.' },
-  { icon: FiTruck, text: 'Operational visibility from product discovery through delivery tracking.' },
-  { icon: FiShield, text: 'Verified access with controlled workflows and approval-aware routing.' },
+  { icon: FiUser, text: 'Use the same approved account to access farmer, buyer, transporter, or ministry tools based on your role.' },
+  { icon: FiClock, text: 'If your account is still waiting for approval, sign-in confirms your status and keeps your workspace access controlled.' },
+  { icon: FiTruck, text: 'Orders, delivery missions, and marketplace activity stay tied to the correct user workflow after sign-in.' },
+  { icon: FiShield, text: 'Authentication protects product management, invoices, approvals, and moderation actions.' },
 ]
 
 export default function LoginPage() {
@@ -69,10 +69,10 @@ export default function LoginPage() {
               Secure platform access
             </p>
             <h1 className="mt-5 max-w-xl text-4xl font-bold leading-tight text-slate-900">
-              Sign in to a fresher agricultural workspace.
+              Sign in to continue your marketplace work.
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 md:text-base">
-              Manage sourcing, deliveries, approvals, and marketplace activity from one clean, responsive interface.
+              Access your role-based dashboard to manage products, orders, deliveries, approvals, or reports according to your account permissions.
             </p>
 
             <div className="mt-6 space-y-3">
@@ -89,9 +89,15 @@ export default function LoginPage() {
               })}
             </div>
 
-            <div className="mt-6 media-frame">
-              <AgriIllustration variant="auth" className="h-72" />
-            </div>
+            <Card className="mt-6 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">After Sign-In</p>
+              <div className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-300">
+                <p>Farmers open product, stock, order, and revenue tools.</p>
+                <p>Buyers can browse approved listings, place orders, and review invoices.</p>
+                <p>Transporters see available missions and active deliveries.</p>
+                <p>Ministry users manage approvals, products, and reporting.</p>
+              </div>
+            </Card>
           </Card>
 
           <Card className="p-6 md:p-8">

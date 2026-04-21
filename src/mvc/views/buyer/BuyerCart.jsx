@@ -8,7 +8,6 @@ import {
   updateCartQuantity,
 } from '../../controllers/buyerController'
 import { formatDzd } from '../../../utils/currency'
-import AgriIllustration from '../../../components/AgriIllustration'
 import PageHero from '../../../components/PageHero'
 import { Card, buttonStyles, cn } from '../../../components/ui'
 
@@ -22,7 +21,12 @@ export default function BuyerCart() {
   }
 
   useEffect(() => {
-    load()
+    const syncCart = async () => {
+      const cart = await getCart()
+      setItems(cart)
+    }
+
+    syncCart()
   }, [])
 
   const totals = calculateCartTotals(items)
@@ -42,7 +46,7 @@ export default function BuyerCart() {
       <PageHero
         eyebrow="Buyer Cart"
         title="Review your selection"
-        description="Check quantities, keep totals in DZD, and move into checkout from a cleaner cart workspace."
+        description="Confirm quantities, review totals in DZD, and move to checkout once your selected products and delivery plan are ready."
         variant="buyer"
         stats={[
           { label: 'Items', value: items.length, help: 'Products currently reserved in your cart' },
@@ -55,12 +59,9 @@ export default function BuyerCart() {
         <Card className="p-4 sm:p-5">
           {items.length === 0 ? (
             <div className="empty-state space-y-3 px-5 py-8 text-center">
-              <div className="mx-auto max-w-xs">
-                <AgriIllustration variant="empty" className="h-36" />
-              </div>
               <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">Cart is empty</h3>
               <p className="text-sm text-slate-600 dark:text-slate-300">
-                Browse approved products and add a few fresh items to start your order.
+                No products added yet. Start by browsing approved agricultural products and add the items you want to order.
               </p>
               <Link to="/buyer/search" className={cn(buttonStyles.secondary, 'inline-flex px-4 py-2 text-sm')}>
                 Browse products

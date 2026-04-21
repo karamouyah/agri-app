@@ -14,7 +14,6 @@ import {
 } from 'react-icons/fi'
 import { useAuth } from '../context/AuthContext'
 import BrandLogo from './BrandLogo'
-import AgriIllustration from './AgriIllustration'
 import ThemeToggle from './ThemeToggle'
 import { Card, StatusBadge, buttonStyles, cn } from './ui'
 
@@ -49,28 +48,54 @@ const navByRole = {
 const roleMeta = {
   farmer: {
     label: 'Farmer Workspace',
-    subtitle: 'Manage listings, orders, and revenue with a cleaner operating view.',
+    subtitle: 'Manage products, stock, incoming orders, and farm revenue from one workspace.',
     badge: 'Producer',
-    variant: 'farmer',
   },
   buyer: {
     label: 'Buyer Workspace',
-    subtitle: 'Source verified produce, place orders, and track every step.',
+    subtitle: 'Browse approved produce, place orders, and follow delivery and billing status.',
     badge: 'Marketplace',
-    variant: 'buyer',
   },
   transporter: {
     label: 'Transporter Workspace',
-    subtitle: 'Accept missions, update deliveries, and keep logistics moving.',
+    subtitle: 'Review missions, update delivery status, and manage transport coverage.',
     badge: 'Logistics',
-    variant: 'transporter',
   },
   ministry: {
     label: 'Ministry Workspace',
-    subtitle: 'Review users, govern products, and monitor market performance.',
+    subtitle: 'Approve users, moderate products, and monitor platform activity and reports.',
     badge: 'Oversight',
-    variant: 'admin',
   },
+}
+
+const workspaceGuides = {
+  farmer: [
+    'Add and update approved product listings.',
+    'Review pending and delivered orders.',
+    'Track revenue and recent order activity.',
+  ],
+  buyer: [
+    'Browse approved products by category and region.',
+    'Manage cart, checkout, and delivery addresses.',
+    'Track orders and review invoices.',
+  ],
+  transporter: [
+    'Accept available delivery missions.',
+    'Monitor active loads and status updates.',
+    'Keep profile, vehicle, and coverage details current.',
+  ],
+  ministry: [
+    'Review pending user approvals and product activity.',
+    'Monitor categories, reports, and delivery oversight.',
+    'Use reports to follow marketplace performance.',
+  ],
+}
+
+const footerNotes = {
+  farmer: 'Keep product details, stock, and order responses up to date so buyers can place reliable orders.',
+  buyer: 'Use approved listings, saved delivery details, and invoices to manage procurement with traceable records.',
+  transporter: 'Mission status and delivery updates help farmers, buyers, and ministry teams follow each shipment.',
+  ministry: 'Approval, moderation, and reporting tools support oversight across users, products, and delivery activity.',
 }
 
 function userDisplayName(user) {
@@ -85,6 +110,7 @@ export default function Layout({ role }) {
 
   const links = navByRole[role] || []
   const meta = roleMeta[role] || roleMeta.farmer
+  const guideItems = workspaceGuides[role] || workspaceGuides.farmer
   const activeLink = links.find((link) => location.pathname.startsWith(link.to))
 
   const handleLogout = () => {
@@ -133,9 +159,16 @@ export default function Layout({ role }) {
               })}
             </nav>
 
-            <div className="mt-6 media-frame">
-              <AgriIllustration variant={meta.variant} className="h-56" />
-            </div>
+            <Card className="mt-6 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-300">
+                Workspace Guide
+              </p>
+              <div className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-300">
+                {guideItems.map((item) => (
+                  <p key={item}>{item}</p>
+                ))}
+              </div>
+            </Card>
 
             <div className="mt-auto space-y-3 pt-6">
               <Card className="p-4">
@@ -208,7 +241,7 @@ export default function Layout({ role }) {
           <footer className="px-1 pb-4">
             <Card className="flex flex-col gap-3 px-5 py-4 text-sm text-slate-500 dark:text-slate-400 md:flex-row md:items-center md:justify-between">
               <BrandLogo size="sm" />
-              <p>Fresh sourcing, logistics visibility, and operational oversight in one professional agri workspace.</p>
+              <p>{footerNotes[role] || footerNotes.farmer}</p>
             </Card>
           </footer>
         </main>

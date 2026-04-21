@@ -2,7 +2,7 @@ import { Link, Navigate } from 'react-router-dom'
 import {
   FiArrowRight,
   FiCheckCircle,
-  FiFeather,
+  FiClipboard,
   FiShield,
   FiShoppingBag,
   FiTruck,
@@ -10,7 +10,6 @@ import {
 } from 'react-icons/fi'
 import { useAuth } from '../../context/AuthContext'
 import { getDashboardPath } from '../../utils/roleRoutes'
-import AgriIllustration from '../../components/AgriIllustration'
 import BrandLogo from '../../components/BrandLogo'
 import PageHero from '../../components/PageHero'
 import Reveal from '../../components/Reveal'
@@ -20,46 +19,82 @@ import { ActionCard, Card, SectionHeader, StatCard, buttonStyles, cn } from '../
 const features = [
   {
     icon: FiShoppingBag,
-    title: 'Verified marketplace',
-    description: 'Approved listings, visible pricing, and a cleaner product discovery flow for serious buyers.',
+    title: 'Approved product catalog',
+    description: 'Buyers browse listings with category, region, and price details after products pass review.',
+    meta: 'Catalog, stock, pricing',
   },
   {
     icon: FiTruck,
-    title: 'Live logistics',
-    description: 'Coordinate missions, handoffs, and delivery status without losing operational clarity.',
+    title: 'Delivery mission tracking',
+    description: 'Transporters receive pickup and delivery missions with visible order status from dispatch to arrival.',
+    meta: 'Requests, transit, proof of movement',
   },
   {
     icon: FiShield,
-    title: 'Ministry oversight',
-    description: 'Control onboarding, product governance, and market reporting from a unified workspace.',
+    title: 'Approval and moderation',
+    description: 'Ministry teams review accounts, moderate products, and monitor platform activity before trade goes live.',
+    meta: 'Users, products, reports',
   },
 ]
 
 const roleCards = [
   {
     title: 'Farmer tools',
-    description: 'Publish controlled listings, manage stock, and stay on top of incoming demand.',
-    meta: 'Inventory, pricing, orders',
-    icon: FiFeather,
+    description: 'Add products, manage stock, review orders, and follow revenue from one farm workspace.',
+    meta: 'Products, stock, orders',
+    icon: FiShoppingBag,
   },
   {
     title: 'Buyer tools',
-    description: 'Search by region, quality, and category, then move from cart to checkout with confidence.',
-    meta: 'Search, cart, invoices',
+    description: 'Browse approved products, place orders, track deliveries, and keep invoices organized.',
+    meta: 'Search, checkout, invoices',
     icon: FiShoppingBag,
   },
   {
     title: 'Transporter tools',
-    description: 'Accept missions, track progress, and keep deliveries visible from pickup to arrival.',
-    meta: 'Requests, transit, updates',
+    description: 'Accept delivery missions, update transport status, and maintain coverage across wilayas.',
+    meta: 'Missions, transit, coverage',
     icon: FiTruck,
   },
   {
     title: 'Ministry tools',
-    description: 'Review approvals, govern categories, and analyze market-wide activity in real time.',
-    meta: 'Users, products, reports',
+    description: 'Approve users, moderate product activity, review reports, and supervise marketplace operations.',
+    meta: 'Approvals, moderation, analytics',
     icon: FiUsers,
   },
+]
+
+const workflowSteps = [
+  {
+    title: '1. Create and approve accounts',
+    description: 'Farmers, buyers, and transporters register with role-specific details. Ministry staff review profiles before access is activated.',
+  },
+  {
+    title: '2. Publish and review products',
+    description: 'Farmers add products with category, stock, and price information. Approved products become visible to buyers.',
+  },
+  {
+    title: '3. Place orders and assign delivery',
+    description: 'Buyers place orders from the approved catalog, then transporters accept available missions based on coverage and capacity.',
+  },
+  {
+    title: '4. Track fulfillment and reporting',
+    description: 'Each role sees order status, delivery progress, and platform activity through their own operational dashboard.',
+  },
+]
+
+const trustBlocks = [
+  'Verified user onboarding before role access is granted.',
+  'Category-based product management to keep listings structured.',
+  'Status tracking for orders and delivery missions.',
+  'Reporting and moderation tools for ministry oversight.',
+]
+
+const categories = ['Vegetables', 'Fruits', 'Herbs', 'Dry products']
+const coveragePoints = [
+  'Farmer and buyer accounts register with wilaya and commune details.',
+  'Transporters declare delivery wilayas during onboarding.',
+  'Buyers can filter listings by farmer region before ordering.',
 ]
 
 export default function LandingPage() {
@@ -96,20 +131,20 @@ export default function LandingPage() {
             badge={
               <>
                 <FiCheckCircle />
-                Trusted role-based platform
+                Ministry-reviewed marketplace access
               </>
             }
-            eyebrow="Modern Agricultural Network"
-            title="Professional agricultural trade with a living, modern interface."
-            description="AgriGov Market brings together farmers, buyers, transporters, and ministry teams in one bright, responsive product and operations experience."
+            eyebrow="Agriculture Marketplace Platform"
+            title="Manage approved products, orders, and deliveries across the full agriculture workflow."
+            description="AgriGov Market connects farmers, buyers, transporters, and ministry teams in one operational platform for onboarding, product management, delivery tracking, and marketplace supervision."
             actions={[
-              { to: '/register', label: 'Start Free', icon: FiArrowRight },
-              { to: '/login', label: 'Open Workspace', kind: 'secondary' },
+              { to: '/register', label: 'Create Account', icon: FiArrowRight },
+              { to: '/login', label: 'Sign In', kind: 'secondary' },
             ]}
             stats={[
-              { label: 'Roles', value: '4', help: 'Connected workflows across the full supply chain' },
-              { label: 'Visibility', value: 'End to End', help: 'From listing approval to last-mile delivery' },
-              { label: 'Design', value: 'Responsive', help: 'Polished on desktop, tablet, and mobile' },
+              { label: 'Roles', value: '4', help: 'Farmer, buyer, transporter, and ministry access' },
+              { label: 'Workflow', value: 'End to End', help: 'From account approval to delivery completion' },
+              { label: 'Moderation', value: 'Tracked', help: 'User review, product control, and reporting tools' },
             ]}
             variant="hero"
           />
@@ -122,7 +157,7 @@ export default function LandingPage() {
                   icon={feature.icon}
                   title={feature.title}
                   description={feature.description}
-                  meta="Built for fast decision-making"
+                  meta={feature.meta}
                 />
               ))}
             </section>
@@ -131,21 +166,52 @@ export default function LandingPage() {
           <Reveal delay={60}>
             <section className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
               <Card className="overflow-hidden bg-gradient-to-br from-emerald-600 via-emerald-500 to-green-500 p-6 text-white dark:from-slate-900 dark:via-slate-800 dark:to-slate-800 md:p-8">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-50/90">Platform Benefits</p>
-                <h2 className="mt-2 text-3xl font-bold text-white">Less clutter. Better trust. Faster agricultural workflows.</h2>
-                <p className="mt-3 max-w-2xl text-sm leading-7 text-emerald-50/90 md:text-base">
-                  Use one consistent interface for approvals, listings, delivery status, and procurement. The result feels lighter while doing more.
-                </p>
-                <div className="mt-6 grid gap-3 sm:grid-cols-3">
-                  <StatCard label="Search" value="Focused" help="Filters that surface the right products quickly" tone="slate" />
-                  <StatCard label="Tracking" value="Live" help="Clear status changes across every role" tone="slate" />
-                  <StatCard label="Control" value="Verified" help="Ministry-managed governance and approval flows" tone="slate" />
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-50/90">How The Platform Works</p>
+                <h2 className="mt-2 text-3xl font-bold text-white">A clear workflow from onboarding to delivery completion.</h2>
+                <div className="mt-6 grid gap-3">
+                  {workflowSteps.map((step) => (
+                    <div key={step.title} className="rounded-2xl border border-white/15 bg-white/10 px-4 py-4 backdrop-blur-sm">
+                      <h3 className="text-sm font-semibold text-white">{step.title}</h3>
+                      <p className="mt-2 text-sm leading-6 text-emerald-50/90">{step.description}</p>
+                    </div>
+                  ))}
                 </div>
               </Card>
 
-              <Card className="p-4">
-                <div className="media-frame h-full">
-                  <AgriIllustration variant="buyer" className="min-h-[320px]" />
+              <Card className="p-6 md:p-8">
+                <SectionHeader
+                  eyebrow="Trust And Coverage"
+                  title="What users can verify before they act"
+                  description="The platform is structured to help each role understand who is approved, what is available, and where operations can happen."
+                />
+                <div className="mt-6 space-y-4">
+                  <div className="grid gap-3">
+                    {trustBlocks.map((item) => (
+                      <div key={item} className="rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-4 text-sm text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">
+                        {item}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <Card className="p-4">
+                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Supported Categories</p>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {categories.map((category) => (
+                          <span key={category} className="badge-soft px-3 py-1.5 text-xs">
+                            {category}
+                          </span>
+                        ))}
+                      </div>
+                    </Card>
+                    <Card className="p-4">
+                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Location Coverage</p>
+                      <div className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-300">
+                        {coveragePoints.map((item) => (
+                          <p key={item}>{item}</p>
+                        ))}
+                      </div>
+                    </Card>
+                  </div>
                 </div>
               </Card>
             </section>
@@ -154,9 +220,9 @@ export default function LandingPage() {
           <Reveal delay={120}>
             <section className="space-y-4">
               <SectionHeader
-                eyebrow="Role Experiences"
-                title="Reusable components, one clean visual system"
-                description="Each role gets its own tools without losing the shared structure, spacing, motion, and visual quality of the platform."
+                eyebrow="Role Workspaces"
+                title="Each role opens directly into the work that matters"
+                description="Instead of generic dashboards, every workspace is built around the tasks users actually perform on the marketplace."
               />
               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                 {roleCards.map((role) => (
@@ -175,10 +241,10 @@ export default function LandingPage() {
           <Reveal delay={180}>
             <Card className="grid gap-6 p-6 md:grid-cols-[1fr_auto] md:items-center md:p-8">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">Ready to launch</p>
-                <h2 className="mt-2 text-3xl font-bold text-slate-900">A cleaner marketplace for real agricultural work</h2>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">Get Started</p>
+                <h2 className="mt-2 text-3xl font-bold text-slate-900">Create an account and enter the agriculture workflow for your role</h2>
                 <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 md:text-base">
-                  Move from approvals to product discovery and delivery tracking without the usual visual noise.
+                  Farmers can publish products, buyers can order approved produce, transporters can manage missions, and ministry teams can supervise approvals and reports.
                 </p>
               </div>
               <div className="flex flex-wrap gap-3">

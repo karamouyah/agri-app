@@ -4,7 +4,6 @@ import { addToCart, buyerFilterOptions, searchProducts } from '../../controllers
 import { formatDzdPerUnit } from '../../../utils/currency'
 import LocationFields from '../../../components/LocationFields'
 import PageHero from '../../../components/PageHero'
-import AgriIllustration from '../../../components/AgriIllustration'
 import { Card, Input, Select, buttonStyles, cn } from '../../../components/ui'
 
 const initialFilters = {
@@ -31,7 +30,13 @@ export default function BuyerSearch() {
   }
 
   useEffect(() => {
-    load(1)
+    const syncResults = async () => {
+      const response = await searchProducts('', initialFilters, 1, 6)
+      setData(response)
+      setPage(response.page)
+    }
+
+    syncResults()
   }, [])
 
   const handleFilterChange = (event) => {
@@ -66,13 +71,13 @@ export default function BuyerSearch() {
       <PageHero
         eyebrow="Fresh Marketplace"
         title="Browse approved produce listings"
-        description="Filter by category, price, quality, and region in a brighter, more visual product search experience."
+        description="Search the approved catalog by category, price, quality, and region to find products that match your delivery and procurement needs."
         variant="buyer"
         badge="Live approved catalog"
         stats={[
           { label: 'Results', value: data.total, help: 'Products matched right now' },
-          { label: 'Pages', value: data.totalPages, help: 'Responsive browsing with pagination' },
-          { label: 'Quality', value: 'Verified', help: 'Controlled catalog with visible pricing' },
+          { label: 'Pages', value: data.totalPages, help: 'Split results for easier browsing' },
+          { label: 'Quality', value: 'Verified', help: 'Approved catalog with visible pricing and supplier details' },
         ]}
       />
 
@@ -193,9 +198,14 @@ export default function BuyerSearch() {
             </button>
           </div>
 
-          <div className="media-shell mt-4 p-2">
-            <AgriIllustration variant="hero" className="h-48" />
-          </div>
+          <Card className="mt-4 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Search Tips</p>
+            <div className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-300">
+              <p>Use wilaya and commune filters when you want products from a specific origin.</p>
+              <p>Set a price range before ordering when you need to compare suppliers quickly.</p>
+              <p>Open product details to review the farmer, unit, and product information before checkout.</p>
+            </div>
+          </Card>
         </Card>
 
         <div className="space-y-4">
@@ -203,9 +213,6 @@ export default function BuyerSearch() {
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {data.items.map((product) => (
                 <Card key={product.id} className="lift-card p-4">
-                  <div className="media-shell mb-3 p-2">
-                    <AgriIllustration variant="hero" className="h-28" />
-                  </div>
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <h3 className="text-base font-semibold text-slate-800 dark:text-slate-100">{product.name}</h3>
@@ -233,12 +240,9 @@ export default function BuyerSearch() {
             </div>
           ) : (
             <div className="empty-state px-6 py-10 text-center">
-              <div className="mx-auto max-w-sm">
-                <AgriIllustration variant="empty" className="mx-auto h-44" />
-              </div>
               <h3 className="mt-3 text-lg font-semibold text-slate-900 dark:text-slate-100">No products matched your filters</h3>
               <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-                Try a broader search, remove a few filters, or explore another region.
+                Try a broader search, remove a few filters, or choose another wilaya to see more approved products.
               </p>
             </div>
           )}

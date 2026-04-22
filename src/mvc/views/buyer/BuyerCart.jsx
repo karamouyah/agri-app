@@ -72,7 +72,7 @@ export default function BuyerCart() {
               {items.map((item) => (
                 <div key={item.productId} className="surface-muted lift-card flex flex-col gap-3 p-4 md:flex-row md:items-center md:justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
                       <FiPackage />
                     </div>
                     <div>
@@ -148,3 +148,4 @@ export default function BuyerCart() {
     </section>
   )
 }
+

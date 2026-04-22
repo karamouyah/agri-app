@@ -6,19 +6,19 @@ export function cn(...classes) {
 
 export const buttonStyles = {
   primary:
-    'inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(22,101,52,0.14)] transition duration-200 hover:bg-emerald-700 hover:shadow-[0_14px_28px_rgba(22,101,52,0.18)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-100 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-emerald-500 dark:text-slate-950 dark:hover:bg-emerald-400 dark:focus-visible:ring-emerald-900',
+    'inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:focus-visible:ring-offset-slate-900',
   secondary:
-    'inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition duration-200 hover:border-emerald-200 hover:bg-emerald-50/60 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-emerald-500/40 dark:hover:bg-slate-700 dark:hover:text-slate-50 dark:focus-visible:ring-emerald-900',
+    'inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 dark:focus-visible:ring-offset-slate-900',
   ghost:
-    'inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-600 transition duration-200 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-100 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-50 dark:focus-visible:ring-emerald-900',
+    'inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-50 dark:focus-visible:ring-offset-slate-900',
 }
 
 export function Card({ as: Tag = 'div', className = '', children, ...props }) {
   return (
     <Tag
       className={cn(
-        'rounded-2xl border border-slate-200/80 bg-white/95 shadow-[0_10px_30px_rgba(15,23,42,0.05)] backdrop-blur-sm transition duration-200',
-        'dark:border-slate-800 dark:bg-slate-900/90 dark:shadow-[0_14px_34px_rgba(2,6,23,0.36)]',
+        'rounded-xl border border-slate-200 bg-white shadow-sm',
+        'dark:border-slate-800 dark:bg-slate-900',
         className,
       )}
       {...props}
@@ -32,8 +32,8 @@ export function SoftCard({ className = '', children, ...props }) {
   return (
     <div
       className={cn(
-        'rounded-2xl border border-slate-200 bg-slate-50/85 p-4 shadow-sm',
-        'dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200',
+        'rounded-xl border border-slate-200 bg-slate-50 p-4',
+        'dark:border-slate-800 dark:bg-slate-900/50 dark:text-slate-200',
         className,
       )}
       {...props}
@@ -45,7 +45,7 @@ export function SoftCard({ className = '', children, ...props }) {
 
 export function Eyebrow({ children, className = '' }) {
   return (
-    <p className={cn('text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700 dark:text-emerald-300', className)}>
+    <p className={cn('text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400', className)}>
       {children}
     </p>
   )
@@ -53,40 +53,34 @@ export function Eyebrow({ children, className = '' }) {
 
 export function SectionHeader({ eyebrow, title, description, actions, className = '' }) {
   return (
-    <div className={cn('flex flex-col gap-4 md:flex-row md:items-end md:justify-between', className)}>
+    <div className={cn('flex flex-col gap-3 md:flex-row md:items-end md:justify-between', className)}>
       <div className="max-w-2xl">
         {eyebrow ? <Eyebrow>{eyebrow}</Eyebrow> : null}
-        <h2 className="mt-2 text-xl font-bold text-slate-900 dark:text-slate-100 md:text-2xl">{title}</h2>
-        {description ? <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{description}</p> : null}
+        <h2 className="text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-100 md:text-2xl">{title}</h2>
+        {description ? <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{description}</p> : null}
       </div>
-      {actions ? <div className="flex flex-wrap gap-3">{actions}</div> : null}
+      {actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}
     </div>
   )
 }
 
 const toneStyles = {
-  emerald: 'from-emerald-50 to-white text-emerald-700 ring-emerald-100 dark:from-emerald-950/50 dark:to-slate-900 dark:text-emerald-300 dark:ring-emerald-900/40',
-  slate: 'from-slate-50 to-white text-slate-700 ring-slate-200 dark:from-slate-900 dark:to-slate-800 dark:text-slate-200 dark:ring-slate-700',
-  sky: 'from-sky-50 to-white text-sky-700 ring-sky-100 dark:from-sky-950/30 dark:to-slate-900 dark:text-sky-300 dark:ring-sky-900/40',
+  emerald: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400',
+  slate: 'bg-slate-50 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
+  sky: 'bg-sky-50 text-sky-700 dark:bg-sky-500/10 dark:text-sky-400',
 }
 
 export function StatCard({ icon: Icon, label, value, help, tone = 'emerald', className = '' }) {
   return (
-    <Card
-      className={cn(
-        'bg-gradient-to-br p-4 ring-1',
-        toneStyles[tone] || toneStyles.emerald,
-        className,
-      )}
-    >
+    <Card className={cn('p-4', className)}>
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">{label}</p>
-          <p className="mt-2 text-[1.7rem] font-bold leading-none text-slate-900 dark:text-slate-100">{value}</p>
-          {help ? <p className="mt-2 text-sm leading-5 text-slate-600 dark:text-slate-300">{help}</p> : null}
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{label}</p>
+          <p className="mt-1 text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">{value}</p>
+          {help ? <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{help}</p> : null}
         </div>
         {Icon ? (
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-base shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+          <span className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-lg", toneStyles[tone] || toneStyles.slate)}>
             <Icon />
           </span>
         ) : null}
@@ -104,36 +98,36 @@ export function PageHeader({
   className = '',
 }) {
   return (
-    <Card className={cn('p-5 md:p-6', className)}>
+    <div className={cn('pb-5 border-b border-slate-200 dark:border-slate-800', className)}>
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="max-w-3xl">
           {eyebrow ? <Eyebrow>{eyebrow}</Eyebrow> : null}
-          <h1 className="mt-2 text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 md:text-[2rem]">
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100 md:text-3xl">
             {title}
           </h1>
           {description ? (
-            <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300 md:text-[15px]">
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
               {description}
             </p>
           ) : null}
         </div>
-        {actions ? <div className="flex flex-wrap gap-3">{actions}</div> : null}
+        {actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}
       </div>
 
       {meta.length > 0 ? (
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="mt-4 flex flex-wrap gap-2 md:gap-4">
           {meta.map((item, index) => (
             <span
               key={`${item.label}-${index}`}
-              className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+              className="inline-flex items-center text-sm text-slate-600 dark:text-slate-400"
             >
-              <span className="text-slate-500 dark:text-slate-400">{item.label}</span>
-              <span className="text-slate-900 dark:text-slate-100">{item.value}</span>
+              <span className="font-medium mr-1 text-slate-900 dark:text-slate-200">{item.label}:</span>
+              <span>{item.value}</span>
             </span>
           ))}
         </div>
       ) : null}
-    </Card>
+    </div>
   )
 }
 
@@ -214,14 +208,14 @@ export function Textarea({ className = '', ...props }) {
 }
 
 export function SkeletonBlock({ className = '' }) {
-  return <div className={cn('animate-pulse rounded-2xl bg-slate-200/70 dark:bg-slate-800/80', className)} />
+  return <div className={cn('animate-pulse rounded-lg bg-slate-200/70 dark:bg-slate-800/80', className)} />
 }
 
 export function EmptyState({ icon: Icon, title, description, action, className = '' }) {
   return (
     <Card className={cn('flex flex-col items-center px-6 py-10 text-center', className)}>
       {Icon ? (
-        <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-2xl text-emerald-700 ring-1 ring-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-300 dark:ring-emerald-900/40">
+        <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-lg bg-emerald-50 text-2xl text-emerald-700 ring-1 ring-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-300 dark:ring-emerald-900/40">
           <Icon />
         </span>
       ) : null}
@@ -244,21 +238,20 @@ export function EmptyState({ icon: Icon, title, description, action, className =
 
 export function ActionCard({ to, onClick, icon: Icon, title, description, meta, className = '' }) {
   const shared = cn(
-    'group flex h-full flex-col rounded-2xl border border-emerald-100 bg-white/95 p-5 text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-[0_20px_40px_rgba(15,23,42,0.08)]',
-    'dark:border-slate-800 dark:bg-slate-900/90 dark:hover:border-emerald-500/30 dark:hover:shadow-[0_20px_40px_rgba(2,6,23,0.35)]',
+    'group flex h-full flex-col rounded-xl border border-slate-200 bg-white p-5 text-left transition-colors hover:border-slate-300 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700 dark:hover:bg-slate-800/50',
     className,
   )
 
   const body = (
     <>
       {Icon ? (
-        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-lg text-emerald-700 ring-1 ring-emerald-100 transition duration-200 group-hover:scale-105 dark:bg-emerald-950/40 dark:text-emerald-300 dark:ring-emerald-900/40">
+        <span className="flex h-10 w-10 shrink-0 transition-colors items-center justify-center rounded-lg bg-emerald-50 text-xl text-emerald-600 group-hover:bg-emerald-100 dark:bg-slate-800 dark:text-emerald-400 dark:group-hover:bg-slate-700">
           <Icon />
         </span>
       ) : null}
-      <h3 className="mt-4 text-lg font-bold text-slate-900 dark:text-slate-100">{title}</h3>
-      <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{description}</p>
-      {meta ? <p className="mt-4 text-sm font-semibold text-emerald-700 dark:text-emerald-300">{meta}</p> : null}
+      <h3 className="mt-4 text-base font-semibold text-slate-900 dark:text-slate-100">{title}</h3>
+      <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{description}</p>
+      {meta ? <p className="mt-2 text-sm font-medium text-emerald-600 dark:text-emerald-400">{meta}</p> : null}
     </>
   )
 
@@ -276,3 +269,5 @@ export function ActionCard({ to, onClick, icon: Icon, title, description, meta, 
     </button>
   )
 }
+
+

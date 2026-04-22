@@ -235,7 +235,7 @@ export default function FarmerProducts() {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-300">
               Marketplace table
             </p>
-            <h3 className="mt-2 text-xl font-bold text-slate-900 dark:text-slate-100">
+            <h3 className="mt-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
               Your approved product listings
             </h3>
             <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
@@ -246,11 +246,11 @@ export default function FarmerProducts() {
         </div>
 
         {isLoading ? (
-          <div className="rounded-2xl border border-dashed border-slate-300 px-4 py-12 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+          <div className="rounded-lg border border-dashed border-slate-300 px-4 py-12 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
             Loading approved products and your listings...
           </div>
         ) : products.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-slate-300 px-4 py-12 text-center dark:border-slate-700">
+          <div className="rounded-lg border border-dashed border-slate-300 px-4 py-12 text-center dark:border-slate-700">
             <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">No product listings yet</h4>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
               Add your first approved product to start receiving buyer orders.
@@ -357,7 +357,7 @@ export default function FarmerProducts() {
 
             {catalog.length === 0 ? (
               <div className="mt-4 space-y-4">
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-700 dark:border-slate-800 dark:bg-slate-950/40 dark:text-slate-300">
+                <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-700 dark:border-slate-800 dark:bg-slate-950/40 dark:text-slate-300">
                   No approved products available yet.
                 </div>
                 <div className="flex justify-end">
@@ -373,7 +373,7 @@ export default function FarmerProducts() {
             ) : (
               <form onSubmit={handleSubmit} className="mt-4 space-y-4">
                 {submitError && (
-                  <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">
+                  <p className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">
                     {submitError}
                   </p>
                 )}
@@ -412,9 +412,9 @@ export default function FarmerProducts() {
 
                 <div>
                   <p className="mb-2 text-sm font-medium text-slate-700 dark:text-slate-200">Approved products</p>
-                  <div className="max-h-72 space-y-2 overflow-y-auto rounded-2xl border border-slate-200/90 bg-slate-50/70 p-3 dark:border-slate-800 dark:bg-slate-950/30">
+                  <div className="max-h-72 space-y-2 overflow-y-auto rounded-lg border border-slate-200/90 bg-slate-50/70 p-3 dark:border-slate-800 dark:bg-slate-950/30">
                     {filteredCatalog.length === 0 ? (
-                      <div className="rounded-2xl border border-slate-200 bg-white px-4 py-5 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-900/90 dark:text-slate-300">
+                      <div className="rounded-lg border border-slate-200 bg-white px-4 py-5 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-900/90 dark:text-slate-300">
                         No approved products available yet.
                       </div>
                     ) : (
@@ -427,7 +427,7 @@ export default function FarmerProducts() {
                             type="button"
                             onClick={() => handleSelectProduct(item.id)}
                             className={cn(
-                              'w-full rounded-2xl border px-4 py-3 text-left transition duration-200',
+                              'w-full rounded-lg border px-4 py-3 text-left transition duration-200',
                               isSelected
                                 ? 'border-emerald-500 bg-emerald-50 text-slate-900 shadow-sm dark:bg-emerald-950/35 dark:text-slate-100'
                                 : 'border-slate-200 bg-white hover:border-emerald-300 hover:bg-emerald-50/50 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-emerald-500/40 dark:hover:bg-slate-800',
@@ -449,7 +449,7 @@ export default function FarmerProducts() {
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-200">
+                <div className="rounded-lg border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-200">
                   {selectedProduct ? (
                     <>
                       <strong>{selectedProduct.name}</strong> in <strong>{selectedProduct.category}</strong>
@@ -521,3 +521,4 @@ export default function FarmerProducts() {
     </section>
   )
 }
+

@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { getDashboardPath } from '../utils/roleRoutes'
+import { Card, Input, Button, buttonStyles, FormField } from '../components/ui'
+import BrandLogo from '../components/BrandLogo'
 
 export default function LoginPage() {
   const { isAuthenticated, user, login } = useAuth()
@@ -38,34 +40,35 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
-      <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h1 className="text-2xl font-semibold text-emerald-700">AgriGov Market</h1>
-        <p className="mt-1 text-sm text-slate-500">Sign in to continue</p>
-        {notice && <p className="mt-2 rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{notice}</p>}
+    <div className="flex min-h-screen items-center justify-center p-4">
+      <Card className="w-full max-w-sm p-6 sm:p-8 relative">
+        <div className="mb-8 flex justify-center">
+          <BrandLogo size="md" />
+        </div>
+        
+        <div className="mb-6 text-center">
+          <h1 className="text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">Welcome back</h1>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Log in to your account</p>
+        </div>
+        
+        {notice && <div className="mb-6 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">{notice}</div>}
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          <div>
-            <label htmlFor="email" className="mb-1 block text-sm font-medium text-slate-700">
-              Email
-            </label>
-            <input
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <FormField label="Email address">
+            <Input
               id="email"
               name="email"
               type="email"
               required
               value={formData.email}
               onChange={handleChange}
-              className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-emerald-500"
-              placeholder="farmer@agri.gov"
+              placeholder="name@example.com"
+              autoComplete="email"
             />
-          </div>
+          </FormField>
 
-          <div>
-            <label htmlFor="password" className="mb-1 block text-sm font-medium text-slate-700">
-              Password
-            </label>
-            <input
+          <FormField label="Password">
+            <Input
               id="password"
               name="password"
               type="password"
@@ -73,33 +76,35 @@ export default function LoginPage() {
               minLength={4}
               value={formData.password}
               onChange={handleChange}
-              className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-emerald-500"
               placeholder="••••••••"
+              autoComplete="current-password"
             />
-          </div>
+          </FormField>
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="text-sm font-medium text-rose-600 dark:text-rose-400">{error}</p>}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-md bg-emerald-600 px-4 py-2 font-medium text-white hover:bg-emerald-700 disabled:opacity-70"
+            className={`${buttonStyles.primary} w-full mt-2`}
           >
-            {loading ? 'Signing in...' : 'Login'}
+            {loading ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
 
-        <p className="mt-4 text-sm text-slate-600">
-          New user?{' '}
-          <Link to="/register" className="font-medium text-emerald-700 hover:underline">
-            Create account
+        <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
+          Don't have an account?{' '}
+          <Link to="/register" className="font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300">
+            Sign up
           </Link>
         </p>
 
-        <p className="mt-4 text-xs text-slate-500">
-          Tip: use emails containing farmer, buyer, transporter, or ministry to test role-based dashboards.
-        </p>
-      </div>
+        <div className="mt-8 border-t border-slate-200 pt-6 dark:border-slate-800">
+          <p className="text-center text-xs text-slate-500 dark:text-slate-500">
+            Tip: use email patterns containing <span className="font-medium">farmer, buyer, transporter, </span> or <span className="font-medium">ministry</span> mapped to respective roles.
+          </p>
+        </div>
+      </Card>
     </div>
   )
 }

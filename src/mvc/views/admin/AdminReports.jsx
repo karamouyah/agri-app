@@ -122,10 +122,10 @@ export default function AdminReports() {
       <Card className="overflow-hidden">
         <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-5 md:px-6">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-300">
+            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
               Report Results
             </p>
-            <h3 className="mt-2 text-xl font-bold text-slate-900 dark:text-slate-100">Table and revenue chart</h3>
+            <h3 className="mt-2 text-lg font-semibold text-slate-900 dark:text-slate-100">Table and revenue chart</h3>
           </div>
           <span className="badge-soft px-3 py-1.5 text-xs">{result.rows.length} rows</span>
         </div>
@@ -166,7 +166,7 @@ export default function AdminReports() {
             </div>
 
             <Card className="p-4 md:p-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-300">
+              <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
                 Revenue Chart
               </p>
               <div className="mt-4 h-80">
@@ -176,7 +176,7 @@ export default function AdminReports() {
                     <XAxis dataKey="region" />
                     <YAxis />
                     <Tooltip formatter={(value) => [formatDzd(value), 'Revenue']} />
-                    <Bar dataKey="revenue" fill="#10b981" radius={[10, 10, 0, 0]} />
+                    <Bar dataKey="revenue" fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={48} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -187,3 +187,5 @@ export default function AdminReports() {
     </section>
   )
 }
+
+

@@ -15,7 +15,7 @@ import { FiActivity, FiBarChart2, FiShield, FiUsers } from 'react-icons/fi'
 import { getNationalStats } from '../../controllers/adminController'
 import { formatDzd } from '../../../utils/currency'
 import PageHero from '../../../components/PageHero'
-import { Card, SkeletonBlock, StatCard } from '../../../components/ui'
+import { Card, SkeletonBlock, StatCard, cn } from '../../../components/ui'
 
 export default function AdminDashboard() {
   const [data, setData] = useState(null)
@@ -32,10 +32,10 @@ export default function AdminDashboard() {
   if (!data) {
     return (
       <section className="app-page">
-        <SkeletonBlock className="h-[360px]" />
+        <SkeletonBlock className="h-[300px]" />
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {Array.from({ length: 4 }).map((_, index) => (
-            <SkeletonBlock key={index} className="h-36" />
+            <SkeletonBlock key={index} className="h-32" />
           ))}
         </div>
         <div className="grid gap-4 xl:grid-cols-2">
@@ -51,71 +51,64 @@ export default function AdminDashboard() {
   return (
     <section className="app-page">
       <PageHero
-        eyebrow="Ministry Intelligence"
-        title="Monitor approvals, marketplace activity, and regional trade signals"
-        description="Use this dashboard to follow active participants, market movement by region, and price trends that may require review or intervention."
-        variant="admin"
+        eyebrow="Minisrtry Intelligence"
+        title="Market Oversight"
+        description="Monitor approvals, marketplace activity, regional trade signals, and pricing anomalies from across the national network."
         stats={[
-          { label: 'Sales Volume', value: `${summary.totalSalesVolumeTons} tons`, help: 'Tracked marketplace movement across current data' },
-          { label: 'Active Farmers', value: summary.activeFarmers, help: 'Approved sellers on the platform' },
-          { label: 'Transporters', value: summary.activeTransporters, help: 'Active delivery operators' },
+          { label: 'Sales Volume', value: \${summary.totalSalesVolumeTons} T\, help: 'Tracked movement' },
+          { label: 'Active Farmers', value: summary.activeFarmers, help: 'Approved sellers' },
+          { label: 'Transporters', value: summary.activeTransporters, help: 'Logistics operators' },
         ]}
       />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard icon={FiBarChart2} label="Sales Volume" value={`${summary.totalSalesVolumeTons} tons`} help="Current monitored trade volume" />
-        <StatCard icon={FiUsers} label="Active Farmers" value={summary.activeFarmers} help="Approved producers" tone="slate" />
-        <StatCard icon={FiUsers} label="Active Buyers" value={summary.activeBuyers} help="Verified buyers" tone="sky" />
-        <StatCard icon={FiShield} label="Transporters" value={summary.activeTransporters} help="Active logistics operators" />
+        <StatCard icon={FiBarChart2} label="Volume" value=\${summary.totalSalesVolumeTons} T\ help="Total captured trade" tone="sky" />
+        <StatCard icon={FiUsers} label="Farmers" value={summary.activeFarmers} help="Verified producers" tone="emerald" />
+        <StatCard icon={FiUsers} label="Buyers" value={summary.activeBuyers} help="Active wholesale buyers" tone="slate" />
+        <StatCard icon={FiShield} label="Logistics" value={summary.activeTransporters} help="Registered carriers" tone="emerald" />
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
         <Card className="p-5 md:p-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Regional Sales</p>
-          <h3 className="mt-2 text-xl font-bold text-slate-900">Volume by pickup region</h3>
-          <div className="mt-5 h-80">
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Regional Trade Volume</h3>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Dispatched tonnage by origin wilaya</p>
+          </div>
+          <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={regionalSales}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#d1d5db" />
-                <XAxis dataKey="region" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="volume" fill="#16a34a" radius={[10, 10, 0, 0]} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#d1d5db" vertical={false} />
+                <XAxis dataKey="region" axisLine={false} tickLine={false} tick={{fill: '#64748b'}} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b'}} />
+                <Tooltip cursor={{fill: '#f1f5f9'}} />
+                <Bar dataKey="volume" name="Tons" fill="#0ea5e9" radius={[4, 4, 0, 0]} maxBarSize={48} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </Card>
 
         <Card className="p-5 md:p-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Price Trends</p>
-          <h3 className="mt-2 text-xl font-bold text-slate-900">Strategic products in DZD</h3>
-          <div className="mt-5 h-80">
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Strategic Price Index</h3>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Wholesale variation across essential crops (DZD)</p>
+          </div>
+          <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={priceTrends}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#d1d5db" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip formatter={(value, name) => [formatDzd(value), name]} />
-                <Legend />
-                <Line type="monotone" dataKey="tomatoes" stroke="#16a34a" strokeWidth={2.5} />
-                <Line type="monotone" dataKey="oranges" stroke="#0ea5a3" strokeWidth={2.5} />
-                <Line type="monotone" dataKey="potatoes" stroke="#475569" strokeWidth={2.5} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#d1d5db" vertical={false} />
+                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill: '#64748b'}} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b'}} width={40} />
+                <Tooltip formatter={(value, name) => [formatDzd(value), name]} cursor={{strike: '#f1f5f9'}} />
+                <Legend iconType="circle" wrapperStyle={{paddingTop: '20px'}} />
+                <Line type="monotone" dataKey="tomatoes" stroke="#ef4444" strokeWidth={2} dot={false} activeDot={{r: 4}} />
+                <Line type="monotone" dataKey="oranges" stroke="#f59e0b" strokeWidth={2} dot={false} activeDot={{r: 4}} />
+                <Line type="monotone" dataKey="potatoes" stroke="#eab308" strokeWidth={2} dot={false} activeDot={{r: 4}} />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </Card>
       </div>
-
-      <Card className="p-6">
-        <h3 className="inline-flex items-center gap-2 text-xl font-bold text-slate-900">
-          <FiActivity />
-          Oversight Focus
-        </h3>
-        <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600">
-          Review pending user approvals and product activity first, then use reports to compare regional movement, pricing behavior, and delivery performance before taking policy or moderation action.
-        </p>
-      </Card>
     </section>
   )
 }
+

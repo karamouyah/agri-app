@@ -75,7 +75,7 @@ export default function BuyerDashboard() {
 
       <div className="grid gap-4 xl:grid-cols-2">
         <Card className="p-5 md:p-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Order Flow</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Order Flow</p>
           <div className="mt-4 space-y-3 text-sm text-slate-600 dark:text-slate-300">
             <p>1. Browse approved products by category, price, quality, wilaya, and commune.</p>
             <p>2. Add products to your cart and confirm quantities before checkout.</p>
@@ -84,7 +84,7 @@ export default function BuyerDashboard() {
         </Card>
 
         <Card className="p-5 md:p-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Before Checkout</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Before Checkout</p>
           <div className="mt-4 space-y-3 text-sm text-slate-600 dark:text-slate-300">
             <p>Keep your address and location details updated in your profile.</p>
             <p>Review supplier region and unit pricing before adding products to the cart.</p>
@@ -95,3 +95,4 @@ export default function BuyerDashboard() {
     </section>
   )
 }
+

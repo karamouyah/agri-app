@@ -23,43 +23,26 @@ export default function TransporterDashboard() {
   }
 
   useEffect(() => {
-    const syncDashboard = async () => {
-      const [pendingData, activeData] = await Promise.all([getDeliveryRequests(), getActiveDeliveries()])
-      setRequests(pendingData)
-      setActiveDeliveries(activeData)
-      setLoading(false)
-    }
-
-    syncDashboard()
+    load()
   }, [])
 
   const handleAccept = async (id) => {
     await acceptMission(id)
-    await load()
+    load()
   }
 
   const handleDecline = async (id) => {
     await declineMission(id)
-    await load()
+    load()
   }
-
-  const stats = useMemo(
-    () => ({
-      pending: requests.length,
-      active: activeDeliveries.length,
-      inTransit: activeDeliveries.filter((item) => item.status === 'in transit').length,
-    }),
-    [requests, activeDeliveries],
-  )
 
   if (loading) {
     return (
       <section className="app-page">
-        <SkeletonBlock className="h-[340px]" />
-        <div className="grid gap-4 sm:grid-cols-3">
-          {Array.from({ length: 3 }).map((_, index) => (
-            <SkeletonBlock key={index} className="h-36" />
-          ))}
+        <SkeletonBlock className="h-[200px]" />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <SkeletonBlock className="h-32" />
+          <SkeletonBlock className="h-32" />
         </div>
         <SkeletonBlock className="h-96" />
       </section>
@@ -69,142 +52,123 @@ export default function TransporterDashboard() {
   return (
     <section className="app-page">
       <PageHero
-        eyebrow="Logistics Workspace"
-        title="Manage delivery missions from acceptance to arrival"
-        description="Review available pickup requests, accept missions that match your coverage, and update delivery status while loads are in transit."
-        variant="transporter"
+        eyebrow="Workspace"
+        title="Dispatcher Hub"
+        description="Manage inbound freight requests and track your active moving shipments across the national network."
         stats={[
-          { label: 'Pending Requests', value: stats.pending, help: 'Available missions waiting for action' },
-          { label: 'Active Deliveries', value: stats.active, help: 'Accepted assignments in progress' },
-          { label: 'In Transit', value: stats.inTransit, help: 'Current deliveries already on the road' },
+          { label: 'Active Jobs', value: activeDeliveries.length, help: 'Currently in progress' },
+          { label: 'Pending Requests', value: requests.length, help: 'Awaiting your action' }
         ]}
       />
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard icon={FiClock} label="Pending Requests" value={stats.pending} help="Awaiting your response" tone="slate" />
-        <StatCard icon={FiTruck} label="Active Deliveries" value={stats.active} help="Missions underway now" tone="sky" />
-        <StatCard icon={FiCheckCircle} label="In Transit" value={stats.inTransit} help="Loads already moving" />
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4">
+        <StatCard icon={FiTruck} label="Active Fleet" value={activeDeliveries.length} help="Active transit orders" tone="sky" />
+        <StatCard icon={FiClock} label="Pending Offers" value={requests.length} help="Awaiting decision" tone="slate" />
       </div>
 
-      <Card className="overflow-hidden">
-        <div className="px-5 py-5 md:px-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Pending Missions</p>
-          <h3 className="mt-2 text-xl font-bold text-slate-900">Requests awaiting dispatch acceptance</h3>
-        </div>
-        <div className="table-shell m-4 mt-0">
-          <div className="overflow-x-auto">
-            <table className="table-base">
+      <div className="grid gap-6 xl:grid-cols-2">
+        <Card>
+          <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Open Requests</h3>
+            <p className="text-sm text-slate-500">Available loads awaiting acceptance.</p>
+          </div>
+          <div className="p-0">
+            <table className="table-base w-full">
               <thead>
                 <tr>
-                  <th>Order ID</th>
-                  <th>Pickup</th>
-                  <th>Delivery</th>
-                  <th>Load</th>
-                  <th>Deadline</th>
-                  <th>Actions</th>
+                  <th className="text-left">Route</th>
+                  <th className="text-left">Volume</th>
+                  <th className="text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {requests.map((mission) => (
-                  <tr key={mission.id}>
-                    <td className="font-semibold text-slate-900">{mission.orderId}</td>
-                    <td>{mission.pickupLocation}</td>
-                    <td>{mission.deliveryLocation}</td>
-                    <td>{mission.loadKg} KG</td>
-                    <td>{mission.deadline}</td>
+                {requests.map((req) => (
+                  <tr key={req.id}>
                     <td>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="font-medium text-slate-900 dark:text-slate-100">
+                        {req.origin} ? {req.destination}
+                      </div>
+                      <div className="text-xs text-slate-500 mt-1">ID: {req.id}</div>
+                    </td>
+                    <td className="text-slate-600 dark:text-slate-300">{req.volume} kg</td>
+                    <td className="text-right">
+                      <div className="flex justify-end gap-2">
                         <button
-                          type="button"
-                          onClick={() => handleAccept(mission.id)}
-                          className="inline-flex items-center gap-1 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100"
+                          onClick={() => handleAccept(req.id)}
+                          className="inline-flex items-center gap-1.5 rounded-md bg-emerald-50 px-2.5 py-1.5 text-xs font-semibold text-emerald-600 transition hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20"
                         >
-                          <FiCheckCircle />
-                          Accept
+                          <FiCheckCircle /> Accept
                         </button>
                         <button
-                          type="button"
-                          onClick={() => handleDecline(mission.id)}
-                          className="inline-flex items-center gap-1 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100"
+                          onClick={() => handleDecline(req.id)}
+                          className="inline-flex items-center gap-1.5 rounded-md bg-rose-50 px-2.5 py-1.5 text-xs font-semibold text-rose-600 transition hover:bg-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500/20"
                         >
-                          <FiXCircle />
-                          Decline
+                          <FiXCircle /> Decline
                         </button>
-                        <Link
-                          to={`/transporter/delivery/${mission.id}`}
-                          className={cn(buttonStyles.secondary, 'px-3 py-2 text-xs')}
-                        >
-                          <FiClock />
-                          View
-                        </Link>
                       </div>
                     </td>
                   </tr>
                 ))}
                 {requests.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-slate-500">
-                      No pending delivery missions right now. New requests will appear here when orders need transport.
+                    <td colSpan={3} className="px-4 py-8 text-center text-sm text-slate-500">
+                      No open delivery requests.
                     </td>
                   </tr>
                 ) : null}
               </tbody>
             </table>
           </div>
-        </div>
-      </Card>
+        </Card>
 
-      <Card className="overflow-hidden">
-        <div className="px-5 py-5 md:px-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Active Deliveries</p>
-          <h3 className="mt-2 text-xl font-bold text-slate-900">Current mission board</h3>
-        </div>
-        <div className="table-shell m-4 mt-0">
-          <div className="overflow-x-auto">
-            <table className="table-base">
+        <Card>
+          <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Active Deliveries</h3>
+            <p className="text-sm text-slate-500">Shipments currently assigned to you.</p>
+          </div>
+          <div className="p-0">
+            <table className="table-base w-full">
               <thead>
                 <tr>
-                  <th>Order ID</th>
-                  <th>Pickup</th>
-                  <th>Delivery</th>
-                  <th>Load</th>
-                  <th>Status</th>
-                  <th>Update</th>
+                  <th className="text-left">Route</th>
+                  <th className="text-left">Volume</th>
+                  <th className="text-left">Status</th>
+                  <th className="text-right">Details</th>
                 </tr>
               </thead>
               <tbody>
-                {activeDeliveries.map((mission) => (
-                  <tr key={mission.id}>
-                    <td className="font-semibold text-slate-900">{mission.orderId}</td>
-                    <td>{mission.pickupLocation}</td>
-                    <td>{mission.deliveryLocation}</td>
-                    <td>{mission.loadKg} KG</td>
+                {activeDeliveries.map((delivery) => (
+                  <tr key={delivery.id}>
                     <td>
-                      <StatusBadge status={mission.status} />
+                      <div className="font-medium text-slate-900 dark:text-slate-100">
+                        {delivery.origin} ? {delivery.destination}
+                      </div>
+                      <div className="text-xs text-slate-500 mt-1">ID: {delivery.id}</div>
                     </td>
+                    <td className="text-slate-600 dark:text-slate-300">{delivery.volume} kg</td>
                     <td>
-                      <Link
-                        to={`/transporter/delivery/${mission.id}`}
-                        className="inline-flex items-center gap-1 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100 dark:border-emerald-800/50 dark:bg-emerald-950/30 dark:text-emerald-300 dark:hover:bg-emerald-950/45"
-                      >
-                        <FiTruck />
-                        Update Status
+                      <StatusBadge status={delivery.status} />
+                    </td>
+                    <td className="text-right">
+                      <Link to={"/transporter/jobs/"} className="text-xs font-medium text-sky-600 hover:text-sky-700 dark:text-sky-400">
+                        Update
                       </Link>
                     </td>
                   </tr>
                 ))}
                 {activeDeliveries.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-slate-500">
-                      No active deliveries at the moment. Accepted missions will appear here until they are completed.
+                    <td colSpan={4} className="px-4 py-8 text-center text-sm text-slate-500">
+                      You have no active deliveries.
                     </td>
                   </tr>
                 ) : null}
               </tbody>
             </table>
           </div>
-        </div>
-      </Card>
+        </Card>
+      </div>
     </section>
   )
 }
+

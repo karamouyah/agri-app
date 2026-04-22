@@ -100,13 +100,13 @@ export default function Layout({ role }) {
           <Card className="sticky top-4 flex min-h-[calc(100vh-2rem)] flex-col p-4">
             <BrandLogo size="sm" />
 
-            <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50/80 p-4 dark:border-emerald-900/40 dark:bg-emerald-950/20">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700 dark:text-emerald-300">{meta.badge}</p>
-              <h2 className="mt-2 text-xl font-bold text-slate-900 dark:text-slate-100">{meta.label}</h2>
-              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{workspaceNotes[role] || workspaceNotes.farmer}</p>
+            <div className="mt-6 border-b border-slate-200 pb-5 mb-5 dark:border-slate-800">
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{meta.badge}</p>
+              <h2 className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-100">{meta.label}</h2>
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{workspaceNotes[role] || workspaceNotes.farmer}</p>
             </div>
 
-            <nav className="mt-5 space-y-1.5">
+            <nav className="space-y-1">
               {links.map((link) => {
                 const Icon = link.icon
 
@@ -116,28 +116,25 @@ export default function Layout({ role }) {
                     to={link.to}
                     className={({ isActive }) =>
                       cn(
-                        'group flex items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-semibold transition duration-200',
+                        'group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                         isActive
-                          ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-300 dark:ring-emerald-900/40'
-                          : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-50',
+                          ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400'
+                          : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/50 dark:hover:text-slate-200',
                       )
                     }
                   >
-                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-base shadow-sm ring-1 ring-slate-200 transition duration-200 dark:bg-slate-800 dark:ring-slate-700">
-                      <Icon />
-                    </span>
+                    <Icon className="text-lg" />
                     {link.label}
                   </NavLink>
                 )
               })}
             </nav>
 
-            <div className="mt-auto space-y-3 pt-6">
-              <Card className="p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Session</p>
-                <p className="mt-2 text-base font-bold text-slate-900 dark:text-slate-100">{userDisplayName(user)}</p>
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{user?.email || 'Signed in'}</p>
-              </Card>
+            <div className="mt-auto space-y-3 pt-6 border-t border-slate-200 dark:border-slate-800">
+              <div className="px-3">
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Session</p>
+                <p className="mt-1 text-sm font-medium text-slate-900 dark:text-slate-100">{userDisplayName(user)}</p>
+              </div>
             </div>
           </Card>
         </aside>
@@ -145,29 +142,26 @@ export default function Layout({ role }) {
         <main className="flex min-w-0 flex-1 flex-col">
           <Card className="sticky top-4 z-30 px-4 py-3 md:px-5">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-              <div className="flex items-start gap-4">
+              <div className="flex items-center gap-4">
                 <BrandLogo size="sm" className="xl:hidden" textClassName="hidden sm:block" />
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700 dark:text-emerald-300">{meta.badge}</p>
-                  <h1 className="mt-1 text-xl font-bold text-slate-900 dark:text-slate-100 md:text-2xl">{activeLink?.label || meta.label}</h1>
-                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{meta.subtitle}</p>
+                <div className="hidden lg:block">
+                  <h1 className="text-lg font-semibold text-slate-900 dark:text-slate-100">{activeLink?.label || meta.label}</h1>
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-3">
-                <StatusBadge status={role === 'ministry' ? 'verified' : 'active'} />
+              <div className="flex flex-wrap items-center justify-end gap-3">
                 <ThemeToggle />
-                <Card className="hidden px-4 py-2 md:block">
-                  <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">{userDisplayName(user)}</p>
-                </Card>
-                <button type="button" onClick={handleLogout} className={buttonStyles.secondary}>
+                <div className="hidden md:block border-r border-slate-200 pr-3 mr-1 dark:border-slate-700">
+                  <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{userDisplayName(user)}</p>
+                </div>
+                <button type="button" onClick={handleLogout} className={buttonStyles.ghost}>
                   <FiLogOut />
                   Logout
                 </button>
               </div>
             </div>
 
-            <div className="mt-4 flex gap-2 overflow-x-auto pb-1 xl:hidden">
+            <div className="mt-3 flex gap-2 overflow-x-auto border-t border-slate-100 pt-3 dark:border-slate-800 pb-1 xl:hidden">
               {links.map((link) => {
                 const Icon = link.icon
 
@@ -177,10 +171,10 @@ export default function Layout({ role }) {
                     to={link.to}
                     className={({ isActive }) =>
                       cn(
-                        'inline-flex items-center gap-2 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-semibold transition duration-200',
+                        'inline-flex items-center gap-2 whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium transition-colors',
                         isActive
-                          ? 'bg-emerald-600 text-white shadow-[0_12px_24px_rgba(22,101,52,0.16)] dark:bg-emerald-500 dark:text-slate-950'
-                          : 'border border-slate-200 bg-white text-slate-600 hover:border-emerald-200 hover:bg-emerald-50/60 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-emerald-500/40 dark:hover:bg-slate-700 dark:hover:text-slate-50',
+                          ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400'
+                          : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-50',
                       )
                     }
                   >

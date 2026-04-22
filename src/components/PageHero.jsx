@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
 import AgriIllustration from './AgriIllustration'
-import Reveal from './Reveal'
 import BrandLogo from './BrandLogo'
 import { Card, buttonStyles, cn } from './ui'
 
@@ -51,58 +50,53 @@ export default function PageHero({
   const isWorkspaceHero = !brand
 
   return (
-    <Reveal>
-      <Card
-        className={cn(
-          'relative overflow-hidden border-slate-200 bg-[linear-gradient(180deg,_rgba(255,255,255,0.98),_rgba(248,250,252,0.96))] p-5 dark:border-slate-800 dark:bg-[linear-gradient(180deg,_rgba(15,23,42,0.96),_rgba(15,23,42,0.92))] md:p-6',
-          className,
-        )}
-      >
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-200 to-transparent dark:via-emerald-900/50" />
-
-        <div className={cn('relative grid gap-6', isWorkspaceHero ? 'lg:grid-cols-[1.2fr_280px] lg:items-start' : 'lg:grid-cols-[1.1fr_0.9fr] lg:items-center')}>
-          <div>
-            {brand && <BrandLogo size="sm" className="mb-4" />}
-            {badge ? (
-              <p className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-emerald-300">
-                {badge}
-              </p>
-            ) : null}
-            {eyebrow ? <p className="mt-5 text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700 dark:text-emerald-300">{eyebrow}</p> : null}
-            <h2 className={cn('mt-3 max-w-3xl font-bold leading-tight text-slate-900 dark:text-slate-100', isWorkspaceHero ? 'text-[1.9rem] md:text-[2.2rem]' : 'text-3xl md:text-[3.15rem]')}>
-              {title}
-            </h2>
-            <p className={cn('mt-3 max-w-2xl text-sm text-slate-600 dark:text-slate-300', isWorkspaceHero ? 'leading-6 md:text-[15px]' : 'leading-7 md:text-base')}>
+    <div
+      className={cn(
+        'relative border-b border-slate-200 bg-white pb-8 pt-8 dark:border-slate-800 dark:bg-slate-900',
+        className,
+      )}
+    >
+      <div className={cn('relative grid gap-6', isWorkspaceHero ? 'lg:grid-cols-[1.2fr_280px] lg:items-start' : 'lg:grid-cols-[1.1fr_0.9fr] lg:items-center')}>
+        <div>
+          {brand && <BrandLogo size="sm" className="mb-4" />}
+          {badge ? (
+            <span className="inline-flex items-center gap-1.5 rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+              {badge}
+            </span>
+          ) : null}
+          {eyebrow ? <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{eyebrow}</p> : null}
+          <h1 className={cn('mt-2 max-w-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100', isWorkspaceHero ? 'text-2xl md:text-3xl' : 'text-3xl md:text-4xl')}>
+            {title}
+          </h1>
+          {description ? (
+            <p className={cn('mt-3 max-w-2xl text-sm md:text-base text-slate-600 dark:text-slate-400')}>
               {description}
             </p>
+          ) : null}
 
-            {actions.length > 0 && <div className="mt-6 flex flex-wrap gap-3">{actions.map(renderAction)}</div>}
+          {actions.length > 0 && <div className="mt-6 flex flex-wrap gap-2">{actions.map(renderAction)}</div>}
 
-            {stats.length > 0 && (
-              <div className={cn('mt-5 grid gap-3', isWorkspaceHero ? 'sm:grid-cols-3' : 'sm:grid-cols-2 xl:max-w-2xl xl:grid-cols-3')}>
-                {stats.map((stat, index) => (
-                  <div
-                    key={`${stat.label}-${index}`}
-                    className="rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 dark:border-slate-700 dark:bg-slate-800/85"
-                  >
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
-                      {stat.label}
-                    </p>
-                    <p className="mt-2 text-xl font-bold text-slate-900 dark:text-slate-100">{stat.value}</p>
-                    {stat.help ? <p className="mt-1 text-sm leading-5 text-slate-600 dark:text-slate-300">{stat.help}</p> : null}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className={cn(isWorkspaceHero ? 'hidden lg:block' : '')}>
-            <div className={cn('media-frame', isWorkspaceHero ? 'p-2.5' : '')}>
-              <AgriIllustration variant={variant} />
+          {stats.length > 0 && (
+            <div className={cn('mt-8 grid gap-4 border-t border-slate-200 pt-6 dark:border-slate-800', isWorkspaceHero ? 'sm:grid-cols-3' : 'sm:grid-cols-2 lg:max-w-xl')}>
+              {stats.map((stat, index) => (
+                <div key={`${stat.label}-${index}`}>
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                    {stat.label}
+                  </p>
+                  <p className="mt-1 text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">{stat.value}</p>
+                  {stat.help ? <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{stat.help}</p> : null}
+                </div>
+              ))}
             </div>
+          )}
+        </div>
+
+        <div className={cn(isWorkspaceHero ? 'hidden lg:block' : 'hidden lg:block')}>
+          <div className="flex h-full items-center justify-end">
+            <AgriIllustration variant={variant} />
           </div>
         </div>
-      </Card>
-    </Reveal>
+      </div>
+    </div>
   )
 }

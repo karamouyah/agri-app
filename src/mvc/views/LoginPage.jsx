@@ -78,7 +78,7 @@ export default function LoginPage() {
                 const Icon = item.icon
                 return (
                   <SoftCard key={item.text} className="flex items-start gap-3">
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-emerald-700 shadow-sm ring-1 ring-emerald-100 dark:bg-slate-800 dark:text-emerald-300 dark:ring-slate-700">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-white text-emerald-700 shadow-sm ring-1 ring-emerald-100 dark:bg-slate-800 dark:text-emerald-300 dark:ring-slate-700">
                       <Icon />
                     </span>
                     <p className="text-sm leading-6 text-slate-600">{item.text}</p>
@@ -88,7 +88,7 @@ export default function LoginPage() {
             </div>
 
             <Card className="mt-6 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Workspaces</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Workspaces</p>
               <div className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-300">
                 <p>Farmers manage listings, orders, and revenue.</p>
                 <p>Buyers browse approved products and track purchases.</p>
@@ -100,11 +100,11 @@ export default function LoginPage() {
 
           <Card className="p-6 md:p-8">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">Account Login</p>
-            <h2 className="mt-2 text-2xl font-bold text-slate-900 dark:text-slate-100">Welcome back</h2>
+            <h2 className="mt-2 text-xl font-semibold text-slate-900 dark:text-slate-100">Welcome back</h2>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Enter the credentials linked to your approved account.</p>
 
             {notice ? (
-              <div className="mt-4 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/40 dark:text-emerald-300">
+              <div className="mt-4 rounded-lg border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/40 dark:text-emerald-300">
                 {notice}
               </div>
             ) : null}
@@ -135,7 +135,7 @@ export default function LoginPage() {
                 />
               </FormField>
 
-              {error ? <div className="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">{error}</div> : null}
+              {error ? <div className="rounded-lg border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">{error}</div> : null}
 
               <button type="submit" disabled={loading} className={`${buttonStyles.primary} w-full`}>
                 <FiLogIn />
@@ -155,3 +155,5 @@ export default function LoginPage() {
     </div>
   )
 }
+
+

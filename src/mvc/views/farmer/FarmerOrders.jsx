@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { acceptOrder, declineOrder, getOrders } from '../../controllers/farmerController'
 import { formatDzd } from '../../../utils/currency'
 import { PageHeader, StatusBadge, buttonStyles, cn } from '../../../components/ui'
@@ -256,7 +256,7 @@ export default function FarmerOrders() {
               type="button"
               onClick={handleBulkConfirm}
               disabled={selectedIds.length === 0}
-              className="btn-primary w-full px-4 py-3 text-sm shadow-lg shadow-emerald-700/20 transition disabled:cursor-not-allowed disabled:opacity-50"
+              className="btn-primary w-full px-4 py-3 text-sm transition disabled:cursor-not-allowed disabled:opacity-50"
             >
               Bulk Confirm ({selectedIds.length})
             </button>
@@ -312,5 +312,6 @@ export default function FarmerOrders() {
     </section>
   )
 }
+
 
 

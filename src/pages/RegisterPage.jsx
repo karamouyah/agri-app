@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { register as registerUser } from '../mvc/controllers/authController'
+import { Card, Input, Select, buttonStyles, FormField } from '../components/ui'
+import BrandLogo from '../components/BrandLogo'
 
 const PHONE_REGEX = /^\+?[0-9()\-\s]{7,20}$/
 const APPROVAL_NOTICE = 'Your account has been created and is waiting for ministry approval.'
@@ -247,3 +249,5 @@ export default function RegisterPage() {
     </div>
   )
 }
+
+

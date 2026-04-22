@@ -105,12 +105,12 @@ export default function BuyerSearch() {
           </button>
         </form>
         {error ? (
-          <p className="mt-3 rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">
+          <p className="mt-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">
             {error}
           </p>
         ) : null}
         {message ? (
-          <p className="mt-3 rounded-2xl border border-emerald-100 bg-gradient-to-r from-emerald-50 to-amber-50 px-3 py-2 text-sm text-emerald-700 dark:border-emerald-900/40 dark:from-emerald-950/30 dark:to-slate-900 dark:text-emerald-300">
+          <p className="mt-3 rounded-lg border border-emerald-100 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-2 text-sm text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-900/20 dark:text-emerald-300">
             {message}
           </p>
         ) : null}
@@ -215,7 +215,7 @@ export default function BuyerSearch() {
           </div>
 
           <Card className="mt-4 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Tips</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Tips</p>
             <div className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-300">
               <p>Use wilaya and commune filters when you want products from a specific origin.</p>
               <p>Set a price range before ordering when you need to compare suppliers quickly.</p>
@@ -298,3 +298,5 @@ export default function BuyerSearch() {
     </section>
   )
 }
+
+

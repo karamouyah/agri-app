@@ -175,7 +175,7 @@ export default function RegisterPage() {
                 const Icon = item.icon
                 return (
                   <SoftCard key={item.text} className="flex items-start gap-3">
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-emerald-700 shadow-sm ring-1 ring-emerald-100 dark:bg-slate-800 dark:text-emerald-300 dark:ring-slate-700">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-white text-emerald-700 shadow-sm ring-1 ring-emerald-100 dark:bg-slate-800 dark:text-emerald-300 dark:ring-slate-700">
                       <Icon />
                     </span>
                     <p className="text-sm leading-6 text-slate-600">{item.text}</p>
@@ -185,7 +185,7 @@ export default function RegisterPage() {
             </div>
 
             <Card className="mt-6 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Approval Flow</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Approval Flow</p>
               <div className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-300">
                 <p>1. Submit your role details.</p>
                 <p>2. Ministry staff review the account.</p>
@@ -196,7 +196,7 @@ export default function RegisterPage() {
 
           <Card className="p-6 md:p-8">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">Create Account</p>
-            <h2 className="mt-2 text-2xl font-bold text-slate-900 dark:text-slate-100">Role-based signup</h2>
+            <h2 className="mt-2 text-xl font-semibold text-slate-900 dark:text-slate-100">Role-based signup</h2>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">The form updates based on the role you choose.</p>
 
             <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -304,7 +304,7 @@ export default function RegisterPage() {
                 </>
               ) : null}
 
-              {error ? <div className="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">{error}</div> : null}
+              {error ? <div className="rounded-lg border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">{error}</div> : null}
 
               <button type="submit" disabled={loading} className={`${buttonStyles.primary} w-full`}>
                 <FiUserPlus />
@@ -324,3 +324,5 @@ export default function RegisterPage() {
     </div>
   )
 }
+
+

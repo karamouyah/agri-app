@@ -148,10 +148,10 @@ export default function LandingPage() {
             <section className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
               <Card className="p-6 md:p-7">
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700 dark:text-emerald-300">Platform Workflow</p>
-                <h2 className="mt-2 text-2xl font-bold text-slate-900 dark:text-slate-100">Built around operational steps, not marketing sections.</h2>
+                <h2 className="mt-2 text-xl font-semibold text-slate-900 dark:text-slate-100">Built around operational steps, not marketing sections.</h2>
                 <div className="mt-5 grid gap-3">
                   {workflowSteps.map((step) => (
-                    <div key={step} className="rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-sm text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">
+                    <div key={step} className="rounded-lg border border-slate-200 bg-slate-50/80 px-4 py-3 text-sm text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">
                       {step}
                     </div>
                   ))}
@@ -167,14 +167,14 @@ export default function LandingPage() {
                 <div className="mt-6 space-y-4">
                   <div className="grid gap-3">
                     {trustBlocks.map((item) => (
-                      <div key={item} className="rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-4 text-sm text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">
+                      <div key={item} className="rounded-lg border border-slate-200 bg-slate-50/80 px-4 py-4 text-sm text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">
                         {item}
                       </div>
                     ))}
                   </div>
                   <div className="grid gap-3 md:grid-cols-2">
                     <Card className="p-4">
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Supported Categories</p>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Supported Categories</p>
                       <div className="mt-3 flex flex-wrap gap-2">
                         {categories.map((category) => (
                           <span key={category} className="badge-soft px-3 py-1.5 text-xs">
@@ -184,7 +184,7 @@ export default function LandingPage() {
                       </div>
                     </Card>
                     <Card className="p-4">
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Location Coverage</p>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Location Coverage</p>
                       <div className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-300">
                         {coveragePoints.map((item) => (
                           <p key={item}>{item}</p>
@@ -222,7 +222,7 @@ export default function LandingPage() {
             <Card className="grid gap-6 p-6 md:grid-cols-[1fr_auto] md:items-center md:p-8">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">Get Started</p>
-                <h2 className="mt-2 text-2xl font-bold text-slate-900 dark:text-slate-100">Create an account and continue in the right workspace</h2>
+                <h2 className="mt-2 text-xl font-semibold text-slate-900 dark:text-slate-100">Create an account and continue in the right workspace</h2>
                 <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-300">
                   Farmers manage listings, buyers place orders, transporters handle missions, and ministry teams review approvals and reports.
                 </p>
@@ -242,3 +242,5 @@ export default function LandingPage() {
     </div>
   )
 }
+
+

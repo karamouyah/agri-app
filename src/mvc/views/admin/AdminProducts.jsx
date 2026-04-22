@@ -274,7 +274,7 @@ export default function AdminProducts() {
           </form>
 
           {categoryError && (
-            <p className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">
+            <p className="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">
               {categoryError}
             </p>
           )}
@@ -335,13 +335,13 @@ export default function AdminProducts() {
           />
 
           {categories.length === 0 ? (
-            <div className="mt-5 rounded-2xl border border-dashed border-slate-300 px-4 py-12 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+            <div className="mt-5 rounded-lg border border-dashed border-slate-300 px-4 py-12 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
               Add at least one category before creating products.
             </div>
           ) : (
             <form onSubmit={handleProductSubmit} className="mt-5 space-y-4">
               {productError && (
-                <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">
+                <p className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">
                   {productError}
                 </p>
               )}
@@ -468,11 +468,11 @@ export default function AdminProducts() {
 
         <div className="table-shell mx-5 mb-6 mt-0 md:mx-6">
           {isLoading ? (
-            <div className="rounded-2xl border border-dashed border-slate-300 px-4 py-12 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+            <div className="rounded-lg border border-dashed border-slate-300 px-4 py-12 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
               Loading products...
             </div>
           ) : filteredProducts.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-slate-300 px-4 py-12 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+            <div className="rounded-lg border border-dashed border-slate-300 px-4 py-12 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
               {products.length === 0 ? 'No products available yet.' : 'No products match your search.'}
             </div>
           ) : (
@@ -571,3 +571,4 @@ export default function AdminProducts() {
     </section>
   )
 }
+

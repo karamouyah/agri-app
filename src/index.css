@@ -123,8 +123,6 @@
   .float-gentle {
     @apply transition-none animate-none transform-none shadow-none;
   }
-}
-  }
 
   .dark [class~='border-emerald-100'],
   .dark [class~='border-emerald-200'] {

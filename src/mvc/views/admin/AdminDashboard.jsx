@@ -11,11 +11,11 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { FiActivity, FiBarChart2, FiShield, FiUsers } from 'react-icons/fi'
+import { FiBarChart2, FiShield, FiUsers } from 'react-icons/fi'
 import { getNationalStats } from '../../controllers/adminController'
 import { formatDzd } from '../../../utils/currency'
 import PageHero from '../../../components/PageHero'
-import { Card, SkeletonBlock, StatCard, cn } from '../../../components/ui'
+import { Card, SkeletonBlock, StatCard } from '../../../components/ui'
 
 export default function AdminDashboard() {
   const [data, setData] = useState(null)
@@ -51,18 +51,18 @@ export default function AdminDashboard() {
   return (
     <section className="app-page">
       <PageHero
-        eyebrow="Minisrtry Intelligence"
+        eyebrow="Ministry Intelligence"
         title="Market Oversight"
         description="Monitor approvals, marketplace activity, regional trade signals, and pricing anomalies from across the national network."
         stats={[
-          { label: 'Sales Volume', value: \${summary.totalSalesVolumeTons} T\, help: 'Tracked movement' },
+          { label: 'Sales Volume', value: `${summary.totalSalesVolumeTons} T`, help: 'Tracked movement' },
           { label: 'Active Farmers', value: summary.activeFarmers, help: 'Approved sellers' },
           { label: 'Transporters', value: summary.activeTransporters, help: 'Logistics operators' },
         ]}
       />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard icon={FiBarChart2} label="Volume" value=\${summary.totalSalesVolumeTons} T\ help="Total captured trade" tone="sky" />
+        <StatCard icon={FiBarChart2} label="Volume" value={`${summary.totalSalesVolumeTons} T`} help="Total captured trade" tone="sky" />
         <StatCard icon={FiUsers} label="Farmers" value={summary.activeFarmers} help="Verified producers" tone="emerald" />
         <StatCard icon={FiUsers} label="Buyers" value={summary.activeBuyers} help="Active wholesale buyers" tone="slate" />
         <StatCard icon={FiShield} label="Logistics" value={summary.activeTransporters} help="Registered carriers" tone="emerald" />

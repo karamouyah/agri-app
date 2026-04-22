@@ -1,7 +1,7 @@
 ﻿import { useCallback, useEffect, useMemo, useState } from 'react'
 import { acceptOrder, declineOrder, getOrders } from '../../controllers/farmerController'
 import { formatDzd } from '../../../utils/currency'
-import { StatusBadge, buttonStyles, cn } from '../../../components/ui'
+import { PageHeader, StatusBadge, buttonStyles, cn } from '../../../components/ui'
 
 export default function FarmerOrders() {
   const [orders, setOrders] = useState([])
@@ -96,6 +96,18 @@ export default function FarmerOrders() {
 
   return (
     <section className="agri-page space-y-6">
+      <PageHeader
+        eyebrow="Orders"
+        title="Review incoming orders and dispatch status"
+        description="Filter orders by status, confirm pending requests, and inspect delivery details from one screen."
+        meta={[
+          { label: 'New', value: totals.newOrders },
+          { label: 'Processing', value: totals.processing },
+          { label: 'Completed', value: totals.completed },
+          { label: 'Revenue', value: formatDzd(totals.totalRevenue) },
+        ]}
+      />
+
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
         <article className="surface-card p-5">
           <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">New Orders Today</p>

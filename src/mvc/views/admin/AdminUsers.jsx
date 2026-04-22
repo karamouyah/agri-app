@@ -7,8 +7,7 @@ import {
   requestInfo,
 } from '../../controllers/adminController'
 import { useLocations } from '../../../context/LocationContext'
-import PageHero from '../../../components/PageHero'
-import { Card, EmptyState, Input, Select, StatusBadge, Textarea, buttonStyles, cn } from '../../../components/ui'
+import { Card, EmptyState, PageHeader, Select, StatusBadge, Textarea, buttonStyles, cn } from '../../../components/ui'
 
 const getProfileDetails = (user) => {
   if (!user) return []
@@ -127,15 +126,14 @@ export default function AdminUsers() {
 
   return (
     <section className="app-page">
-      <PageHero
+      <PageHeader
         eyebrow="Approval Queue"
-        title="Review, approve, and follow up on user onboarding"
-        description="Filter accounts by role and approval state, then review the submitted profile details before taking action."
-        variant="admin"
-        stats={[
-          { label: 'Pending', value: pendingCount, help: 'Accounts awaiting ministry action' },
-          { label: 'Visible Users', value: users.length, help: 'Records matching the current filters' },
-          { label: 'Workflow', value: 'Verified', help: 'Approval-aware onboarding and access control' },
+        title="Review and approve user onboarding"
+        description="Filter accounts by role, approval status, and wilaya before reviewing the submitted details."
+        meta={[
+          { label: 'Pending', value: pendingCount },
+          { label: 'Visible users', value: users.length },
+          { label: 'Workflow', value: 'Approval controlled' },
         ]}
       />
 

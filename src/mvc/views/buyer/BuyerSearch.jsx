@@ -3,8 +3,7 @@ import { Link } from 'react-router-dom'
 import { addToCart, buyerFilterOptions, searchProducts } from '../../controllers/buyerController'
 import { formatDzdPerUnit } from '../../../utils/currency'
 import LocationFields from '../../../components/LocationFields'
-import PageHero from '../../../components/PageHero'
-import { Card, Input, Select, buttonStyles, cn } from '../../../components/ui'
+import { Card, Input, PageHeader, Select, buttonStyles, cn } from '../../../components/ui'
 
 const initialFilters = {
   category: '',
@@ -79,16 +78,14 @@ export default function BuyerSearch() {
 
   return (
     <section className="app-page">
-      <PageHero
-        eyebrow="Fresh Marketplace"
+      <PageHeader
+        eyebrow="Product Search"
         title="Browse approved produce listings"
-        description="Search the approved catalog by category, price, quality, and region to find products that match your delivery and procurement needs."
-        variant="buyer"
-        badge="Live approved catalog"
-        stats={[
-          { label: 'Results', value: data.total, help: 'Products matched right now' },
-          { label: 'Pages', value: data.totalPages, help: 'Split results for easier browsing' },
-          { label: 'Quality', value: 'Verified', help: 'Approved catalog with visible pricing and supplier details' },
+        description="Search the catalog by product, price, quality, and origin to find suitable listings."
+        meta={[
+          { label: 'Results', value: data.total },
+          { label: 'Pages', value: data.totalPages },
+          { label: 'Catalog', value: 'Approved only' },
         ]}
       />
 
@@ -218,7 +215,7 @@ export default function BuyerSearch() {
           </div>
 
           <Card className="mt-4 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Search Tips</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Tips</p>
             <div className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-300">
               <p>Use wilaya and commune filters when you want products from a specific origin.</p>
               <p>Set a price range before ordering when you need to compare suppliers quickly.</p>

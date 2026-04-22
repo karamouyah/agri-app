@@ -7,7 +7,6 @@ import {
   FiHome,
   FiLogOut,
   FiMapPin,
-  FiSettings,
   FiShoppingBag,
   FiTruck,
   FiUsers,
@@ -68,34 +67,11 @@ const roleMeta = {
   },
 }
 
-const workspaceGuides = {
-  farmer: [
-    'Add and update approved product listings.',
-    'Review pending and delivered orders.',
-    'Track revenue and recent order activity.',
-  ],
-  buyer: [
-    'Browse approved products by category and region.',
-    'Manage cart, checkout, and delivery addresses.',
-    'Track orders and review invoices.',
-  ],
-  transporter: [
-    'Accept available delivery missions.',
-    'Monitor active loads and status updates.',
-    'Keep profile, vehicle, and coverage details current.',
-  ],
-  ministry: [
-    'Review pending user approvals and product activity.',
-    'Monitor categories, reports, and delivery oversight.',
-    'Use reports to follow marketplace performance.',
-  ],
-}
-
-const footerNotes = {
-  farmer: 'Keep product details, stock, and order responses up to date so buyers can place reliable orders.',
-  buyer: 'Use approved listings, saved delivery details, and invoices to manage procurement with traceable records.',
-  transporter: 'Mission status and delivery updates help farmers, buyers, and ministry teams follow each shipment.',
-  ministry: 'Approval, moderation, and reporting tools support oversight across users, products, and delivery activity.',
+const workspaceNotes = {
+  farmer: 'Keep listings, stock, and order responses current.',
+  buyer: 'Use approved listings and tracked orders to manage procurement.',
+  transporter: 'Mission updates keep delivery status visible across the platform.',
+  ministry: 'Approvals and reporting support platform oversight.',
 }
 
 function userDisplayName(user) {
@@ -110,7 +86,6 @@ export default function Layout({ role }) {
 
   const links = navByRole[role] || []
   const meta = roleMeta[role] || roleMeta.farmer
-  const guideItems = workspaceGuides[role] || workspaceGuides.farmer
   const activeLink = links.find((link) => location.pathname.startsWith(link.to))
 
   const handleLogout = () => {
@@ -119,21 +94,19 @@ export default function Layout({ role }) {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-80 bg-[radial-gradient(circle_at_top_left,_rgba(167,243,208,0.45),_transparent_40%),radial-gradient(circle_at_top_right,_rgba(240,253,244,0.85),_transparent_32%)] dark:bg-[radial-gradient(circle_at_top_left,_rgba(34,197,94,0.16),_transparent_32%),radial-gradient(circle_at_top_right,_rgba(15,23,42,0.55),_transparent_28%)]" />
-
-      <div className="relative mx-auto flex min-h-screen max-w-[1600px] gap-6 px-4 py-4 lg:px-6">
-        <aside className="hidden w-[290px] shrink-0 xl:block">
-          <Card className="sticky top-4 flex min-h-[calc(100vh-2rem)] flex-col p-5">
+    <div className="min-h-screen">
+      <div className="mx-auto flex min-h-screen max-w-[1520px] gap-5 px-4 py-4 lg:px-5">
+        <aside className="hidden w-[278px] shrink-0 xl:block">
+          <Card className="sticky top-4 flex min-h-[calc(100vh-2rem)] flex-col p-4">
             <BrandLogo size="sm" />
 
-            <div className="mt-6 rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-500 p-5 text-white shadow-[0_20px_45px_rgba(22,101,52,0.22)]">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-50/90">{meta.badge}</p>
-              <h2 className="mt-3 text-2xl font-bold">{meta.label}</h2>
-              <p className="mt-3 text-sm leading-6 text-emerald-50/90">{meta.subtitle}</p>
+            <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50/80 p-4 dark:border-emerald-900/40 dark:bg-emerald-950/20">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700 dark:text-emerald-300">{meta.badge}</p>
+              <h2 className="mt-2 text-xl font-bold text-slate-900 dark:text-slate-100">{meta.label}</h2>
+              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{workspaceNotes[role] || workspaceNotes.farmer}</p>
             </div>
 
-            <nav className="mt-6 space-y-2">
+            <nav className="mt-5 space-y-1.5">
               {links.map((link) => {
                 const Icon = link.icon
 
@@ -143,14 +116,14 @@ export default function Layout({ role }) {
                     to={link.to}
                     className={({ isActive }) =>
                       cn(
-                        'group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition duration-200',
+                        'group flex items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-semibold transition duration-200',
                         isActive
                           ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-300 dark:ring-emerald-900/40'
                           : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-50',
                       )
                     }
                   >
-                    <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-base shadow-sm ring-1 ring-emerald-100 transition duration-200 group-hover:scale-105 dark:bg-slate-800 dark:ring-slate-700">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-base shadow-sm ring-1 ring-slate-200 transition duration-200 dark:bg-slate-800 dark:ring-slate-700">
                       <Icon />
                     </span>
                     {link.label}
@@ -159,40 +132,25 @@ export default function Layout({ role }) {
               })}
             </nav>
 
-            <Card className="mt-6 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-300">
-                Workspace Guide
-              </p>
-              <div className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-300">
-                {guideItems.map((item) => (
-                  <p key={item}>{item}</p>
-                ))}
-              </div>
-            </Card>
-
             <div className="mt-auto space-y-3 pt-6">
               <Card className="p-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Session</p>
                 <p className="mt-2 text-base font-bold text-slate-900 dark:text-slate-100">{userDisplayName(user)}</p>
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{user?.email || 'Signed in'}</p>
               </Card>
-              <button type="button" className={cn(buttonStyles.secondary, 'w-full justify-center')}>
-                <FiSettings />
-                Preferences
-              </button>
             </div>
           </Card>
         </aside>
 
         <main className="flex min-w-0 flex-1 flex-col">
-          <Card className="sticky top-4 z-30 px-4 py-4 md:px-6">
+          <Card className="sticky top-4 z-30 px-4 py-3 md:px-5">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div className="flex items-start gap-4">
                 <BrandLogo size="sm" className="xl:hidden" textClassName="hidden sm:block" />
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700 dark:text-emerald-300">{meta.badge}</p>
-                  <h1 className="mt-2 text-2xl font-bold text-slate-900 dark:text-slate-100 md:text-3xl">{meta.label}</h1>
-                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{activeLink?.label || meta.subtitle}</p>
+                  <h1 className="mt-1 text-xl font-bold text-slate-900 dark:text-slate-100 md:text-2xl">{activeLink?.label || meta.label}</h1>
+                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{meta.subtitle}</p>
                 </div>
               </div>
 
@@ -234,16 +192,9 @@ export default function Layout({ role }) {
             </div>
           </Card>
 
-          <div className="flex-1 px-0 py-6">
+          <div className="flex-1 px-0 py-5">
             <Outlet />
           </div>
-
-          <footer className="px-1 pb-4">
-            <Card className="flex flex-col gap-3 px-5 py-4 text-sm text-slate-500 dark:text-slate-400 md:flex-row md:items-center md:justify-between">
-              <BrandLogo size="sm" />
-              <p>{footerNotes[role] || footerNotes.farmer}</p>
-            </Card>
-          </footer>
         </main>
       </div>
     </div>

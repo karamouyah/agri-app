@@ -12,8 +12,7 @@ import { FiBarChart2, FiDownload, FiFileText } from 'react-icons/fi'
 import { generateReport } from '../../controllers/adminController'
 import { useLocations } from '../../../context/LocationContext'
 import { formatDzd } from '../../../utils/currency'
-import PageHero from '../../../components/PageHero'
-import { Card, EmptyState, Input, SectionHeader, Select, buttonStyles, cn } from '../../../components/ui'
+import { Card, EmptyState, Input, PageHeader, SectionHeader, Select, buttonStyles, cn } from '../../../components/ui'
 
 const initialForm = {
   region: '',
@@ -54,15 +53,14 @@ export default function AdminReports() {
 
   return (
     <section className="app-page">
-      <PageHero
+      <PageHeader
         eyebrow="Reporting Suite"
-        title="Generate regional market reports for oversight and planning"
-        description="Filter by region, product category, and reporting period to review marketplace volume and revenue before exporting report data."
-        variant="admin"
-        stats={[
-          { label: 'Regions', value: metrics.regions.size || 0, help: 'Regions represented in the current result set' },
-          { label: 'Volume', value: metrics.totalVolume || 0, help: 'Aggregated reported volume' },
-          { label: 'Revenue', value: formatDzd(metrics.totalRevenue || 0), help: 'Total revenue in DZD' },
+        title="Generate regional market reports"
+        description="Filter by region, category, and reporting period to review marketplace volume and revenue."
+        meta={[
+          { label: 'Regions', value: metrics.regions.size || 0 },
+          { label: 'Volume', value: metrics.totalVolume || 0 },
+          { label: 'Revenue', value: formatDzd(metrics.totalRevenue || 0) },
         ]}
       />
 

@@ -9,8 +9,7 @@ import {
   updateCategory,
   updateProduct,
 } from '../../controllers/adminController'
-import PageHero from '../../../components/PageHero'
-import { Card, Input, SectionHeader, Select, buttonStyles, cn } from '../../../components/ui'
+import { Card, Input, PageHeader, SectionHeader, Select, buttonStyles, cn } from '../../../components/ui'
 import { formatDzd } from '../../../utils/currency'
 
 const initialProductForm = {
@@ -238,15 +237,14 @@ export default function AdminProducts() {
 
   return (
     <section className="app-page space-y-4">
-      <PageHero
+      <PageHeader
         eyebrow="Catalog Governance"
-        title="Manage categories and marketplace products"
-        description="Keep category management in place and maintain the approved product catalog with direct product add, edit, and delete controls."
-        variant="admin"
-        stats={[
-          { label: 'Categories', value: categories.length, help: 'Active catalog groupings' },
-          { label: 'Products', value: products.length, help: 'Approved products in the marketplace catalog' },
-          { label: 'Pricing fields', value: 'Min / Max / Suggested', help: 'Per-product DZD values used in the admin catalog' },
+        title="Manage categories and approved products"
+        description="Maintain the product catalog, category structure, and DZD pricing ranges used across the marketplace."
+        meta={[
+          { label: 'Categories', value: categories.length },
+          { label: 'Products', value: products.length },
+          { label: 'Pricing', value: 'Min / Max / Suggested' },
         ]}
       />
 

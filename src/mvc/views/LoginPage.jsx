@@ -54,9 +54,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden px-4 py-6 md:px-6">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(circle_at_top_left,_rgba(167,243,208,0.4),_transparent_28%),radial-gradient(circle_at_top_right,_rgba(236,253,245,0.85),_transparent_30%)] dark:bg-[radial-gradient(circle_at_top_left,_rgba(34,197,94,0.18),_transparent_26%),radial-gradient(circle_at_top_right,_rgba(15,23,42,0.7),_transparent_30%)]" />
-
+    <div className="min-h-screen px-4 py-6 md:px-6">
       <div className="relative mx-auto max-w-6xl">
         <div className="mb-4 flex justify-end">
           <ThemeToggle />
@@ -68,11 +66,11 @@ export default function LoginPage() {
               <FiCheckCircle />
               Secure platform access
             </p>
-            <h1 className="mt-5 max-w-xl text-4xl font-bold leading-tight text-slate-900">
-              Sign in to continue your marketplace work.
+            <h1 className="mt-5 max-w-xl text-3xl font-bold leading-tight text-slate-900 dark:text-slate-100">
+              Sign in to your workspace.
             </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 md:text-base">
-              Access your role-based dashboard to manage products, orders, deliveries, approvals, or reports according to your account permissions.
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-300 md:text-base">
+              Use your approved account to continue with products, orders, deliveries, or oversight tasks based on your role.
             </p>
 
             <div className="mt-6 space-y-3">
@@ -90,20 +88,20 @@ export default function LoginPage() {
             </div>
 
             <Card className="mt-6 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">After Sign-In</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Workspaces</p>
               <div className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-300">
-                <p>Farmers open product, stock, order, and revenue tools.</p>
-                <p>Buyers can browse approved listings, place orders, and review invoices.</p>
-                <p>Transporters see available missions and active deliveries.</p>
-                <p>Ministry users manage approvals, products, and reporting.</p>
+                <p>Farmers manage listings, orders, and revenue.</p>
+                <p>Buyers browse approved products and track purchases.</p>
+                <p>Transporters monitor missions and delivery status.</p>
+                <p>Ministry users review approvals, catalog changes, and reports.</p>
               </div>
             </Card>
           </Card>
 
           <Card className="p-6 md:p-8">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">Account Login</p>
-            <h2 className="mt-2 text-3xl font-bold text-slate-900">Welcome back</h2>
-            <p className="mt-2 text-sm text-slate-600">Use your approved account credentials to open your workspace.</p>
+            <h2 className="mt-2 text-2xl font-bold text-slate-900 dark:text-slate-100">Welcome back</h2>
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Enter the credentials linked to your approved account.</p>
 
             {notice ? (
               <div className="mt-4 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/40 dark:text-emerald-300">
@@ -141,7 +139,7 @@ export default function LoginPage() {
 
               <button type="submit" disabled={loading} className={`${buttonStyles.primary} w-full`}>
                 <FiLogIn />
-                {loading ? 'Signing In...' : 'Login'}
+                {loading ? 'Signing In...' : 'Sign In'}
               </button>
             </form>
 

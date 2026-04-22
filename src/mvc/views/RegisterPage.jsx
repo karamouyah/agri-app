@@ -151,9 +151,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden px-4 py-6 md:px-6">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(circle_at_top_left,_rgba(167,243,208,0.4),_transparent_28%),radial-gradient(circle_at_top_right,_rgba(236,253,245,0.85),_transparent_30%)] dark:bg-[radial-gradient(circle_at_top_left,_rgba(34,197,94,0.18),_transparent_26%),radial-gradient(circle_at_top_right,_rgba(15,23,42,0.7),_transparent_30%)]" />
-
+    <div className="min-h-screen px-4 py-6 md:px-6">
       <div className="relative mx-auto max-w-6xl">
         <div className="mb-4 flex justify-end">
           <ThemeToggle />
@@ -165,11 +163,11 @@ export default function RegisterPage() {
               <FiCheckCircle />
               Ministry-reviewed onboarding
             </p>
-            <h1 className="mt-5 max-w-xl text-4xl font-bold leading-tight text-slate-900">
-              Create the account your role needs to operate on the marketplace.
+            <h1 className="mt-5 max-w-xl text-3xl font-bold leading-tight text-slate-900 dark:text-slate-100">
+              Create an account for your role.
             </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 md:text-base">
-              Complete the required details for your role so the platform can approve your access, route your operations, and connect you to the right workflow.
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-300 md:text-base">
+              Provide the required contact, location, and role details so your account can be reviewed and approved.
             </p>
 
             <div className="mt-6 space-y-3">
@@ -189,17 +187,17 @@ export default function RegisterPage() {
             <Card className="mt-6 p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Approval Flow</p>
               <div className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-300">
-                <p>1. Submit your role details with contact and location information.</p>
-                <p>2. Ministry staff review your account and any role-specific requirements.</p>
-                <p>3. Once approved, you can sign in and access your dashboard tools.</p>
+                <p>1. Submit your role details.</p>
+                <p>2. Ministry staff review the account.</p>
+                <p>3. Sign in after approval.</p>
               </div>
             </Card>
           </Card>
 
           <Card className="p-6 md:p-8">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">Create Account</p>
-            <h2 className="mt-2 text-3xl font-bold text-slate-900">Role-based signup</h2>
-            <p className="mt-2 text-sm text-slate-600">Complete your details according to your agricultural role.</p>
+            <h2 className="mt-2 text-2xl font-bold text-slate-900 dark:text-slate-100">Role-based signup</h2>
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">The form updates based on the role you choose.</p>
 
             <form onSubmit={handleSubmit} className="mt-6 space-y-4">
               <FormField label="Full Name">
@@ -310,7 +308,7 @@ export default function RegisterPage() {
 
               <button type="submit" disabled={loading} className={`${buttonStyles.primary} w-full`}>
                 <FiUserPlus />
-                {loading ? 'Creating Account...' : 'Register'}
+                {loading ? 'Creating Account...' : 'Create Account'}
               </button>
             </form>
 

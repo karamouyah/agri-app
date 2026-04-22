@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react'
 import { FiClock, FiMapPin, FiPackage } from 'react-icons/fi'
 import { getBuyerOrders } from '../../controllers/buyerController'
 import { formatDzd } from '../../../utils/currency'
-import PageHero from '../../../components/PageHero'
-import { Card, StatusBadge, buttonStyles, cn } from '../../../components/ui'
+import { Card, PageHeader, StatusBadge, buttonStyles, cn } from '../../../components/ui'
 
 export default function BuyerOrders() {
   const [orders, setOrders] = useState([])
@@ -21,15 +20,14 @@ export default function BuyerOrders() {
 
   return (
     <section className="app-page">
-      <PageHero
+      <PageHeader
         eyebrow="Orders"
-        title="Track deliveries"
-        description="Follow the current order timeline, review payment details, and keep shipment progress readable in both themes."
-        variant="buyer"
-        stats={[
-          { label: 'Orders', value: orders.length, help: 'Buyer orders linked to this account' },
-          { label: 'Active', value: orders.filter((order) => order.status !== 'delivered').length, help: 'Orders still moving through fulfillment' },
-          { label: 'Latest total', value: selectedOrder ? formatDzd(selectedOrder.total) : '-', help: 'Current order selected in the details panel' },
+        title="Track delivery and payment status"
+        description="Review order history, open a specific order, and follow its progress from confirmation to arrival."
+        meta={[
+          { label: 'Orders', value: orders.length },
+          { label: 'Active', value: orders.filter((order) => order.status !== 'delivered').length },
+          { label: 'Selected total', value: selectedOrder ? formatDzd(selectedOrder.total) : '-' },
         ]}
       />
 

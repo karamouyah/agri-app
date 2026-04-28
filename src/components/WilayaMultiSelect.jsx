@@ -1,3 +1,7 @@
+// File responsibility: Defines a reusable React UI component shared across pages.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
+// Imports: bring in React, routing, UI components, services, and helpers used below.
 import { useMemo, useState } from 'react'
 import { FiMap, FiSearch } from 'react-icons/fi'
 import { useLocations } from '../context/LocationContext'
@@ -10,6 +14,7 @@ export default function WilayaMultiSelect({
   hint = 'Select one or more wilayas the transporter can serve.',
 }) {
   const { loading, wilayas } = useLocations()
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [query, setQuery] = useState('')
 
   const selectedSet = useMemo(() => new Set(selectedIds.map((item) => Number(item))), [selectedIds])
@@ -24,6 +29,7 @@ export default function WilayaMultiSelect({
     )
   }, [query, wilayas])
 
+  // toggleWilaya handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const toggleWilaya = (wilayaId) => {
     const normalizedId = Number(wilayaId)
     const next = selectedSet.has(normalizedId)

@@ -1,3 +1,7 @@
+// File responsibility: Renders an application screen that is mounted from the React router for a specific user workflow.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
+// Imports: bring in React, routing, UI components, services, and helpers used below.
 import { useEffect, useState } from 'react'
 import { FiPhone, FiSave, FiTruck } from 'react-icons/fi'
 import { getTransporterProfile, updateTransporterProfile } from '../../controllers/transporterController'
@@ -13,11 +17,16 @@ const initialForm = {
 }
 
 export default function TransporterProfile() {
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [formData, setFormData] = useState(initialForm)
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [message, setMessage] = useState('')
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [loading, setLoading] = useState(true)
 
+  // Effect: runs after render to load data, sync storage, or react to dependency changes.
   useEffect(() => {
+    // load handles this module workflow, using its parameters and returning JSX, data, or a service result.
     const load = async () => {
       const profile = await getTransporterProfile()
       setFormData({
@@ -32,11 +41,15 @@ export default function TransporterProfile() {
     load()
   }, [])
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleChange handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleChange = (event) => {
     const { name, value } = event.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleSubmit handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleSubmit = async (event) => {
     event.preventDefault()
     await updateTransporterProfile(formData)
@@ -65,6 +78,7 @@ export default function TransporterProfile() {
         ]}
       />
 
+      // Form/event handling: validates input, updates state, or submits data when the user acts.
       <Card as="form" onSubmit={handleSubmit} className="space-y-4 p-5">
         <FormField label="Vehicle Type" icon={FiTruck}>
           <Input name="vehicle" value={formData.vehicle} onChange={handleChange} required />

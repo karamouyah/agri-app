@@ -1,8 +1,13 @@
+// File responsibility: Defines a reusable React UI component shared across pages.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
+// Imports: bring in React, routing, UI components, services, and helpers used below.
 import { Link } from 'react-router-dom'
 import AgriIllustration from './AgriIllustration'
 import BrandLogo from './BrandLogo'
 import { Card, buttonStyles, cn } from './ui'
 
+// renderAction handles this module workflow, using its parameters and returning JSX, data, or a service result.
 function renderAction(action, index) {
   const classes =
     action.kind === 'secondary'
@@ -52,7 +57,7 @@ export default function PageHero({
   return (
     <div
       className={cn(
-        'relative border-b border-slate-200 bg-white pb-8 pt-8 dark:border-slate-800 dark:bg-slate-900',
+        'relative overflow-hidden rounded-xl border border-slate-200 bg-white p-6 md:p-8 dark:border-slate-800 dark:bg-slate-900 shadow-sm',
         className,
       )}
     >

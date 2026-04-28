@@ -1,5 +1,10 @@
+// File responsibility: Centralizes browser-to-backend API calls and response shaping for the frontend.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
+// Imports: bring in React, routing, UI components, services, and helpers used below.
 import { apiRequest } from './apiClient'
 
+// normalizeUser handles this module workflow, using its parameters and returning JSX, data, or a service result.
 const normalizeUser = (user) => ({
   id: user.id,
   name: user.name,
@@ -22,8 +27,10 @@ const normalizeUser = (user) => ({
   deliveryWilayaIds: user.delivery_wilaya_ids || user.profile?.delivery_wilaya_ids || [],
 })
 
+// getNationalStats handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const getNationalStats = () => apiRequest('/auth/admin/stats/')
 
+// getUsers handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const getUsers = async (filters = {}) => {
   const search = new URLSearchParams()
   if (filters.role) search.set('role', filters.role)
@@ -34,35 +41,44 @@ export const getUsers = async (filters = {}) => {
   return users.map(normalizeUser)
 }
 
+// getPendingUsers handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const getPendingUsers = async () => {
   const users = await apiRequest('/auth/admin/users/pending/')
   return users.map(normalizeUser)
 }
 
+// approveUser handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const approveUser = async (id) => {
   const user = await apiRequest(`/auth/admin/users/${id}/approve/`, { method: 'POST' })
   return normalizeUser(user)
 }
 
+// rejectUser handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const rejectUser = async (id) => {
   const user = await apiRequest(`/auth/admin/users/${id}/reject/`, { method: 'POST' })
   return normalizeUser(user)
 }
 
+// requestInfo handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const requestInfo = async (id, message) => ({ id, message, sentAt: new Date().toISOString() })
 
+// getCategories handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const getCategories = () => apiRequest('/catalog/categories/')
 
+// addCategory handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const addCategory = (name) => apiRequest('/catalog/categories/', { method: 'POST', body: { name } })
 
+// updateCategory handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const updateCategory = (id, name) =>
   apiRequest(`/catalog/categories/${id}/`, { method: 'PATCH', body: { name } })
 
+// deleteCategory handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const deleteCategory = async (id) => {
   await apiRequest(`/catalog/categories/${id}/`, { method: 'DELETE' })
   return true
 }
 
+// normalizeAdminProduct handles this module workflow, using its parameters and returning JSX, data, or a service result.
 const normalizeAdminProduct = (item) => ({
   id: item.id,
   name: item.name,
@@ -76,6 +92,7 @@ const normalizeAdminProduct = (item) => ({
       : Number(item.suggested_price_dzd),
 })
 
+// buildProductPayload handles this module workflow, using its parameters and returning JSX, data, or a service result.
 const buildProductPayload = (product) => ({
   name: product.name.trim(),
   category: Number(product.categoryId),
@@ -87,11 +104,13 @@ const buildProductPayload = (product) => ({
       : Number(product.suggestedPrice),
 })
 
+// getProducts handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const getProducts = async () => {
   const products = await apiRequest('/products/')
   return products.map(normalizeAdminProduct)
 }
 
+// addProduct handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const addProduct = async (product) => {
   const created = await apiRequest('/products/', {
     method: 'POST',
@@ -100,6 +119,7 @@ export const addProduct = async (product) => {
   return normalizeAdminProduct(created)
 }
 
+// updateProduct handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const updateProduct = async (id, product) => {
   const updated = await apiRequest(`/products/${id}/`, {
     method: 'PUT',
@@ -108,11 +128,13 @@ export const updateProduct = async (id, product) => {
   return normalizeAdminProduct(updated)
 }
 
+// deleteProduct handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const deleteProduct = async (id) => {
   await apiRequest(`/products/${id}/`, { method: 'DELETE' })
   return true
 }
 
+// generateReport handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const generateReport = ({ region, category, fromDate, toDate }) => {
   const search = new URLSearchParams()
   if (region) search.set('region', region)

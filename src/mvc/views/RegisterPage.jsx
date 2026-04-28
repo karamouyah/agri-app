@@ -1,3 +1,7 @@
+// File responsibility: Renders an application screen that is mounted from the React router for a specific user workflow.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
+// Imports: bring in React, routing, UI components, services, and helpers used below.
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { FiCheckCircle, FiClock, FiFeather, FiShield, FiTruck, FiUserPlus } from 'react-icons/fi'
@@ -69,6 +73,7 @@ const trustPoints = [
   { icon: FiClock, text: 'Buyers and farmers provide wilaya and commune data so orders and deliveries can be routed correctly.' },
 ]
 
+// validateForm handles this module workflow, using its parameters and returning JSX, data, or a service result.
 const validateForm = (formData) => {
   if (!formData.name.trim() || !formData.email.trim() || !formData.password || !formData.role) {
     return 'Name, email, password, and role are required.'
@@ -107,8 +112,11 @@ const validateForm = (formData) => {
 
 export default function RegisterPage() {
   const navigate = useNavigate()
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [formData, setFormData] = useState(initialForm)
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [loading, setLoading] = useState(false)
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [error, setError] = useState('')
 
   const roleConfig = useMemo(
@@ -116,6 +124,8 @@ export default function RegisterPage() {
     [formData.role],
   )
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleChange handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleChange = (event) => {
     const { name, value } = event.target
     setError('')
@@ -126,6 +136,8 @@ export default function RegisterPage() {
     }))
   }
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleSubmit handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleSubmit = async (event) => {
     event.preventDefault()
     setError('')
@@ -199,6 +211,7 @@ export default function RegisterPage() {
             <h2 className="mt-2 text-xl font-semibold text-slate-900 dark:text-slate-100">Role-based signup</h2>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">The form updates based on the role you choose.</p>
 
+            // Form/event handling: validates input, updates state, or submits data when the user acts.
             <form onSubmit={handleSubmit} className="mt-6 space-y-4">
               <FormField label="Full Name">
                 <Input id="name" name="name" required value={formData.name} onChange={handleChange} />

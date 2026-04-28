@@ -1,3 +1,7 @@
+// File responsibility: Renders an application screen that is mounted from the React router for a specific user workflow.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
+// Imports: bring in React, routing, UI components, services, and helpers used below.
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { addToCart, buyerFilterOptions, searchProducts } from '../../controllers/buyerController'
@@ -16,14 +20,22 @@ const initialFilters = {
 }
 
 export default function BuyerSearch() {
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [query, setQuery] = useState('')
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [filters, setFilters] = useState(initialFilters)
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [page, setPage] = useState(1)
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [data, setData] = useState({ items: [], total: 0, totalPages: 1 })
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [message, setMessage] = useState('')
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [loading, setLoading] = useState(false)
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [error, setError] = useState('')
 
+  // load handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const load = async (nextPage = 1, nextQuery = query, nextFilters = filters) => {
     setLoading(true)
     setError('')
@@ -39,7 +51,9 @@ export default function BuyerSearch() {
     }
   }
 
+  // Effect: runs after render to load data, sync storage, or react to dependency changes.
   useEffect(() => {
+    // syncResults handles this module workflow, using its parameters and returning JSX, data, or a service result.
     const syncResults = async () => {
       await load(1, '', initialFilters)
     }
@@ -49,6 +63,8 @@ export default function BuyerSearch() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleFilterChange handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleFilterChange = (event) => {
     const { name, value } = event.target
     setFilters((prev) => ({
@@ -58,15 +74,21 @@ export default function BuyerSearch() {
     }))
   }
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleSearch handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleSearch = async (event) => {
     event.preventDefault()
     await load(1, query, filters)
   }
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handlePage handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handlePage = async (nextPage) => {
     await load(nextPage, query, filters)
   }
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleAddToCart handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleAddToCart = async (product) => {
     await addToCart(product, 1)
     setMessage(`${product.name} added to cart.`)
@@ -90,6 +112,7 @@ export default function BuyerSearch() {
       />
 
       <Card className="p-5">
+        // Form/event handling: validates input, updates state, or submits data when the user acts.
         <form onSubmit={handleSearch} className="mt-1 flex flex-col gap-2 sm:flex-row">
           <Input
             value={query}

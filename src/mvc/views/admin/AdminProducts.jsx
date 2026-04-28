@@ -1,3 +1,7 @@
+// File responsibility: Renders an application screen that is mounted from the React router for a specific user workflow.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
+// Imports: bring in React, routing, UI components, services, and helpers used below.
 import { useEffect, useMemo, useState } from 'react'
 import {
   addCategory,
@@ -24,18 +28,31 @@ const initialProductForm = {
 const PRODUCTS_PER_PAGE = 8
 
 export default function AdminProducts() {
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [categories, setCategories] = useState([])
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [products, setProducts] = useState([])
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [isLoading, setIsLoading] = useState(true)
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [pageError, setPageError] = useState('')
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [categoryError, setCategoryError] = useState('')
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [productError, setProductError] = useState('')
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [newCategory, setNewCategory] = useState('')
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [editingCategory, setEditingCategory] = useState(null)
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [editName, setEditName] = useState('')
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [productForm, setProductForm] = useState(initialProductForm)
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [isSavingProduct, setIsSavingProduct] = useState(false)
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [productSearch, setProductSearch] = useState('')
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [currentPage, setCurrentPage] = useState(1)
 
   const isEditingProduct = useMemo(() => Boolean(productForm.id), [productForm.id])
@@ -56,6 +73,7 @@ export default function AdminProducts() {
     return filteredProducts.slice(startIndex, startIndex + PRODUCTS_PER_PAGE)
   }, [currentPage, filteredProducts])
 
+  // resetProductForm handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const resetProductForm = (nextCategories = categories) => {
     setProductError('')
     setProductForm({
@@ -64,6 +82,7 @@ export default function AdminProducts() {
     })
   }
 
+  // loadData handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const loadData = async () => {
     setIsLoading(true)
     setPageError('')
@@ -94,20 +113,25 @@ export default function AdminProducts() {
     setIsLoading(false)
   }
 
+  // Effect: runs after render to load data, sync storage, or react to dependency changes.
   useEffect(() => {
     loadData()
   }, [])
 
+  // Effect: runs after render to load data, sync storage, or react to dependency changes.
   useEffect(() => {
     setCurrentPage(1)
   }, [productSearch])
 
+  // Effect: runs after render to load data, sync storage, or react to dependency changes.
   useEffect(() => {
     if (currentPage > totalPages) {
       setCurrentPage(totalPages)
     }
   }, [currentPage, totalPages])
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleAddCategory handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleAddCategory = async (event) => {
     event.preventDefault()
     if (!newCategory.trim()) return
@@ -122,6 +146,8 @@ export default function AdminProducts() {
     }
   }
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleDeleteCategory handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleDeleteCategory = async (id) => {
     const confirmed = window.confirm('Delete this category?')
     if (!confirmed) return
@@ -135,6 +161,8 @@ export default function AdminProducts() {
     }
   }
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleSaveCategory handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleSaveCategory = async () => {
     if (!editingCategory || !editName.trim()) return
 
@@ -149,12 +177,15 @@ export default function AdminProducts() {
     }
   }
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleProductChange handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleProductChange = (event) => {
     const { name, value } = event.target
     setProductError('')
     setProductForm((prev) => ({ ...prev, [name]: value }))
   }
 
+  // startProductEdit handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const startProductEdit = (product) => {
     setProductError('')
     setProductForm({
@@ -167,6 +198,7 @@ export default function AdminProducts() {
     })
   }
 
+  // validateProductForm handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const validateProductForm = () => {
     const name = productForm.name.trim()
     if (!name) return 'Product name is required.'
@@ -190,6 +222,8 @@ export default function AdminProducts() {
     return ''
   }
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleProductSubmit handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleProductSubmit = async (event) => {
     event.preventDefault()
     const validationError = validateProductForm()
@@ -218,6 +252,8 @@ export default function AdminProducts() {
     }
   }
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleDeleteProduct handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleDeleteProduct = async (productId) => {
     const confirmed = window.confirm('Delete this product?')
     if (!confirmed) return
@@ -262,6 +298,7 @@ export default function AdminProducts() {
             description="Add, rename, and maintain the top-level categories used across the marketplace."
           />
 
+          // Form/event handling: validates input, updates state, or submits data when the user acts.
           <form onSubmit={handleAddCategory} className="mt-5 flex gap-3">
             <Input
               value={newCategory}
@@ -295,6 +332,7 @@ export default function AdminProducts() {
 
                 <div className="flex flex-wrap gap-2">
                   {editingCategory?.id === category.id ? (
+                    // Form/event handling: validates input, updates state, or submits data when the user acts.
                     <button type="button" onClick={handleSaveCategory} className={buttonStyles.primary}>
                       Save
                     </button>
@@ -339,6 +377,7 @@ export default function AdminProducts() {
               Add at least one category before creating products.
             </div>
           ) : (
+            // Form/event handling: validates input, updates state, or submits data when the user acts.
             <form onSubmit={handleProductSubmit} className="mt-5 space-y-4">
               {productError && (
                 <p className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">

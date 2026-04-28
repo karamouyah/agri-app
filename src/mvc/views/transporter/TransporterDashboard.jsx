@@ -1,3 +1,7 @@
+// File responsibility: Renders an application screen that is mounted from the React router for a specific user workflow.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
+// Imports: bring in React, routing, UI components, services, and helpers used below.
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FiCheckCircle, FiClock, FiTruck, FiXCircle } from 'react-icons/fi'
@@ -7,14 +11,20 @@ import {
   getActiveDeliveries,
   getDeliveryRequests,
 } from '../../controllers/transporterController'
+import { useAuth } from '../../../context/AuthContext'
 import PageHero from '../../../components/PageHero'
 import { Card, SkeletonBlock, StatCard, StatusBadge, buttonStyles, cn } from '../../../components/ui'
 
 export default function TransporterDashboard() {
+  const { user } = useAuth()
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [requests, setRequests] = useState([])
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [activeDeliveries, setActiveDeliveries] = useState([])
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [loading, setLoading] = useState(true)
 
+  // load handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const load = async () => {
     const [pendingData, activeData] = await Promise.all([getDeliveryRequests(), getActiveDeliveries()])
     setRequests(pendingData)
@@ -22,15 +32,20 @@ export default function TransporterDashboard() {
     setLoading(false)
   }
 
+  // Effect: runs after render to load data, sync storage, or react to dependency changes.
   useEffect(() => {
     load()
   }, [])
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleAccept handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleAccept = async (id) => {
     await acceptMission(id)
     load()
   }
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleDecline handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleDecline = async (id) => {
     await declineMission(id)
     load()
@@ -53,7 +68,7 @@ export default function TransporterDashboard() {
     <section className="app-page">
       <PageHero
         eyebrow="Workspace"
-        title="Dispatcher Hub"
+        title={`Welcome, ${user?.name || 'Transporter'}`}
         description="Manage inbound freight requests and track your active moving shipments across the national network."
         stats={[
           { label: 'Active Jobs', value: activeDeliveries.length, help: 'Currently in progress' },

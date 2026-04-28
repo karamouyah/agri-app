@@ -1,3 +1,9 @@
+"""
+File responsibility: Validates request data and converts Django models into JSON API responses.
+Connects to the Django backend through imports, app configuration, API routing, or management commands.
+"""
+
+# Imports: load Django, DRF, models, serializers, and helpers used in this module.
 from datetime import timedelta
 
 from django.db import transaction
@@ -23,6 +29,7 @@ ORDER_STATUS_CODES = {value: key for key, value in ORDER_STATUS_SLUGS.items()}
 
 
 def clean_text(value):
+    """Handles clean_text, using the declared parameters and returning the expected value or API response."""
     if value is None:
         return ""
     if isinstance(value, str):
@@ -31,6 +38,7 @@ def clean_text(value):
 
 
 def parse_int(value):
+    """Handles parse_int, using the declared parameters and returning the expected value or API response."""
     if value in (None, ""):
         return None
     try:
@@ -40,6 +48,7 @@ def parse_int(value):
 
 
 def compose_location_label(commune=None, wilaya=None, fallback=""):
+    """Handles compose_location_label, using the declared parameters and returning the expected value or API response."""
     if commune and wilaya:
         return f"{commune.name}, {wilaya.name}"
     if commune:
@@ -50,6 +59,7 @@ def compose_location_label(commune=None, wilaya=None, fallback=""):
 
 
 def validate_location_pair(wilaya_id, commune_id):
+    """Handles validate_location_pair, using the declared parameters and returning the expected value or API response."""
     wilaya = Wilaya.objects.filter(id=wilaya_id).first() if wilaya_id is not None else None
     commune = Commune.objects.select_related("wilaya").filter(id=commune_id).first() if commune_id is not None else None
 
@@ -68,20 +78,24 @@ def validate_location_pair(wilaya_id, commune_id):
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
+    """Defines OrderItemSerializer for this app and is used by the serializers, views, routes, or admin when imported."""
     product_id = serializers.IntegerField(source="product_list.id", read_only=True)
     name = serializers.CharField(source="product_list.product.name", read_only=True)
     unit_price = serializers.IntegerField(source="price", read_only=True)
     currency = serializers.SerializerMethodField()
 
     class Meta:
+        """Defines Meta for this app and is used by the serializers, views, routes, or admin when imported."""
         model = OrderItem
         fields = ["product_id", "name", "quantity", "unit_price", "currency"]
 
     def get_currency(self, _obj):
+        """Handles get_currency, using the declared parameters and returning the expected value or API response."""
         return "DZD"
 
 
 class OrderSerializer(serializers.ModelSerializer):
+    """Defines OrderSerializer for this app and is used by the serializers, views, routes, or admin when imported."""
     id = serializers.IntegerField(read_only=True)
     address = serializers.SerializerMethodField()
     payment_method = serializers.SerializerMethodField()
@@ -101,6 +115,7 @@ class OrderSerializer(serializers.ModelSerializer):
     pickup_commune_name = serializers.CharField(source="pickup_commune.name", read_only=True)
 
     class Meta:
+        """Defines Meta for this app and is used by the serializers, views, routes, or admin when imported."""
         model = Order
         fields = [
             "id",
@@ -123,31 +138,38 @@ class OrderSerializer(serializers.ModelSerializer):
         ]
 
     def get_address(self, obj):
+        """Handles get_address, using the declared parameters and returning the expected value or API response."""
         return compose_location_label(obj.delivery_commune, obj.delivery_wilaya, obj.delivery_address)
 
     def get_payment_method(self, obj):
+        """Handles get_payment_method, using the declared parameters and returning the expected value or API response."""
         payment = obj.payments.order_by("id").first()
         return payment.payment_method if payment else "cash_on_delivery"
 
     def get_status(self, obj):
+        """Handles get_status, using the declared parameters and returning the expected value or API response."""
         return ORDER_STATUS_SLUGS.get(obj.status, "pending")
 
     def get_estimated_delivery(self, obj):
+        """Handles get_estimated_delivery, using the declared parameters and returning the expected value or API response."""
         shipment = obj.shipments.order_by("id").first()
         if shipment and shipment.estimated_delivery_date:
             return shipment.estimated_delivery_date.date()
         return None
 
     def get_currency(self, _obj):
+        """Handles get_currency, using the declared parameters and returning the expected value or API response."""
         return "DZD"
 
 
 class CheckoutItemInputSerializer(serializers.Serializer):
+    """Defines CheckoutItemInputSerializer for this app and is used by the serializers, views, routes, or admin when imported."""
     product_id = serializers.IntegerField()
     quantity = serializers.IntegerField(min_value=1)
 
 
 class CheckoutSerializer(serializers.Serializer):
+    """Defines CheckoutSerializer for this app and is used by the serializers, views, routes, or admin when imported."""
     items = CheckoutItemInputSerializer(many=True)
     address = serializers.CharField(max_length=255)
     payment_method = serializers.CharField(max_length=100)
@@ -155,6 +177,7 @@ class CheckoutSerializer(serializers.Serializer):
     commune_id = serializers.IntegerField(required=False)
 
     def validate(self, attrs):
+        """Handles validate, using the declared parameters and returning the expected value or API response."""
         buyer_user = self.context["request"].user
         buyer = getattr(buyer_user, "buyer", None)
         if not buyer:
@@ -172,6 +195,7 @@ class CheckoutSerializer(serializers.Serializer):
 
     @transaction.atomic
     def create(self, validated_data):
+        """Handles create, using the declared parameters and returning the expected value or API response."""
         buyer_user = self.context["request"].user
         buyer = buyer_user.buyer
 
@@ -254,6 +278,7 @@ class CheckoutSerializer(serializers.Serializer):
 
 
 class InvoiceSerializer(serializers.ModelSerializer):
+    """Defines InvoiceSerializer for this app and is used by the serializers, views, routes, or admin when imported."""
     id = serializers.SerializerMethodField()
     order_id = serializers.CharField(source="order.id", read_only=True)
     date = serializers.DateTimeField(source="transaction_date", read_only=True)
@@ -261,22 +286,28 @@ class InvoiceSerializer(serializers.ModelSerializer):
     currency = serializers.SerializerMethodField()
 
     class Meta:
+        """Defines Meta for this app and is used by the serializers, views, routes, or admin when imported."""
         model = Payment
         fields = ["id", "order_id", "date", "amount", "currency", "details"]
 
     def get_id(self, obj):
+        """Handles get_id, using the declared parameters and returning the expected value or API response."""
         return f"PAY-{obj.id}"
 
     def get_details(self, obj):
+        """Handles get_details, using the declared parameters and returning the expected value or API response."""
         return f"Payment method: {obj.payment_method}"
 
     def get_currency(self, _obj):
+        """Handles get_currency, using the declared parameters and returning the expected value or API response."""
         return "DZD"
 
 
 class OrderStatusUpdateSerializer(serializers.Serializer):
+    """Defines OrderStatusUpdateSerializer for this app and is used by the serializers, views, routes, or admin when imported."""
     status = serializers.ChoiceField(choices=sorted(ORDER_STATUS_CODES.keys()))
 
     def get_status_code(self):
+        """Handles get_status_code, using the declared parameters and returning the expected value or API response."""
         status_slug = self.validated_data["status"]
         return ORDER_STATUS_CODES[status_slug]

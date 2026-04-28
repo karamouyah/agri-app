@@ -1,3 +1,9 @@
+"""
+File responsibility: Stores static seed data that is imported by migrations, commands, or serializers.
+Connects to the Django backend through imports, app configuration, API routing, or management commands.
+"""
+
+# Imports: load Django, DRF, models, serializers, and helpers used in this module.
 import json
 from functools import lru_cache
 from pathlib import Path
@@ -9,6 +15,7 @@ SHARED_LOCATIONS_PATH = Path(__file__).resolve().parents[3] / "shared" / "algeri
 
 
 def normalize_location_text(value):
+    """Handles normalize_location_text, using the declared parameters and returning the expected value or API response."""
     if not value:
         return ""
     text = str(value).replace(",", " ").replace("-", " ")
@@ -17,12 +24,14 @@ def normalize_location_text(value):
 
 @lru_cache(maxsize=1)
 def load_algeria_locations():
+    """Handles load_algeria_locations, using the declared parameters and returning the expected value or API response."""
     with SHARED_LOCATIONS_PATH.open("r", encoding="utf-8-sig") as handle:
         return json.load(handle)
 
 
 @lru_cache(maxsize=1)
 def build_location_index():
+    """Handles build_location_index, using the declared parameters and returning the expected value or API response."""
     dataset = load_algeria_locations()
     wilayas = []
     communes_by_wilaya = {}
@@ -66,6 +75,7 @@ def build_location_index():
 
 
 def match_location_from_text(value):
+    """Handles match_location_from_text, using the declared parameters and returning the expected value or API response."""
     normalized = normalize_location_text(value)
     if not normalized:
         return None, None
@@ -103,6 +113,7 @@ def match_location_from_text(value):
 
 
 def sync_algeria_locations(wilaya_model=None, commune_model=None):
+    """Handles sync_algeria_locations, using the declared parameters and returning the expected value or API response."""
     if wilaya_model is None or commune_model is None:
         from apps.locations.models import Commune, Wilaya
 

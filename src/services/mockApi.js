@@ -1,7 +1,12 @@
+// File responsibility: Centralizes browser-to-backend API calls and response shaping for the frontend.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
+// Imports: bring in React, routing, UI components, services, and helpers used below.
 import { apiRequest } from './apiClient'
 import controlledCatalog from '../../shared/controlled-product-catalog.json'
 import { PLATFORM_CURRENCY } from '../utils/currency'
 
+// normalizeProduct handles this module workflow, using its parameters and returning JSX, data, or a service result.
 const normalizeProduct = (item) => ({
   id: item.id,
   productId: item.product,
@@ -19,6 +24,7 @@ const normalizeProduct = (item) => ({
   currency: item.currency || PLATFORM_CURRENCY,
 })
 
+// normalizeControlledProduct handles this module workflow, using its parameters and returning JSX, data, or a service result.
 const normalizeControlledProduct = (item, fallbackId) => ({
   id: Number(item.id ?? fallbackId),
   name: item.name,
@@ -41,6 +47,7 @@ const fallbackControlledProducts = controlledCatalog.map((item, index) =>
   ),
 )
 
+// mapOrderForFarmer handles this module workflow, using its parameters and returning JSX, data, or a service result.
 const mapOrderForFarmer = (order) => ({
   id: order.id,
   buyerName: 'Buyer',
@@ -53,6 +60,7 @@ const mapOrderForFarmer = (order) => ({
   deliveryAddress: order.address,
 })
 
+// getControlledProducts handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const getControlledProducts = async (filters = {}) => {
   const search = new URLSearchParams()
   if (filters.query) search.set('q', filters.query)
@@ -72,19 +80,23 @@ export const getControlledProducts = async (filters = {}) => {
   }
 }
 
+// getFarmProfile handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const getFarmProfile = () => apiRequest('/auth/farmer/profile/')
 
+// updateFarmProfile handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const updateFarmProfile = (data) =>
   apiRequest('/auth/farmer/profile/', {
     method: 'PATCH',
     body: data,
   })
 
+// getProducts handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const getProducts = async () => {
   const products = await apiRequest('/catalog/products/')
   return products.map(normalizeProduct)
 }
 
+// addProduct handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const addProduct = async (product) => {
   const created = await apiRequest('/catalog/products/', {
     method: 'POST',
@@ -97,6 +109,7 @@ export const addProduct = async (product) => {
   return normalizeProduct(created)
 }
 
+// updateProduct handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const updateProduct = async (product) => {
   const updated = await apiRequest(`/catalog/products/${product.id}/`, {
     method: 'PATCH',
@@ -109,16 +122,19 @@ export const updateProduct = async (product) => {
   return normalizeProduct(updated)
 }
 
+// deleteProduct handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const deleteProduct = async (id) => {
   await apiRequest(`/catalog/products/${id}/`, { method: 'DELETE' })
   return true
 }
 
+// getOrders handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const getOrders = async () => {
   const orders = await apiRequest('/orders/mine/')
   return orders.map(mapOrderForFarmer)
 }
 
+// updateOrderStatus handles this module workflow, using its parameters and returning JSX, data, or a service result.
 const updateOrderStatus = async (id, nextStatus) => {
   const updated = await apiRequest(`/orders/${id}/status/`, {
     method: 'PATCH',
@@ -127,10 +143,13 @@ const updateOrderStatus = async (id, nextStatus) => {
   return mapOrderForFarmer(updated)
 }
 
+// acceptOrder handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const acceptOrder = async (id) => updateOrderStatus(id, 'accepted')
 
+// declineOrder handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const declineOrder = async (id) => updateOrderStatus(id, 'declined')
 
+// getRevenueData handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const getRevenueData = async () => {
   const orders = await apiRequest('/orders/mine/')
   const transactions = orders.map((order) => ({

@@ -1,3 +1,7 @@
+// File responsibility: Renders an application screen that is mounted from the React router for a specific user workflow.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
+// Imports: bring in React, routing, UI components, services, and helpers used below.
 import { useEffect, useState } from 'react'
 import { FiCreditCard, FiFileText } from 'react-icons/fi'
 import { getInvoices } from '../../controllers/buyerController'
@@ -6,10 +10,14 @@ import PageHero from '../../../components/PageHero'
 import { Card, buttonStyles, cn } from '../../../components/ui'
 
 export default function BuyerInvoices() {
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [invoices, setInvoices] = useState([])
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [selectedInvoice, setSelectedInvoice] = useState(null)
 
+  // Effect: runs after render to load data, sync storage, or react to dependency changes.
   useEffect(() => {
+    // load handles this module workflow, using its parameters and returning JSX, data, or a service result.
     const load = async () => {
       const data = await getInvoices()
       setInvoices(data)

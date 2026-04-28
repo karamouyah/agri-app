@@ -1,5 +1,10 @@
+// File responsibility: Renders an application screen that is mounted from the React router for a specific user workflow.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
+// Imports: bring in React, routing, UI components, services, and helpers used below.
 import { FiBarChart2, FiClipboard, FiShield, FiShoppingBag, FiUsers } from 'react-icons/fi'
 import PageHero from '../../../components/PageHero'
+import { useAuth } from '../../../context/AuthContext'
 import { ActionCard, Card } from '../../../components/ui'
 
 const quickActions = [
@@ -27,11 +32,12 @@ const quickActions = [
 ]
 
 export default function MinistryDashboard() {
+  const { user } = useAuth()
   return (
     <section className="app-page">
       <PageHero
         eyebrow="Ministry Workspace"
-        title="Supervise approvals, products, and reporting from one control point"
+        title={`Welcome, ${user?.name || 'Administrator'}`}
         description="Use the ministry dashboard to review pending access, monitor product activity, and move into reports or moderation tasks without leaving the admin workspace."
         variant="admin"
         stats={[

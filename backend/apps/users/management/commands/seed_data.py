@@ -1,3 +1,9 @@
+"""
+File responsibility: Implements a custom Django management command for loading project data.
+Connects to the Django backend through imports, app configuration, API routing, or management commands.
+"""
+
+# Imports: load Django, DRF, models, serializers, and helpers used in this module.
 import random
 from collections import defaultdict
 from datetime import timedelta
@@ -142,9 +148,11 @@ SHIPMENT_STATUS_BY_ORDER_STATUS = {
 
 
 class Command(BaseCommand):
+    """Defines Command for this app and is used by the serializers, views, routes, or admin when imported."""
     help = "Seed realistic Algerian development data for AgriGov using Django ORM and Faker."
 
     def add_arguments(self, parser):
+        """Handles add_arguments, using the declared parameters and returning the expected value or API response."""
         parser.add_argument("--seed", type=int, default=DEFAULT_RANDOM_SEED, help="Deterministic random seed.")
         parser.add_argument("--ministries", type=int, default=DEFAULT_MINISTRY_COUNT, help="Number of ministry users.")
         parser.add_argument("--farmers", type=int, default=DEFAULT_FARMER_COUNT, help="Number of farmers to create.")
@@ -169,6 +177,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        """Handles handle, using the declared parameters and returning the expected value or API response."""
         self.random = random.Random(options["seed"])
         self.fake = Faker("fr_FR")
         Faker.seed(options["seed"])
@@ -213,6 +222,7 @@ class Command(BaseCommand):
         self._print_summary()
 
     def _print_summary(self):
+        """Handles _print_summary, using the declared parameters and returning the expected value or API response."""
         summary = {
             "users": User.objects.filter(email__iendswith=f"@{SEED_EMAIL_DOMAIN}").count(),
             "ministries": AdminProfile.objects.filter(person__email__iendswith=f"@{SEED_EMAIL_DOMAIN}").count(),
@@ -234,6 +244,7 @@ class Command(BaseCommand):
         self.stdout.write(f" - Default password for generated users: {DEFAULT_PASSWORD}")
 
     def _build_status_plan(self, total, approved_ratio, pending_ratio):
+        """Handles _build_status_plan, using the declared parameters and returning the expected value or API response."""
         if total <= 0:
             return []
 
@@ -266,6 +277,7 @@ class Command(BaseCommand):
         return statuses
 
     def _reset_generated_data(self):
+        """Handles _reset_generated_data, using the declared parameters and returning the expected value or API response."""
         seed_users = User.objects.filter(email__iendswith=f"@{SEED_EMAIL_DOMAIN}")
         seed_user_ids = list(seed_users.values_list("id", flat=True))
         if not seed_user_ids:
@@ -298,6 +310,7 @@ class Command(BaseCommand):
         User.objects.filter(id__in=seed_user_ids).delete()
 
     def _upsert_user(self, role_slug, index, first_name, last_name, status, address, is_staff=False, is_superuser=False):
+        """Handles _upsert_user, using the declared parameters and returning the expected value or API response."""
         role = User.role_from_slug(role_slug)
         email = self._build_email(role_slug, index, first_name, last_name)
         user, _ = User.objects.update_or_create(
@@ -322,10 +335,12 @@ class Command(BaseCommand):
         return user
 
     def _build_email(self, role_slug, index, first_name, last_name):
+        """Handles _build_email, using the declared parameters and returning the expected value or API response."""
         local_part = slugify(f"{role_slug}-{index:02d}-{first_name}-{last_name}") or f"{role_slug}-{index:02d}"
         return f"{local_part}@{SEED_EMAIL_DOMAIN}"
 
     def _pick_name(self, index, offset):
+        """Handles _pick_name, using the declared parameters and returning the expected value or API response."""
         first_name = ALGERIAN_FIRST_NAMES[
             (index + offset + self.random.randint(0, len(ALGERIAN_FIRST_NAMES) - 1)) % len(ALGERIAN_FIRST_NAMES)
         ]
@@ -336,15 +351,18 @@ class Command(BaseCommand):
 
     @staticmethod
     def _location_name(value):
+        """Handles _location_name, using the declared parameters and returning the expected value or API response."""
         return value.name if hasattr(value, "name") else str(value)
 
     def _pick_city(self, index, offset):
+        """Handles _pick_city, using the declared parameters and returning the expected value or API response."""
         commune = self.commune_pool[
             (index + offset + self.random.randint(0, len(self.commune_pool) - 1)) % len(self.commune_pool)
         ]
         return commune, commune.wilaya
 
     def _build_home_address(self, city, wilaya, index, offset):
+        """Handles _build_home_address, using the declared parameters and returning the expected value or API response."""
         street_name = HOME_STREET_NAMES[
             (index + offset + self.random.randint(0, len(HOME_STREET_NAMES) - 1)) % len(HOME_STREET_NAMES)
         ]
@@ -356,11 +374,13 @@ class Command(BaseCommand):
         )
 
     def _build_farm_name(self, index):
+        """Handles _build_farm_name, using the declared parameters and returning the expected value or API response."""
         prefix = FARM_NAME_PREFIXES[(index + self.random.randint(0, len(FARM_NAME_PREFIXES) - 1)) % len(FARM_NAME_PREFIXES)]
         suffix = FARM_NAME_SUFFIXES[(index + self.random.randint(0, len(FARM_NAME_SUFFIXES) - 1)) % len(FARM_NAME_SUFFIXES)]
         return f"{prefix} {suffix}"
 
     def _build_unique_farm_location(self, index, city, wilaya):
+        """Handles _build_unique_farm_location, using the declared parameters and returning the expected value or API response."""
         while True:
             route_name = FARM_ROUTE_NAMES[
                 (index + self.random.randint(0, len(FARM_ROUTE_NAMES) - 1)) % len(FARM_ROUTE_NAMES)
@@ -375,6 +395,7 @@ class Command(BaseCommand):
                 return location
 
     def _build_service_area(self, city, wilaya):
+        """Handles _build_service_area, using the declared parameters and returning the expected value or API response."""
         base_wilaya = wilaya if hasattr(wilaya, "id") else None
         extra_pool = [item for item in self.wilaya_pool if not base_wilaya or item.id != base_wilaya.id]
         extras = self.random.sample(extra_pool, k=min(2, len(extra_pool)))
@@ -382,16 +403,19 @@ class Command(BaseCommand):
         return ", ".join(dict.fromkeys(coverage))
 
     def _build_delivery_wilayas(self, wilaya):
+        """Handles _build_delivery_wilayas, using the declared parameters and returning the expected value or API response."""
         extra_pool = [item for item in self.wilaya_pool if item.id != wilaya.id]
         extra_count = min(len(extra_pool), self.random.randint(1, 4))
         extras = self.random.sample(extra_pool, k=extra_count)
         return list(dict.fromkeys([wilaya, *extras]))
 
     def _generate_phone_number(self):
+        """Handles _generate_phone_number, using the declared parameters and returning the expected value or API response."""
         prefix = self.random.choice(["5", "6", "7"])
         return f"+213{prefix}{self.fake.numerify('########')}"
 
     def _seed_ministry_users(self, total):
+        """Handles _seed_ministry_users, using the declared parameters and returning the expected value or API response."""
         ministries = []
         for index in range(1, total + 1):
             first_name, last_name = self._pick_name(index, offset=100)
@@ -417,6 +441,7 @@ class Command(BaseCommand):
         return ministries
 
     def _seed_farmer_users(self, total):
+        """Handles _seed_farmer_users, using the declared parameters and returning the expected value or API response."""
         farmers = []
         for index in range(1, total + 1):
             first_name, last_name = self._pick_name(index, offset=400)
@@ -451,6 +476,7 @@ class Command(BaseCommand):
         return farmers
 
     def _seed_buyer_users(self, total):
+        """Handles _seed_buyer_users, using the declared parameters and returning the expected value or API response."""
         buyers = []
         for index in range(1, total + 1):
             first_name, last_name = self._pick_name(index, offset=700)
@@ -475,6 +501,7 @@ class Command(BaseCommand):
         return buyers
 
     def _seed_transporter_users(self, total):
+        """Handles _seed_transporter_users, using the declared parameters and returning the expected value or API response."""
         transporters = []
         for index in range(1, total + 1):
             first_name, last_name = self._pick_name(index, offset=1000)
@@ -506,6 +533,7 @@ class Command(BaseCommand):
         return transporters
 
     def _seed_product_listings(self, total, approved_farmers):
+        """Handles _seed_product_listings, using the declared parameters and returning the expected value or API response."""
         active_catalog = list(Product.objects.filter(is_active=True).select_related("category").order_by("name"))
         total = min(total, len(active_catalog))
         selected_products = self.random.sample(active_catalog, k=total)
@@ -528,6 +556,7 @@ class Command(BaseCommand):
         return listings
 
     def _seed_orders(self, total, buyers, transporters, listings):
+        """Handles _seed_orders, using the declared parameters and returning the expected value or API response."""
         listings_by_farmer = defaultdict(list)
         remaining_quantities = {}
         for listing in listings:
@@ -651,6 +680,7 @@ class Command(BaseCommand):
         return orders
 
     def _seed_reviews(self, orders):
+        """Handles _seed_reviews, using the declared parameters and returning the expected value or API response."""
         delivered_orders = [order for order in orders if order.status == Order.Status.DELIVERED]
         for order in delivered_orders[: min(12, len(delivered_orders))]:
             shipment = order.shipments.order_by("id").first()
@@ -678,6 +708,7 @@ class Command(BaseCommand):
                 item_review.save(update_fields=["review_date"])
 
     def _seed_join_requests(self):
+        """Handles _seed_join_requests, using the declared parameters and returning the expected value or API response."""
         request_statuses = [
             JoinRequest.RequestStatus.PENDING,
             JoinRequest.RequestStatus.APPROVED,

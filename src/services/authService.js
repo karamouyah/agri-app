@@ -1,7 +1,12 @@
+// File responsibility: Centralizes browser-to-backend API calls and response shaping for the frontend.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
+// Imports: bring in React, routing, UI components, services, and helpers used below.
 import { apiRequest, setStoredTokens } from './apiClient'
 
 const PHONE_REGEX = /^\+?[0-9()\-\s]{7,20}$/
 
+// normalizeText handles this module workflow, using its parameters and returning JSX, data, or a service result.
 const normalizeText = (value) => (typeof value === 'string' ? value.trim() : '')
 
 const ROLE_LABELS = {
@@ -12,8 +17,10 @@ const ROLE_LABELS = {
 }
 const SIGNUP_ROLES = ['farmer', 'buyer', 'transporter']
 
+// getProfileValue handles this module workflow, using its parameters and returning JSX, data, or a service result.
 const getProfileValue = (user, key) => user?.profile?.[key] || user?.[key] || ''
 
+// normalizeUser handles this module workflow, using its parameters and returning JSX, data, or a service result.
 const normalizeUser = (user) => {
   const phoneNumber = getProfileValue(user, 'phone_number') || getProfileValue(user, 'phone')
 
@@ -42,6 +49,7 @@ const normalizeUser = (user) => {
   }
 }
 
+// validateRegistrationPayload handles this module workflow, using its parameters and returning JSX, data, or a service result.
 const validateRegistrationPayload = (payload) => {
   const name = normalizeText(payload.name)
   const email = normalizeText(payload.email)
@@ -124,6 +132,7 @@ const validateRegistrationPayload = (payload) => {
   }
 }
 
+// loginUser handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const loginUser = async (credentials) => {
   if (!credentials.email || !credentials.password) {
     throw new Error('Email and password are required.')
@@ -141,6 +150,7 @@ export const loginUser = async (credentials) => {
   return normalizeUser(payload.user)
 }
 
+// registerUser handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const registerUser = async (payload) => {
   const validated = validateRegistrationPayload(payload)
 

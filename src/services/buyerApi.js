@@ -1,3 +1,7 @@
+// File responsibility: Centralizes browser-to-backend API calls and response shaping for the frontend.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
+// Imports: bring in React, routing, UI components, services, and helpers used below.
 import { apiRequest } from './apiClient'
 import { PLATFORM_CURRENCY } from '../utils/currency'
 
@@ -6,11 +10,13 @@ const KEYS = {
   shipping: 'agri_buyer_shipping',
 }
 
+// fromStorage handles this module workflow, using its parameters and returning JSX, data, or a service result.
 const fromStorage = (key, fallback) => {
   const raw = localStorage.getItem(key)
   return raw ? JSON.parse(raw) : fallback
 }
 
+// toStorage handles this module workflow, using its parameters and returning JSX, data, or a service result.
 const toStorage = (key, data) => {
   localStorage.setItem(key, JSON.stringify(data))
 }
@@ -40,6 +46,7 @@ apiRequest('/catalog/filters/')
     // Keep defaults when backend is unavailable during initial load.
   })
 
+// normalizeProduct handles this module workflow, using its parameters and returning JSX, data, or a service result.
 const normalizeProduct = (item) => ({
   id: item.id,
   name: item.name,
@@ -62,6 +69,7 @@ const normalizeProduct = (item) => ({
   status: item.status,
 })
 
+// toTimeline handles this module workflow, using its parameters and returning JSX, data, or a service result.
 const toTimeline = (status) => {
   const steps = ['Order placed', 'Accepted by farmer', 'In transit', 'Delivered']
   const doneMap = {
@@ -76,6 +84,7 @@ const toTimeline = (status) => {
   return steps.map((label, index) => ({ label, done: index < doneCount }))
 }
 
+// normalizeOrder handles this module workflow, using its parameters and returning JSX, data, or a service result.
 const normalizeOrder = (order) => ({
   id: order.id,
   date: order.created_at.slice(0, 10),
@@ -103,6 +112,7 @@ const normalizeOrder = (order) => ({
   timeline: toTimeline(order.status),
 })
 
+// searchProducts handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const searchProducts = async (query = '', filters = {}, page = 1, pageSize = 6) => {
   const params = new URLSearchParams()
   if (query) params.set('q', query)
@@ -147,18 +157,22 @@ export const searchProducts = async (query = '', filters = {}, page = 1, pageSiz
   }
 }
 
+// getProductById handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const getProductById = async (id) => {
   const item = await apiRequest(`/catalog/products/${id}/`)
   return normalizeProduct(item)
 }
 
+// getRelatedProducts handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const getRelatedProducts = async (id) => {
   const related = await apiRequest(`/catalog/products/${id}/related/`)
   return related.map(normalizeProduct)
 }
 
+// getCart handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const getCart = async () => fromStorage(KEYS.cart, [])
 
+// addToCart handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const addToCart = async (product, quantity) => {
   const cart = fromStorage(KEYS.cart, [])
   const qty = Number(quantity)
@@ -190,6 +204,7 @@ export const addToCart = async (product, quantity) => {
   return cart
 }
 
+// updateCartQuantity handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const updateCartQuantity = async (productId, quantity) => {
   const cart = fromStorage(KEYS.cart, [])
   const qty = Number(quantity)
@@ -200,17 +215,20 @@ export const updateCartQuantity = async (productId, quantity) => {
   return updated
 }
 
+// removeCartItem handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const removeCartItem = async (productId) => {
   const updated = fromStorage(KEYS.cart, []).filter((item) => item.productId !== productId)
   toStorage(KEYS.cart, updated)
   return updated
 }
 
+// clearCart handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const clearCart = async () => {
   toStorage(KEYS.cart, [])
   return true
 }
 
+// calculateCartTotals handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const calculateCartTotals = (cartItems) => {
   const subtotal = cartItems.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0)
   const taxes = Math.round(subtotal * 0.1)
@@ -218,6 +236,7 @@ export const calculateCartTotals = (cartItems) => {
   return { subtotal, taxes, total, currency: PLATFORM_CURRENCY }
 }
 
+// getShippingProfile handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const getShippingProfile = async () => {
   try {
     const profile = await apiRequest('/auth/buyer/profile/')
@@ -245,6 +264,7 @@ export const getShippingProfile = async () => {
   }
 }
 
+// getBuyerProfile handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const getBuyerProfile = async () => {
   const profile = await apiRequest('/auth/buyer/profile/')
   return {
@@ -259,6 +279,7 @@ export const getBuyerProfile = async () => {
   }
 }
 
+// updateBuyerProfile handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const updateBuyerProfile = async (profile) => {
   const payload = await apiRequest('/auth/buyer/profile/', {
     method: 'PATCH',
@@ -293,6 +314,7 @@ export const updateBuyerProfile = async (profile) => {
   }
 }
 
+// placeOrder handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const placeOrder = async (cartItems, address, paymentMethod) => {
   const farmerNames = [...new Set(cartItems.map((item) => item.farmerName).filter(Boolean))]
   if (farmerNames.length > 1) {
@@ -315,16 +337,19 @@ export const placeOrder = async (cartItems, address, paymentMethod) => {
   return normalizeOrder(order)
 }
 
+// getBuyerOrders handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const getBuyerOrders = async () => {
   const orders = await apiRequest('/orders/mine/')
   return orders.map(normalizeOrder)
 }
 
+// getBuyerOrderById handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const getBuyerOrderById = async (orderId) => {
   const orders = await getBuyerOrders()
   return orders.find((order) => order.id === orderId) || null
 }
 
+// getInvoices handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const getInvoices = async () => {
   const invoices = await apiRequest('/orders/invoices/mine/')
   return invoices.map((item) => ({
@@ -338,6 +363,7 @@ export const getInvoices = async () => {
   }))
 }
 
+// getInvoiceById handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const getInvoiceById = async (invoiceId) => {
   const invoices = await getInvoices()
   return invoices.find((invoice) => invoice.id === invoiceId) || null

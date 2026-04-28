@@ -1,3 +1,9 @@
+"""
+File responsibility: Maps app-level API paths to the views and viewsets in this Django app.
+Connects to the Django backend through imports, app configuration, API routing, or management commands.
+"""
+
+# Imports: load Django, DRF, models, serializers, and helpers used in this module.
 from django.urls import path
 
 from apps.orders.views import CheckoutView, MyInvoicesView, MyOrdersView, UpdateOrderStatusView

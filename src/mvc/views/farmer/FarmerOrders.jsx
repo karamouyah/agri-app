@@ -1,12 +1,20 @@
+// File responsibility: Renders an application screen that is mounted from the React router for a specific user workflow.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
+// Imports: bring in React, routing, UI components, services, and helpers used below.
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { acceptOrder, declineOrder, getOrders } from '../../controllers/farmerController'
 import { formatDzd } from '../../../utils/currency'
 import { PageHeader, StatusBadge, buttonStyles, cn } from '../../../components/ui'
 
 export default function FarmerOrders() {
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [orders, setOrders] = useState([])
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [selectedOrder, setSelectedOrder] = useState(null)
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [activeTab, setActiveTab] = useState('pending')
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [selectedIds, setSelectedIds] = useState([])
 
   const loadOrders = useCallback(async () => {
@@ -19,9 +27,11 @@ export default function FarmerOrders() {
     }
   }, [selectedOrder])
 
+  // Effect: runs after render to load data, sync storage, or react to dependency changes.
   useEffect(() => {
     let active = true
 
+    // run handles this module workflow, using its parameters and returning JSX, data, or a service result.
     const run = async () => {
       const data = await getOrders()
       if (!active) return
@@ -38,11 +48,15 @@ export default function FarmerOrders() {
     }
   }, [selectedOrder])
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleAccept handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleAccept = async (id) => {
     await acceptOrder(id)
     await loadOrders()
   }
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleDecline handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleDecline = async (id) => {
     await declineOrder(id)
     await loadOrders()
@@ -53,10 +67,12 @@ export default function FarmerOrders() {
     return orders.filter((order) => order.status === activeTab)
   }, [activeTab, orders])
 
+  // toggleSelect handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const toggleSelect = (id) => {
     setSelectedIds((prev) => (prev.includes(id) ? prev.filter((value) => value !== id) : [...prev, id]))
   }
 
+  // toggleSelectAll handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const toggleSelectAll = () => {
     if (selectedIds.length === filteredOrders.length) {
       setSelectedIds([])
@@ -65,6 +81,8 @@ export default function FarmerOrders() {
     setSelectedIds(filteredOrders.map((order) => order.id))
   }
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleBulkConfirm handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleBulkConfirm = async () => {
     const pendingIds = selectedIds.filter((id) =>
       orders.some((order) => order.id === id && order.status === 'pending'),

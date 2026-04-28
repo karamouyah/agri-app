@@ -1,4 +1,9 @@
+// File responsibility: Renders an application screen that is mounted from the React router for a specific user workflow.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
+// Imports: bring in React, routing, UI components, services, and helpers used below.
 import { FiClipboard, FiCreditCard, FiMapPin, FiSearch, FiShoppingCart } from 'react-icons/fi'
+import { useAuth } from '../../../context/AuthContext'
 import { ActionCard, Card, PageHeader } from '../../../components/ui'
 
 const actions = [
@@ -47,11 +52,12 @@ const actions = [
 ]
 
 export default function BuyerDashboard() {
+  const { user } = useAuth()
   return (
     <section className="app-page">
       <PageHeader
         eyebrow="Buyer Workspace"
-        title="Browse approved products and manage your orders"
+        title={`Welcome, ${user?.name || 'Buyer'}`}
         description="Use the buyer workspace to search the approved catalog, place orders, and follow billing and delivery status."
         meta={[
           { label: 'Catalog', value: 'Approved' },

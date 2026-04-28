@@ -1,3 +1,7 @@
+// File responsibility: Defines a reusable React UI component shared across pages.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
+// Imports: bring in React, routing, UI components, services, and helpers used below.
 import { FiMoon, FiSun } from 'react-icons/fi'
 import { useTheme } from '../context/ThemeContext'
 import { cn } from './ui'

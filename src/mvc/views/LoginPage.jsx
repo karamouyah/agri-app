@@ -1,3 +1,7 @@
+// File responsibility: Renders an application screen that is mounted from the React router for a specific user workflow.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
+// Imports: bring in React, routing, UI components, services, and helpers used below.
 import { useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { FiCheckCircle, FiClock, FiLogIn, FiShield, FiTruck, FiUser } from 'react-icons/fi'
@@ -25,19 +29,26 @@ export default function LoginPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const notice = location.state?.notice || ''
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [formData, setFormData] = useState({ email: '', password: '' })
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [error, setError] = useState('')
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [loading, setLoading] = useState(false)
 
   if (isAuthenticated && user) {
     return <Navigate to={getDashboardPath(user.role)} replace />
   }
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleChange handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleChange = (event) => {
     const { name, value } = event.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleSubmit handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleSubmit = async (event) => {
     event.preventDefault()
     setError('')
@@ -109,6 +120,7 @@ export default function LoginPage() {
               </div>
             ) : null}
 
+            // Form/event handling: validates input, updates state, or submits data when the user acts.
             <form onSubmit={handleSubmit} className="mt-6 space-y-4">
               <FormField label="Email">
                 <Input

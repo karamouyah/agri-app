@@ -1,3 +1,7 @@
+// File responsibility: Renders an application screen that is mounted from the React router for a specific user workflow.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
+// Imports: bring in React, routing, UI components, services, and helpers used below.
 import { useEffect, useState } from 'react'
 import {
   Bar,
@@ -14,13 +18,18 @@ import {
 import { FiBarChart2, FiShield, FiUsers } from 'react-icons/fi'
 import { getNationalStats } from '../../controllers/adminController'
 import { formatDzd } from '../../../utils/currency'
+import { useAuth } from '../../../context/AuthContext'
 import PageHero from '../../../components/PageHero'
 import { Card, SkeletonBlock, StatCard } from '../../../components/ui'
 
 export default function AdminDashboard() {
+  const { user } = useAuth()
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [data, setData] = useState(null)
 
+  // Effect: runs after render to load data, sync storage, or react to dependency changes.
   useEffect(() => {
+    // load handles this module workflow, using its parameters and returning JSX, data, or a service result.
     const load = async () => {
       const stats = await getNationalStats()
       setData(stats)
@@ -52,7 +61,7 @@ export default function AdminDashboard() {
     <section className="app-page">
       <PageHero
         eyebrow="Ministry Intelligence"
-        title="Market Oversight"
+        title={`Welcome, ${user?.name || 'Administrator'}`}
         description="Monitor approvals, marketplace activity, regional trade signals, and pricing anomalies from across the national network."
         stats={[
           { label: 'Sales Volume', value: `${summary.totalSalesVolumeTons} T`, help: 'Tracked movement' },

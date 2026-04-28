@@ -1,3 +1,7 @@
+// File responsibility: Renders an application screen that is mounted from the React router for a specific user workflow.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
+// Imports: bring in React, routing, UI components, services, and helpers used below.
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { FiMapPin, FiSave, FiTruck, FiUser } from 'react-icons/fi'
@@ -9,11 +13,16 @@ const statusOptions = ['picked up', 'in transit', 'delivered']
 
 export default function TransporterDeliveryDetails() {
   const { id } = useParams()
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [mission, setMission] = useState(null)
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [status, setStatus] = useState('')
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [message, setMessage] = useState('')
 
+  // Effect: runs after render to load data, sync storage, or react to dependency changes.
   useEffect(() => {
+    // load handles this module workflow, using its parameters and returning JSX, data, or a service result.
     const load = async () => {
       const data = await getDeliveryById(id)
       setMission(data)
@@ -25,6 +34,8 @@ export default function TransporterDeliveryDetails() {
     load()
   }, [id])
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleUpdate handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleUpdate = async () => {
     const updated = await updateDeliveryStatus(id, status)
     setMission(updated)
@@ -116,6 +127,7 @@ export default function TransporterDeliveryDetails() {
               ))}
             </Select>
 
+            // Form/event handling: validates input, updates state, or submits data when the user acts.
             <button type="button" onClick={handleUpdate} className="btn-primary w-full px-4 py-3 text-sm">
               <span className="inline-flex items-center gap-2">
                 <FiSave />

@@ -1,3 +1,7 @@
+// File responsibility: Renders an application screen that is mounted from the React router for a specific user workflow.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
+// Imports: bring in React, routing, UI components, services, and helpers used below.
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { FiMapPin, FiPackage, FiPlus, FiShield, FiUser } from 'react-icons/fi'
@@ -8,12 +12,18 @@ import { Card } from '../../../components/ui'
 
 export default function BuyerProductDetails() {
   const { id } = useParams()
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [product, setProduct] = useState(null)
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [related, setRelated] = useState([])
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [quantity, setQuantity] = useState(1)
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [message, setMessage] = useState('')
 
+  // Effect: runs after render to load data, sync storage, or react to dependency changes.
   useEffect(() => {
+    // load handles this module workflow, using its parameters and returning JSX, data, or a service result.
     const load = async () => {
       const found = await getProductById(id)
       setProduct(found)
@@ -31,6 +41,8 @@ export default function BuyerProductDetails() {
     return <p className="text-sm text-slate-600 dark:text-slate-300">Product not found.</p>
   }
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleAddToCart handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleAddToCart = async () => {
     await addToCart(product, quantity)
     setMessage('Added to cart.')
@@ -95,6 +107,7 @@ export default function BuyerProductDetails() {
                 onChange={(event) => setQuantity(Number(event.target.value))}
                 className="field-control w-24 px-3 py-2"
               />
+              // Form/event handling: validates input, updates state, or submits data when the user acts.
               <button type="button" onClick={handleAddToCart} className="btn-primary px-4 py-2 text-sm">
                 <span className="inline-flex items-center gap-2">
                   <FiPlus />

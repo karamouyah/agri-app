@@ -1,5 +1,9 @@
+// File responsibility: Centralizes browser-to-backend API calls and response shaping for the frontend.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
 const DEFAULT_DEV_API_BASE_URL = 'http://127.0.0.1:8000/api'
 
+// normalizeBaseUrl handles this module workflow, using its parameters and returning JSX, data, or a service result.
 const normalizeBaseUrl = (value) => {
   const trimmed = value?.trim()
   return trimmed ? trimmed.replace(/\/+$/, '') : ''
@@ -11,19 +15,23 @@ const API_BASE_URL =
 
 const TOKENS_KEY = 'agri_auth_tokens'
 
+// getStoredTokens handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const getStoredTokens = () => {
   const raw = localStorage.getItem(TOKENS_KEY)
   return raw ? JSON.parse(raw) : null
 }
 
+// setStoredTokens handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const setStoredTokens = (tokens) => {
   localStorage.setItem(TOKENS_KEY, JSON.stringify(tokens))
 }
 
+// clearStoredTokens handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const clearStoredTokens = () => {
   localStorage.removeItem(TOKENS_KEY)
 }
 
+// extractErrorMessage handles this module workflow, using its parameters and returning JSX, data, or a service result.
 const extractErrorMessage = (payload) => {
   if (!payload) return null
   if (typeof payload === 'string') return payload
@@ -54,6 +62,7 @@ const extractErrorMessage = (payload) => {
   return null
 }
 
+// buildHeaders handles this module workflow, using its parameters and returning JSX, data, or a service result.
 const buildHeaders = (headers = {}, hasBody = false) => {
   const merged = { ...headers }
   const tokens = getStoredTokens()
@@ -69,6 +78,7 @@ const buildHeaders = (headers = {}, hasBody = false) => {
   return merged
 }
 
+// getApiUrl handles this module workflow, using its parameters and returning JSX, data, or a service result.
 const getApiUrl = (path) => {
   if (!API_BASE_URL) {
     throw new Error(
@@ -79,6 +89,7 @@ const getApiUrl = (path) => {
   return `${API_BASE_URL}${path}`
 }
 
+// apiRequest handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const apiRequest = async (path, options = {}) => {
   const method = options.method || 'GET'
   const hasBody = options.body !== undefined

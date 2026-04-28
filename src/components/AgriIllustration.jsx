@@ -1,3 +1,7 @@
+// File responsibility: Defines a reusable React UI component shared across pages.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
+// FieldRows handles this module workflow, using its parameters and returning JSX, data, or a service result.
 function FieldRows({ opacity = 1 }) {
   return (
     <g opacity={opacity}>
@@ -11,6 +15,7 @@ function FieldRows({ opacity = 1 }) {
   )
 }
 
+// WheatStem handles this module workflow, using its parameters and returning JSX, data, or a service result.
 function WheatStem({ x, y, scale = 1, color = '#F5D78A' }) {
   return (
     <g transform={`translate(${x} ${y}) scale(${scale})`}>
@@ -25,6 +30,7 @@ function WheatStem({ x, y, scale = 1, color = '#F5D78A' }) {
   )
 }
 
+// OrchardTrees handles this module workflow, using its parameters and returning JSX, data, or a service result.
 function OrchardTrees() {
   return (
     <g>
@@ -45,6 +51,7 @@ function OrchardTrees() {
   )
 }
 
+// BarnScene handles this module workflow, using its parameters and returning JSX, data, or a service result.
 function BarnScene() {
   return (
     <g>
@@ -59,6 +66,7 @@ function BarnScene() {
   )
 }
 
+// GlassCard handles this module workflow, using its parameters and returning JSX, data, or a service result.
 function GlassCard({ x, y, width, height, children, accent = '#1F7A3D' }) {
   return (
     <g transform={`translate(${x} ${y})`}>
@@ -70,6 +78,7 @@ function GlassCard({ x, y, width, height, children, accent = '#1F7A3D' }) {
   )
 }
 
+// HeroOverlay handles this module workflow, using its parameters and returning JSX, data, or a service result.
 function HeroOverlay() {
   return (
     <>
@@ -107,6 +116,7 @@ function HeroOverlay() {
   )
 }
 
+// AuthOverlay handles this module workflow, using its parameters and returning JSX, data, or a service result.
 function AuthOverlay() {
   return (
     <>
@@ -128,6 +138,7 @@ function AuthOverlay() {
   )
 }
 
+// BuyerOverlay handles this module workflow, using its parameters and returning JSX, data, or a service result.
 function BuyerOverlay() {
   return (
     <>
@@ -156,6 +167,7 @@ function BuyerOverlay() {
   )
 }
 
+// FarmerOverlay handles this module workflow, using its parameters and returning JSX, data, or a service result.
 function FarmerOverlay() {
   return (
     <>
@@ -181,6 +193,7 @@ function FarmerOverlay() {
   )
 }
 
+// TransporterOverlay handles this module workflow, using its parameters and returning JSX, data, or a service result.
 function TransporterOverlay() {
   return (
     <>
@@ -212,6 +225,7 @@ function TransporterOverlay() {
   )
 }
 
+// AdminOverlay handles this module workflow, using its parameters and returning JSX, data, or a service result.
 function AdminOverlay() {
   return (
     <>
@@ -235,6 +249,7 @@ function AdminOverlay() {
   )
 }
 
+// EmptyOverlay handles this module workflow, using its parameters and returning JSX, data, or a service result.
 function EmptyOverlay() {
   return (
     <>

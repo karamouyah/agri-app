@@ -1,3 +1,7 @@
+// File responsibility: Renders an application screen that is mounted from the React router for a specific user workflow.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
+// Imports: bring in React, routing, UI components, services, and helpers used below.
 import { useEffect, useState } from 'react'
 import {
   approveUser,
@@ -9,6 +13,7 @@ import {
 import { useLocations } from '../../../context/LocationContext'
 import { Card, EmptyState, PageHeader, Select, StatusBadge, Textarea, buttonStyles, cn } from '../../../components/ui'
 
+// getProfileDetails handles this module workflow, using its parameters and returning JSX, data, or a service result.
 const getProfileDetails = (user) => {
   if (!user) return []
 
@@ -42,17 +47,28 @@ const getProfileDetails = (user) => {
 
 export default function AdminUsers() {
   const { wilayas } = useLocations()
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [users, setUsers] = useState([])
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [pendingCount, setPendingCount] = useState(0)
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [roleFilter, setRoleFilter] = useState('')
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [approvalFilter, setApprovalFilter] = useState('pending')
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [wilayaFilter, setWilayaFilter] = useState('')
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [selectedUser, setSelectedUser] = useState(null)
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [infoMessage, setInfoMessage] = useState('')
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [feedback, setFeedback] = useState('')
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [error, setError] = useState('')
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [loading, setLoading] = useState(true)
 
+  // load handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const load = async () => {
     setLoading(true)
     setError('')
@@ -74,7 +90,9 @@ export default function AdminUsers() {
     }
   }
 
+  // Effect: runs after render to load data, sync storage, or react to dependency changes.
   useEffect(() => {
+    // syncUsers handles this module workflow, using its parameters and returning JSX, data, or a service result.
     const syncUsers = async () => {
       setLoading(true)
       setError('')
@@ -99,23 +117,30 @@ export default function AdminUsers() {
     syncUsers()
   }, [roleFilter, approvalFilter, wilayaFilter])
 
+  // closeModal handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const closeModal = () => {
     setSelectedUser(null)
     setInfoMessage('')
   }
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleApprove handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleApprove = async (id) => {
     await approveUser(id)
     setFeedback('Account approved successfully.')
     await load()
   }
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleReject handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleReject = async (id) => {
     await rejectUser(id)
     setFeedback('Account rejected.')
     await load()
   }
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleRequestInfo handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleRequestInfo = async () => {
     if (!selectedUser || !infoMessage.trim()) return
 
@@ -347,6 +372,7 @@ export default function AdminUsers() {
               >
                 Reject
               </button>
+              // Form/event handling: validates input, updates state, or submits data when the user acts.
               <button type="button" onClick={handleRequestInfo} className={buttonStyles.primary}>
                 Send Request
               </button>

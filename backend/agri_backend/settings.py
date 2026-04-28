@@ -1,3 +1,9 @@
+"""
+File responsibility: Configures Django, REST Framework, PostgreSQL, authentication, CORS, security, and static files.
+Connects to the Django backend through imports, app configuration, API routing, or management commands.
+"""
+
+# Imports: load Django, DRF, models, serializers, and helpers used in this module.
 import os
 from datetime import timedelta
 from pathlib import Path

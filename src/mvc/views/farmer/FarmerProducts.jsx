@@ -1,3 +1,7 @@
+// File responsibility: Renders an application screen that is mounted from the React router for a specific user workflow.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
+// Imports: bring in React, routing, UI components, services, and helpers used below.
 import { useEffect, useMemo, useState } from 'react'
 import {
   addProduct,
@@ -20,15 +24,25 @@ const initialForm = {
 const categoryOptions = ['All', 'Vegetables', 'Fruits', 'Herbs', 'Dry products']
 
 export default function FarmerProducts() {
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [products, setProducts] = useState([])
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [catalog, setCatalog] = useState([])
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [isOpen, setIsOpen] = useState(false)
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [isLoading, setIsLoading] = useState(true)
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [formData, setFormData] = useState(initialForm)
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [catalogSearch, setCatalogSearch] = useState('')
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [catalogCategory, setCatalogCategory] = useState('All')
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [isSubmitting, setIsSubmitting] = useState(false)
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [submitError, setSubmitError] = useState('')
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [pageError, setPageError] = useState('')
 
   const editing = useMemo(() => Boolean(formData.id), [formData.id])
@@ -48,6 +62,7 @@ export default function FarmerProducts() {
     [catalog, formData.productId],
   )
 
+  // loadData handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const loadData = async () => {
     setIsLoading(true)
     setPageError('')
@@ -74,15 +89,18 @@ export default function FarmerProducts() {
     setIsLoading(false)
   }
 
+  // Effect: runs after render to load data, sync storage, or react to dependency changes.
   useEffect(() => {
     loadData()
   }, [])
 
+  // resetSelectorFilters handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const resetSelectorFilters = () => {
     setCatalogSearch('')
     setCatalogCategory('All')
   }
 
+  // openCreateModal handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const openCreateModal = () => {
     resetSelectorFilters()
     setSubmitError('')
@@ -93,6 +111,7 @@ export default function FarmerProducts() {
     setIsOpen(true)
   }
 
+  // openEditModal handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const openEditModal = (product) => {
     setCatalogSearch('')
     setCatalogCategory(product.category || 'All')
@@ -106,17 +125,22 @@ export default function FarmerProducts() {
     setIsOpen(true)
   }
 
+  // closeModal handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const closeModal = () => {
     setIsOpen(false)
     setSubmitError('')
     setFormData(initialForm)
   }
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleChange handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleChange = (event) => {
     const { name, value } = event.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleSelectProduct handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleSelectProduct = (productId) => {
     setSubmitError('')
     setFormData((prev) => ({
@@ -125,6 +149,7 @@ export default function FarmerProducts() {
     }))
   }
 
+  // validateForm handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const validateForm = () => {
     if (!selectedProduct) {
       return 'You must choose a valid product from the approved catalog.'
@@ -148,6 +173,8 @@ export default function FarmerProducts() {
     return ''
   }
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleSubmit handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleSubmit = async (event) => {
     event.preventDefault()
     const validationError = validateForm()
@@ -182,6 +209,8 @@ export default function FarmerProducts() {
     }
   }
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleDelete handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleDelete = async (id) => {
     const confirmed = window.confirm('Delete this product listing?')
     if (!confirmed) return
@@ -371,6 +400,7 @@ export default function FarmerProducts() {
                 </div>
               </div>
             ) : (
+              // Form/event handling: validates input, updates state, or submits data when the user acts.
               <form onSubmit={handleSubmit} className="mt-4 space-y-4">
                 {submitError && (
                   <p className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">

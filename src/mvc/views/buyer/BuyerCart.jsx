@@ -1,3 +1,7 @@
+// File responsibility: Renders an application screen that is mounted from the React router for a specific user workflow.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
+// Imports: bring in React, routing, UI components, services, and helpers used below.
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { FiArrowRight, FiPackage, FiShoppingCart, FiTrash2 } from 'react-icons/fi'
@@ -13,14 +17,18 @@ import { Card, buttonStyles, cn } from '../../../components/ui'
 
 export default function BuyerCart() {
   const navigate = useNavigate()
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [items, setItems] = useState([])
 
+  // load handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const load = async () => {
     const cart = await getCart()
     setItems(cart)
   }
 
+  // Effect: runs after render to load data, sync storage, or react to dependency changes.
   useEffect(() => {
+    // syncCart handles this module workflow, using its parameters and returning JSX, data, or a service result.
     const syncCart = async () => {
       const cart = await getCart()
       setItems(cart)
@@ -31,11 +39,15 @@ export default function BuyerCart() {
 
   const totals = calculateCartTotals(items)
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleQuantityChange handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleQuantityChange = async (productId, quantity) => {
     await updateCartQuantity(productId, quantity)
     await load()
   }
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleRemove handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleRemove = async (productId) => {
     await removeCartItem(productId)
     await load()

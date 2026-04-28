@@ -1,3 +1,7 @@
+// File responsibility: Configures ESLint rules for checking frontend JavaScript and React code.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
+// Imports: bring in React, routing, UI components, services, and helpers used below.
 import js from '@eslint/js'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'

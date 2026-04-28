@@ -1,3 +1,9 @@
+"""
+File responsibility: Processes HTTP API requests, checks permissions, queries models, and returns REST responses.
+Connects to the Django backend through imports, app configuration, API routing, or management commands.
+"""
+
+# Imports: load Django, DRF, models, serializers, and helpers used in this module.
 from collections import defaultdict
 
 from django.db.models import Count, Q, Sum
@@ -28,6 +34,7 @@ from apps.users.serializers import (
 
 
 class RegisterView(generics.CreateAPIView):
+    """Defines RegisterView for this app and is used by the serializers, views, routes, or admin when imported."""
     serializer_class = RegisterSerializer
     permission_classes = [AllowAny]
     throttle_classes = [ScopedRateThrottle]
@@ -35,6 +42,7 @@ class RegisterView(generics.CreateAPIView):
 
 
 class LoginView(TokenObtainPairView):
+    """Defines LoginView for this app and is used by the serializers, views, routes, or admin when imported."""
     serializer_class = UserTokenSerializer
     permission_classes = [AllowAny]
     throttle_classes = [ScopedRateThrottle]
@@ -42,17 +50,21 @@ class LoginView(TokenObtainPairView):
 
 
 class RefreshView(TokenRefreshView):
+    """Defines RefreshView for this app and is used by the serializers, views, routes, or admin when imported."""
     permission_classes = [AllowAny]
 
 
 class CurrentUserView(APIView):
+    """Defines CurrentUserView for this app and is used by the serializers, views, routes, or admin when imported."""
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        """Handles get, using the declared parameters and returning the expected value or API response."""
         return Response(UserSerializer(request.user).data)
 
 
 class AdminUserViewSet(ModelViewSet):
+    """Defines AdminUserViewSet for this app and is used by the serializers, views, routes, or admin when imported."""
     queryset = (
         User.objects.select_related(
             "farmer",
@@ -74,6 +86,7 @@ class AdminUserViewSet(ModelViewSet):
     permission_classes = [IsMinistry]
 
     def get_queryset(self):
+        """Handles get_queryset, using the declared parameters and returning the expected value or API response."""
         queryset = super().get_queryset()
         role = clean_text(self.request.query_params.get("role")).lower()
         approval_status = clean_text(self.request.query_params.get("approval_status")).lower()
@@ -112,18 +125,21 @@ class AdminUserViewSet(ModelViewSet):
         return queryset.distinct()
 
     def get_serializer_class(self):
+        """Handles get_serializer_class, using the declared parameters and returning the expected value or API response."""
         if self.action in {"partial_update", "update"}:
             return UserApprovalUpdateSerializer
         return UserSerializer
 
     @action(detail=False, methods=["get"], url_path="pending")
     def pending_accounts(self, request):
+        """Handles pending_accounts, using the declared parameters and returning the expected value or API response."""
         queryset = self.get_queryset().filter(status=User.Status.PENDING)
         serializer = UserSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @staticmethod
     def _join_request_status(user_status):
+        """Handles _join_request_status, using the declared parameters and returning the expected value or API response."""
         if user_status == User.Status.APPROVED:
             return JoinRequest.RequestStatus.APPROVED
         if user_status == User.Status.REJECTED:
@@ -131,6 +147,7 @@ class AdminUserViewSet(ModelViewSet):
         return JoinRequest.RequestStatus.PENDING
 
     def _set_approval(self, user, approval_status):
+        """Handles _set_approval, using the declared parameters and returning the expected value or API response."""
         if user.role == User.Role.MINISTRY and approval_status != User.Status.APPROVED:
             return Response(
                 {"detail": "Ministry accounts cannot be rejected."},
@@ -152,19 +169,23 @@ class AdminUserViewSet(ModelViewSet):
 
     @action(detail=True, methods=["post"], url_path="approve")
     def approve_account(self, request, pk=None):
+        """Handles approve_account, using the declared parameters and returning the expected value or API response."""
         user = self.get_object()
         return self._set_approval(user, User.Status.APPROVED)
 
     @action(detail=True, methods=["post"], url_path="reject")
     def reject_account(self, request, pk=None):
+        """Handles reject_account, using the declared parameters and returning the expected value or API response."""
         user = self.get_object()
         return self._set_approval(user, User.Status.REJECTED)
 
 
 class NationalStatsView(APIView):
+    """Defines NationalStatsView for this app and is used by the serializers, views, routes, or admin when imported."""
     permission_classes = [IsMinistry]
 
     def get(self, request):
+        """Handles get, using the declared parameters and returning the expected value or API response."""
         grouped = (
             User.objects.filter(status=User.Status.APPROVED)
             .values("role")
@@ -207,9 +228,11 @@ class NationalStatsView(APIView):
 
 
 class GenerateReportView(APIView):
+    """Defines GenerateReportView for this app and is used by the serializers, views, routes, or admin when imported."""
     permission_classes = [IsMinistry]
 
     def get(self, request):
+        """Handles get, using the declared parameters and returning the expected value or API response."""
         region = clean_text(request.query_params.get("region"))
         category = clean_text(request.query_params.get("category"))
 
@@ -248,9 +271,11 @@ class GenerateReportView(APIView):
 
 
 class FarmProfileView(APIView):
+    """Defines FarmProfileView for this app and is used by the serializers, views, routes, or admin when imported."""
     permission_classes = [IsAuthenticated]
 
     def _ensure_farmer_farm(self, user):
+        """Handles _ensure_farmer_farm, using the declared parameters and returning the expected value or API response."""
         farmer = getattr(user, "farmer", None)
         if not farmer:
             farmer = Farmer.objects.create(person=user)
@@ -266,6 +291,7 @@ class FarmProfileView(APIView):
         return farmer, farm
 
     def get(self, request):
+        """Handles get, using the declared parameters and returning the expected value or API response."""
         user = request.user
         if user.role != User.Role.FARMER:
             return Response({"detail": "Only farmers can access profile."}, status=status.HTTP_403_FORBIDDEN)
@@ -274,6 +300,7 @@ class FarmProfileView(APIView):
         return Response(FarmerAccountSerializer().to_representation(user))
 
     def patch(self, request):
+        """Handles patch, using the declared parameters and returning the expected value or API response."""
         user = request.user
         if user.role != User.Role.FARMER:
             return Response({"detail": "Only farmers can update profile."}, status=status.HTTP_403_FORBIDDEN)
@@ -299,9 +326,11 @@ class FarmProfileView(APIView):
 
 
 class BuyerProfileView(APIView):
+    """Defines BuyerProfileView for this app and is used by the serializers, views, routes, or admin when imported."""
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        """Handles get, using the declared parameters and returning the expected value or API response."""
         if request.user.role != User.Role.BUYER:
             return Response({"detail": "Only buyers can access profile."}, status=status.HTTP_403_FORBIDDEN)
 
@@ -310,6 +339,7 @@ class BuyerProfileView(APIView):
         return Response(BuyerAccountSerializer().to_representation(request.user))
 
     def patch(self, request):
+        """Handles patch, using the declared parameters and returning the expected value or API response."""
         if request.user.role != User.Role.BUYER:
             return Response({"detail": "Only buyers can update profile."}, status=status.HTTP_403_FORBIDDEN)
 
@@ -323,9 +353,11 @@ class BuyerProfileView(APIView):
 
 
 class TransporterProfileView(APIView):
+    """Defines TransporterProfileView for this app and is used by the serializers, views, routes, or admin when imported."""
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        """Handles get, using the declared parameters and returning the expected value or API response."""
         if request.user.role != User.Role.TRANSPORTER:
             return Response({"detail": "Only transporters can access profile."}, status=status.HTTP_403_FORBIDDEN)
 
@@ -334,6 +366,7 @@ class TransporterProfileView(APIView):
         return Response(TransporterAccountSerializer().to_representation(request.user))
 
     def patch(self, request):
+        """Handles patch, using the declared parameters and returning the expected value or API response."""
         if request.user.role != User.Role.TRANSPORTER:
             return Response({"detail": "Only transporters can update profile."}, status=status.HTTP_403_FORBIDDEN)
 

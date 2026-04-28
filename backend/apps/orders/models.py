@@ -1,3 +1,9 @@
+"""
+File responsibility: Defines database tables and relationships for this Django app.
+Connects to the Django backend through imports, app configuration, API routing, or management commands.
+"""
+
+# Imports: load Django, DRF, models, serializers, and helpers used in this module.
 from django.db import models
 
 from apps.catalog.models import ProductList
@@ -5,7 +11,9 @@ from apps.users.models import Buyer, Farmer
 
 
 class Order(models.Model):
+    """Defines Order for this app and is used by the serializers, views, routes, or admin when imported."""
     class Status(models.IntegerChoices):
+        """Defines Status for this app and is used by the serializers, views, routes, or admin when imported."""
         PENDING = 0, "Pending"
         ACCEPTED = 1, "Accepted"
         DECLINED = 2, "Declined"
@@ -55,11 +63,13 @@ class Order(models.Model):
     )
 
     class Meta:
+        """Defines Meta for this app and is used by the serializers, views, routes, or admin when imported."""
         db_table = "Orders"
         ordering = ["-order_date"]
 
 
 class OrderItem(models.Model):
+    """Defines OrderItem for this app and is used by the serializers, views, routes, or admin when imported."""
     id = models.AutoField(primary_key=True, db_column="IDOrderItem")
     order = models.ForeignKey(Order, on_delete=models.CASCADE, db_column="IDOrder", related_name="items")
     product_list = models.ForeignKey(
@@ -74,6 +84,7 @@ class OrderItem(models.Model):
 
 
 class Payment(models.Model):
+    """Defines Payment for this app and is used by the serializers, views, routes, or admin when imported."""
     id = models.AutoField(primary_key=True, db_column="IDPayment")
     order = models.ForeignKey(Order, on_delete=models.CASCADE, db_column="IDOrder", related_name="payments")
     amount = models.IntegerField(db_column="Amount")
@@ -81,4 +92,5 @@ class Payment(models.Model):
     transaction_date = models.DateTimeField(auto_now_add=True, db_column="TransactionDate")
 
     class Meta:
+        """Defines Meta for this app and is used by the serializers, views, routes, or admin when imported."""
         db_table = "Payments"

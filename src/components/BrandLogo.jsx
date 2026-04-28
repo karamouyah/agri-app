@@ -1,3 +1,6 @@
+// File responsibility: Defines a reusable React UI component shared across pages.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
 const sizeMap = {
   sm: {
     shell: 'gap-2.5',

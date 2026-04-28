@@ -1,3 +1,9 @@
+"""
+File responsibility: Processes HTTP API requests, checks permissions, queries models, and returns REST responses.
+Connects to the Django backend through imports, app configuration, API routing, or management commands.
+"""
+
+# Imports: load Django, DRF, models, serializers, and helpers used in this module.
 from django.db.models import Prefetch, Q
 from rest_framework import generics
 from rest_framework.exceptions import ValidationError
@@ -19,21 +25,25 @@ from apps.users.models import Farmer, Farm
 
 
 class CategoryViewSet(ModelViewSet):
+    """Defines CategoryViewSet for this app and is used by the serializers, views, routes, or admin when imported."""
     queryset = Category.objects.all().order_by("name")
     serializer_class = CategorySerializer
 
     def get_permissions(self):
+        """Handles get_permissions, using the declared parameters and returning the expected value or API response."""
         if self.action in {"list", "retrieve"}:
             return [IsAuthenticated()]
         return [IsMinistry()]
 
 
 class AdminProductViewSet(ModelViewSet):
+    """Defines AdminProductViewSet for this app and is used by the serializers, views, routes, or admin when imported."""
     queryset = Product.objects.select_related("category").all().order_by("category__name", "name")
     serializer_class = AdminProductSerializer
     permission_classes = [IsMinistry]
 
     def get_queryset(self):
+        """Handles get_queryset, using the declared parameters and returning the expected value or API response."""
         queryset = super().get_queryset()
         query = self.request.query_params.get("q", "").strip()
         category = self.request.query_params.get("category", "").strip()
@@ -50,6 +60,7 @@ class AdminProductViewSet(ModelViewSet):
         return queryset
 
     def perform_destroy(self, instance):
+        """Handles perform_destroy, using the declared parameters and returning the expected value or API response."""
         listings = instance.listings.all()
 
         if listings.filter(order_items__isnull=False).exists():
@@ -61,6 +72,7 @@ class AdminProductViewSet(ModelViewSet):
 
 
 class ProductViewSet(ModelViewSet):
+    """Defines ProductViewSet for this app and is used by the serializers, views, routes, or admin when imported."""
     queryset = (
         ProductList.objects.select_related("product", "product__category", "farmer", "farmer__person")
         .prefetch_related(
@@ -76,6 +88,7 @@ class ProductViewSet(ModelViewSet):
     serializer_class = ProductSerializer
 
     def get_queryset(self):
+        """Handles get_queryset, using the declared parameters and returning the expected value or API response."""
         queryset = super().get_queryset()
         user = self.request.user
         query = self.request.query_params.get("q", "").strip()
@@ -109,6 +122,7 @@ class ProductViewSet(ModelViewSet):
         return queryset.distinct()
 
     def get_permissions(self):
+        """Handles get_permissions, using the declared parameters and returning the expected value or API response."""
         if self.action in {"list", "retrieve"}:
             return [IsAuthenticated()]
         if self.action in {"create", "update", "partial_update", "destroy"}:
@@ -116,6 +130,7 @@ class ProductViewSet(ModelViewSet):
         return [IsAuthenticated()]
 
     def perform_create(self, serializer):
+        """Handles perform_create, using the declared parameters and returning the expected value or API response."""
         user = self.request.user
         farmer = getattr(user, "farmer", None)
         if not farmer:
@@ -130,11 +145,13 @@ class ProductViewSet(ModelViewSet):
 
 
 class ControlledProductListView(generics.ListAPIView):
+    """Defines ControlledProductListView for this app and is used by the serializers, views, routes, or admin when imported."""
     serializer_class = ControlledProductSerializer
     permission_classes = [IsAuthenticated]
     queryset = Product.objects.select_related("category").filter(is_active=True).order_by("category__name", "name")
 
     def get_queryset(self):
+        """Handles get_queryset, using the declared parameters and returning the expected value or API response."""
         queryset = super().get_queryset()
         query = self.request.query_params.get("q", "").strip()
         category = self.request.query_params.get("category", "").strip()
@@ -149,9 +166,11 @@ class ControlledProductListView(generics.ListAPIView):
 
 
 class BuyerFilterOptionsView(APIView):
+    """Defines BuyerFilterOptionsView for this app and is used by the serializers, views, routes, or admin when imported."""
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        """Handles get, using the declared parameters and returning the expected value or API response."""
         wilayas = list(Wilaya.objects.order_by("id").values("id", "code", "name"))
         communes = list(Commune.objects.select_related("wilaya").order_by("name").values("id", "name", "wilaya_id"))
         locations = list(
@@ -173,10 +192,12 @@ class BuyerFilterOptionsView(APIView):
 
 
 class RelatedProductsView(generics.ListAPIView):
+    """Defines RelatedProductsView for this app and is used by the serializers, views, routes, or admin when imported."""
     serializer_class = ProductSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        """Handles get_queryset, using the declared parameters and returning the expected value or API response."""
         product_id = self.kwargs["product_id"]
         listing = ProductList.objects.select_related("product").filter(id=product_id).first()
         if not listing:

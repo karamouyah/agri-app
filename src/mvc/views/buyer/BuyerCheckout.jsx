@@ -1,3 +1,7 @@
+// File responsibility: Renders an application screen that is mounted from the React router for a specific user workflow.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
+// Imports: bring in React, routing, UI components, services, and helpers used below.
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FiCreditCard, FiMapPin, FiTruck } from 'react-icons/fi'
@@ -26,13 +30,20 @@ const initialAddress = {
 export default function BuyerCheckout() {
   const navigate = useNavigate()
   const { findCommune } = useLocations()
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [cartItems, setCartItems] = useState([])
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [address, setAddress] = useState(initialAddress)
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [paymentMethod, setPaymentMethod] = useState('cash_on_delivery')
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [loading, setLoading] = useState(false)
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [error, setError] = useState('')
 
+  // Effect: runs after render to load data, sync storage, or react to dependency changes.
   useEffect(() => {
+    // load handles this module workflow, using its parameters and returning JSX, data, or a service result.
     const load = async () => {
       const [cart, profile] = await Promise.all([getCart(), getShippingProfile()])
       setCartItems(cart)
@@ -45,6 +56,8 @@ export default function BuyerCheckout() {
   const totals = calculateCartTotals(cartItems)
   const selectedCommune = findCommune(address.communeId)
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleAddressChange handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleAddressChange = (event) => {
     const { name, value } = event.target
     setAddress((prev) => ({
@@ -54,6 +67,8 @@ export default function BuyerCheckout() {
     }))
   }
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleSubmit handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleSubmit = async (event) => {
     event.preventDefault()
     setError('')
@@ -94,6 +109,7 @@ export default function BuyerCheckout() {
         ]}
       />
 
+      // Form/event handling: validates input, updates state, or submits data when the user acts.
       <form onSubmit={handleSubmit} className="grid gap-4 lg:grid-cols-[1fr_320px]">
         <Card className="space-y-4 p-5">
           <div className="flex items-center gap-2">
@@ -102,8 +118,11 @@ export default function BuyerCheckout() {
           </div>
 
           <div className="grid gap-3 md:grid-cols-2">
+            // Form/event handling: validates input, updates state, or submits data when the user acts.
             <input name="fullName" required value={address.fullName} onChange={handleAddressChange} placeholder="Full name" className="field-control px-3 py-2" />
+            // Form/event handling: validates input, updates state, or submits data when the user acts.
             <input name="phone" required value={address.phone} onChange={handleAddressChange} placeholder="Phone" className="field-control px-3 py-2" />
+            // Form/event handling: validates input, updates state, or submits data when the user acts.
             <input name="address" required value={address.address} onChange={handleAddressChange} placeholder="Street" className="field-control md:col-span-2 px-3 py-2" />
             <div className="md:col-span-2">
               <LocationFields
@@ -115,7 +134,9 @@ export default function BuyerCheckout() {
                 hint="Delivery commune must match the selected wilaya."
               />
             </div>
+            // Form/event handling: validates input, updates state, or submits data when the user acts.
             <input name="city" value={selectedCommune?.name || address.city} onChange={handleAddressChange} placeholder="Commune display name" className="field-control px-3 py-2" readOnly />
+            // Form/event handling: validates input, updates state, or submits data when the user acts.
             <input name="postalCode" required value={address.postalCode} onChange={handleAddressChange} placeholder="Postal code" className="field-control px-3 py-2" />
           </div>
 

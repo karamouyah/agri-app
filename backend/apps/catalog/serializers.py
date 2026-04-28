@@ -1,3 +1,9 @@
+"""
+File responsibility: Validates request data and converts Django models into JSON API responses.
+Connects to the Django backend through imports, app configuration, API routing, or management commands.
+"""
+
+# Imports: load Django, DRF, models, serializers, and helpers used in this module.
 from rest_framework import serializers
 
 from apps.catalog.models import Category, Product, ProductList
@@ -5,12 +11,15 @@ from apps.users.models import Farmer
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    """Defines CategorySerializer for this app and is used by the serializers, views, routes, or admin when imported."""
     class Meta:
+        """Defines Meta for this app and is used by the serializers, views, routes, or admin when imported."""
         model = Category
         fields = ["id", "name"]
 
 
 class AdminProductSerializer(serializers.ModelSerializer):
+    """Defines AdminProductSerializer for this app and is used by the serializers, views, routes, or admin when imported."""
     category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
     category_name = serializers.CharField(source="category.name", read_only=True)
     min_price_dzd = serializers.IntegerField(source="min_price", min_value=0)
@@ -23,6 +32,7 @@ class AdminProductSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
+        """Defines Meta for this app and is used by the serializers, views, routes, or admin when imported."""
         model = Product
         fields = [
             "id",
@@ -38,6 +48,7 @@ class AdminProductSerializer(serializers.ModelSerializer):
         read_only_fields = ["unit", "is_active", "category_name"]
 
     def validate_name(self, value):
+        """Handles validate_name, using the declared parameters and returning the expected value or API response."""
         name = value.strip()
         if not name:
             raise serializers.ValidationError("Product name is required.")
@@ -52,6 +63,7 @@ class AdminProductSerializer(serializers.ModelSerializer):
         return name
 
     def validate(self, attrs):
+        """Handles validate, using the declared parameters and returning the expected value or API response."""
         min_price = attrs.get("min_price", self.instance.min_price if self.instance else 0)
         max_price = attrs.get("max_price", self.instance.max_price if self.instance else 0)
         suggested_price = attrs.get("suggested_price", self.instance.suggested_price if self.instance else None)
@@ -67,15 +79,18 @@ class AdminProductSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
+        """Handles create, using the declared parameters and returning the expected value or API response."""
         validated_data.pop("suggested_price", None)
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
+        """Handles update, using the declared parameters and returning the expected value or API response."""
         validated_data.pop("suggested_price", None)
         return super().update(instance, validated_data)
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    """Defines ProductSerializer for this app and is used by the serializers, views, routes, or admin when imported."""
     product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.filter(is_active=True))
     name = serializers.CharField(source="product.name", read_only=True)
     category = serializers.IntegerField(source="product.category_id", read_only=True)
@@ -101,6 +116,7 @@ class ProductSerializer(serializers.ModelSerializer):
     status = serializers.SerializerMethodField()
 
     class Meta:
+        """Defines Meta for this app and is used by the serializers, views, routes, or admin when imported."""
         model = ProductList
         fields = [
             "id",
@@ -130,6 +146,7 @@ class ProductSerializer(serializers.ModelSerializer):
         ]
 
     def validate_price(self, value):
+        """Handles validate_price, using the declared parameters and returning the expected value or API response."""
         product = self.initial_data.get("product")
 
         if product is not None:
@@ -153,9 +170,11 @@ class ProductSerializer(serializers.ModelSerializer):
         return value
 
     def get_currency(self, _obj):
+        """Handles get_currency, using the declared parameters and returning the expected value or API response."""
         return "DZD"
 
     def _get_primary_farm(self, obj):
+        """Handles _get_primary_farm, using the declared parameters and returning the expected value or API response."""
         prefetched_farms = getattr(obj.farmer, "prefetched_farms", None)
         if prefetched_farms is not None:
             return prefetched_farms[0] if prefetched_farms else None
@@ -163,42 +182,53 @@ class ProductSerializer(serializers.ModelSerializer):
         return obj.farmer.farms.select_related("wilaya", "commune").order_by("id").first()
 
     def get_farmer_name(self, obj):
+        """Handles get_farmer_name, using the declared parameters and returning the expected value or API response."""
         full = f"{obj.farmer.person.first_name} {obj.farmer.person.last_name}".strip()
         return full or obj.farmer.person.email
 
     def get_farmer_region(self, obj):
+        """Handles get_farmer_region, using the declared parameters and returning the expected value or API response."""
         farm = self._get_primary_farm(obj)
         return farm.location_label if farm else "Unknown"
 
     def get_farmer_wilaya_id(self, obj):
+        """Handles get_farmer_wilaya_id, using the declared parameters and returning the expected value or API response."""
         farm = self._get_primary_farm(obj)
         return farm.wilaya_id if farm else None
 
     def get_farmer_wilaya(self, obj):
+        """Handles get_farmer_wilaya, using the declared parameters and returning the expected value or API response."""
         farm = self._get_primary_farm(obj)
         return farm.wilaya.name if farm and farm.wilaya else ""
 
     def get_farmer_commune_id(self, obj):
+        """Handles get_farmer_commune_id, using the declared parameters and returning the expected value or API response."""
         farm = self._get_primary_farm(obj)
         return farm.commune_id if farm else None
 
     def get_farmer_commune(self, obj):
+        """Handles get_farmer_commune, using the declared parameters and returning the expected value or API response."""
         farm = self._get_primary_farm(obj)
         return farm.commune.name if farm and farm.commune else ""
 
     def get_quality(self, _obj):
+        """Handles get_quality, using the declared parameters and returning the expected value or API response."""
         return "A"
 
     def get_image_url(self, _obj):
+        """Handles get_image_url, using the declared parameters and returning the expected value or API response."""
         return ""
 
     def get_description(self, _obj):
+        """Handles get_description, using the declared parameters and returning the expected value or API response."""
         return ""
 
     def get_status(self, obj):
+        """Handles get_status, using the declared parameters and returning the expected value or API response."""
         return "available" if obj.quantity > 0 else "out of stock"
 
     def create(self, validated_data):
+        """Handles create, using the declared parameters and returning the expected value or API response."""
         product = validated_data["product"]
         farmer = validated_data["farmer"]
         if ProductList.objects.filter(product=product, farmer=farmer).exists():
@@ -208,6 +238,7 @@ class ProductSerializer(serializers.ModelSerializer):
         return ProductList.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
+        """Handles update, using the declared parameters and returning the expected value or API response."""
         target_product = validated_data.get("product", instance.product)
 
         if not target_product.is_active:
@@ -237,12 +268,14 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class ControlledProductSerializer(serializers.ModelSerializer):
+    """Defines ControlledProductSerializer for this app and is used by the serializers, views, routes, or admin when imported."""
     category = serializers.CharField(source="category.name", read_only=True)
     min_price_dzd = serializers.IntegerField(source="min_price", read_only=True)
     max_price_dzd = serializers.IntegerField(source="max_price", read_only=True)
     currency = serializers.SerializerMethodField()
 
     class Meta:
+        """Defines Meta for this app and is used by the serializers, views, routes, or admin when imported."""
         model = Product
         fields = [
             "id",
@@ -258,4 +291,5 @@ class ControlledProductSerializer(serializers.ModelSerializer):
         ]
 
     def get_currency(self, _obj):
+        """Handles get_currency, using the declared parameters and returning the expected value or API response."""
         return "DZD"

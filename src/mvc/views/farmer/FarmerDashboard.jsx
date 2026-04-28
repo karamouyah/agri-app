@@ -1,3 +1,7 @@
+// File responsibility: Renders an application screen that is mounted from the React router for a specific user workflow.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
+// Imports: bring in React, routing, UI components, services, and helpers used below.
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
@@ -18,11 +22,16 @@ import { Card, SkeletonBlock, StatCard, StatusBadge, buttonStyles, cn } from '..
 
 export default function FarmerDashboard() {
   const { user } = useAuth()
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [orders, setOrders] = useState([])
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [revenue, setRevenue] = useState({ total: 0, series: [] })
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [loading, setLoading] = useState(true)
 
+  // Effect: runs after render to load data, sync storage, or react to dependency changes.
   useEffect(() => {
+    // load handles this module workflow, using its parameters and returning JSX, data, or a service result.
     const load = async () => {
       const [ordersData, revenueData] = await Promise.all([getOrders(), getRevenueData()])
       setOrders(ordersData)
@@ -58,7 +67,7 @@ export default function FarmerDashboard() {
     <section className="app-page">
       <PageHero
         eyebrow="Dashboard"
-        title={"Welcome, ${user?.farmName || user?.name || 'Farmer'}"}
+        title={`Welcome, ${user?.farmName || user?.name || 'Farmer'}`}
         description="Follow your orders, track your earnings, and keep your farm products up to date."
         variant="farmer"
         stats={[

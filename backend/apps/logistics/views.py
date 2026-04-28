@@ -1,3 +1,9 @@
+"""
+File responsibility: Processes HTTP API requests, checks permissions, queries models, and returns REST responses.
+Connects to the Django backend through imports, app configuration, API routing, or management commands.
+"""
+
+# Imports: load Django, DRF, models, serializers, and helpers used in this module.
 from django.db.models import Sum
 from rest_framework import generics, status
 from rest_framework.response import Response
@@ -10,6 +16,7 @@ from apps.users.models import Transporter
 
 
 def mission_queryset():
+    """Handles mission_queryset, using the declared parameters and returning the expected value or API response."""
     return Shipment.objects.select_related(
         "order",
         "order__buyer__person",
@@ -24,6 +31,7 @@ def mission_queryset():
 
 
 def eligible_shipments_for_transporter(transporter):
+    """Handles eligible_shipments_for_transporter, using the declared parameters and returning the expected value or API response."""
     if not transporter or not transporter.max_load_kg:
         return Shipment.objects.none()
 
@@ -40,18 +48,22 @@ def eligible_shipments_for_transporter(transporter):
 
 
 class DeliveryRequestsView(generics.ListAPIView):
+    """Defines DeliveryRequestsView for this app and is used by the serializers, views, routes, or admin when imported."""
     serializer_class = MissionSerializer
     permission_classes = [IsTransporter]
 
     def get_queryset(self):
+        """Handles get_queryset, using the declared parameters and returning the expected value or API response."""
         return eligible_shipments_for_transporter(getattr(self.request.user, "transporter", None))
 
 
 class ActiveDeliveriesView(generics.ListAPIView):
+    """Defines ActiveDeliveriesView for this app and is used by the serializers, views, routes, or admin when imported."""
     serializer_class = MissionSerializer
     permission_classes = [IsTransporter]
 
     def get_queryset(self):
+        """Handles get_queryset, using the declared parameters and returning the expected value or API response."""
         transporter = getattr(self.request.user, "transporter", None)
         if not transporter:
             return Shipment.objects.none()
@@ -63,10 +75,12 @@ class ActiveDeliveriesView(generics.ListAPIView):
 
 
 class CompletedDeliveriesView(generics.ListAPIView):
+    """Defines CompletedDeliveriesView for this app and is used by the serializers, views, routes, or admin when imported."""
     serializer_class = MissionSerializer
     permission_classes = [IsTransporter]
 
     def get_queryset(self):
+        """Handles get_queryset, using the declared parameters and returning the expected value or API response."""
         transporter = getattr(self.request.user, "transporter", None)
         if not transporter:
             return Shipment.objects.none()
@@ -78,6 +92,7 @@ class CompletedDeliveriesView(generics.ListAPIView):
 
 
 class DeliveryByIdView(generics.RetrieveAPIView):
+    """Defines DeliveryByIdView for this app and is used by the serializers, views, routes, or admin when imported."""
     serializer_class = MissionSerializer
     permission_classes = [IsTransporter]
     lookup_field = "tracking_number"
@@ -86,9 +101,11 @@ class DeliveryByIdView(generics.RetrieveAPIView):
 
 
 class AcceptMissionView(APIView):
+    """Defines AcceptMissionView for this app and is used by the serializers, views, routes, or admin when imported."""
     permission_classes = [IsTransporter]
 
     def post(self, request, mission_id):
+        """Handles post, using the declared parameters and returning the expected value or API response."""
         shipment = mission_queryset().filter(tracking_number=mission_id).first()
         if not shipment:
             return Response({"detail": "Mission not found."}, status=status.HTTP_404_NOT_FOUND)
@@ -117,9 +134,11 @@ class AcceptMissionView(APIView):
 
 
 class DeclineMissionView(APIView):
+    """Defines DeclineMissionView for this app and is used by the serializers, views, routes, or admin when imported."""
     permission_classes = [IsTransporter]
 
     def post(self, request, mission_id):
+        """Handles post, using the declared parameters and returning the expected value or API response."""
         shipment = mission_queryset().filter(tracking_number=mission_id).first()
         if not shipment:
             return Response({"detail": "Mission not found."}, status=status.HTTP_404_NOT_FOUND)
@@ -129,9 +148,11 @@ class DeclineMissionView(APIView):
 
 
 class UpdateDeliveryStatusView(APIView):
+    """Defines UpdateDeliveryStatusView for this app and is used by the serializers, views, routes, or admin when imported."""
     permission_classes = [IsTransporter]
 
     def patch(self, request, mission_id):
+        """Handles patch, using the declared parameters and returning the expected value or API response."""
         transporter = getattr(request.user, "transporter", None)
         if not transporter:
             return Response({"detail": "Mission not found."}, status=status.HTTP_404_NOT_FOUND)

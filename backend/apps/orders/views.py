@@ -1,3 +1,9 @@
+"""
+File responsibility: Processes HTTP API requests, checks permissions, queries models, and returns REST responses.
+Connects to the Django backend through imports, app configuration, API routing, or management commands.
+"""
+
+# Imports: load Django, DRF, models, serializers, and helpers used in this module.
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -15,10 +21,12 @@ from apps.users.models import User
 
 
 class CheckoutView(generics.CreateAPIView):
+    """Defines CheckoutView for this app and is used by the serializers, views, routes, or admin when imported."""
     serializer_class = CheckoutSerializer
     permission_classes = [IsBuyer]
 
     def create(self, request, *args, **kwargs):
+        """Handles create, using the declared parameters and returning the expected value or API response."""
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         order = serializer.save()
@@ -26,10 +34,12 @@ class CheckoutView(generics.CreateAPIView):
 
 
 class MyOrdersView(generics.ListAPIView):
+    """Defines MyOrdersView for this app and is used by the serializers, views, routes, or admin when imported."""
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        """Handles get_queryset, using the declared parameters and returning the expected value or API response."""
         user = self.request.user
         base = Order.objects.select_related(
             "delivery_wilaya",
@@ -46,9 +56,11 @@ class MyOrdersView(generics.ListAPIView):
 
 
 class UpdateOrderStatusView(APIView):
+    """Defines UpdateOrderStatusView for this app and is used by the serializers, views, routes, or admin when imported."""
     permission_classes = [IsAuthenticated]
 
     def patch(self, request, public_id):
+        """Handles patch, using the declared parameters and returning the expected value or API response."""
         order = Order.objects.filter(id=public_id).first()
         if not order:
             return Response({"detail": "Order not found."}, status=status.HTTP_404_NOT_FOUND)
@@ -67,10 +79,12 @@ class UpdateOrderStatusView(APIView):
 
 
 class MyInvoicesView(generics.ListAPIView):
+    """Defines MyInvoicesView for this app and is used by the serializers, views, routes, or admin when imported."""
     serializer_class = InvoiceSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        """Handles get_queryset, using the declared parameters and returning the expected value or API response."""
         user = self.request.user
         base = Payment.objects.select_related("order")
         if user.role == User.Role.BUYER and hasattr(user, "buyer"):

@@ -1,3 +1,9 @@
+"""
+File responsibility: Connects the Django project URL paths to each backend app API router.
+Connects to the Django backend through imports, app configuration, API routing, or management commands.
+"""
+
+# Imports: load Django, DRF, models, serializers, and helpers used in this module.
 from django.contrib import admin
 from django.urls import include, path
 from rest_framework.response import Response
@@ -5,18 +11,22 @@ from rest_framework.views import APIView
 
 
 class HealthView(APIView):
+    """Defines HealthView for this app and is used by the serializers, views, routes, or admin when imported."""
     permission_classes = []
     authentication_classes = []
 
     def get(self, request):
+        """Handles get, using the declared parameters and returning the expected value or API response."""
         return Response({"status": "ok"})
 
 
 class ApiRootView(APIView):
+    """Defines ApiRootView for this app and is used by the serializers, views, routes, or admin when imported."""
     permission_classes = []
     authentication_classes = []
 
     def get(self, request):
+        """Handles get, using the declared parameters and returning the expected value or API response."""
         return Response(
             {
                 "message": "Agri API is running.",

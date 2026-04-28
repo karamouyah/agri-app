@@ -1,3 +1,9 @@
+"""
+File responsibility: Stores static seed data that is imported by migrations, commands, or serializers.
+Connects to the Django backend through imports, app configuration, API routing, or management commands.
+"""
+
+# Imports: load Django, DRF, models, serializers, and helpers used in this module.
 import json
 from pathlib import Path
 
@@ -6,6 +12,7 @@ CATALOG_PATH = Path(__file__).resolve().parents[3] / "shared" / "controlled-prod
 
 
 def load_controlled_catalog():
+    """Handles load_controlled_catalog, using the declared parameters and returning the expected value or API response."""
     with CATALOG_PATH.open("r", encoding="utf-8") as catalog_file:
         raw_catalog = json.load(catalog_file)
 
@@ -27,6 +34,7 @@ def load_controlled_catalog():
 
 
 def sync_controlled_catalog(CategoryModel, ProductModel):
+    """Handles sync_controlled_catalog, using the declared parameters and returning the expected value or API response."""
     catalog = load_controlled_catalog()
     allowed_names = set()
     category_cache = {}

@@ -1,3 +1,6 @@
+/* File responsibility: Contains global styling rules consumed by the React frontend. */
+/* Used by React components to keep layout, theme, and responsive behavior consistent. */
+
 #root {
   max-width: 1280px;
   margin: 0 auto;

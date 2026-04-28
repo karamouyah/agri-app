@@ -1,3 +1,7 @@
+// File responsibility: Renders an application screen that is mounted from the React router for a specific user workflow.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
+// Imports: bring in React, routing, UI components, services, and helpers used below.
 import { useEffect, useState } from 'react'
 import { FiMapPin, FiPhone, FiSave, FiType } from 'react-icons/fi'
 import { getFarmProfile, updateFarmProfile } from '../../controllers/farmerController'
@@ -15,11 +19,16 @@ const initialForm = {
 }
 
 export default function FarmerProfile() {
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [formData, setFormData] = useState(initialForm)
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [message, setMessage] = useState('')
+  // State: stores local UI data and is updated by event handlers or API responses.
   const [loading, setLoading] = useState(true)
 
+  // Effect: runs after render to load data, sync storage, or react to dependency changes.
   useEffect(() => {
+    // load handles this module workflow, using its parameters and returning JSX, data, or a service result.
     const load = async () => {
       const profile = await getFarmProfile()
       setFormData(profile)
@@ -29,6 +38,8 @@ export default function FarmerProfile() {
     load()
   }, [])
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleChange handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleChange = (event) => {
     const { name, value } = event.target
     setFormData((prev) => ({
@@ -38,6 +49,8 @@ export default function FarmerProfile() {
     }))
   }
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleSubmit handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleSubmit = async (event) => {
     event.preventDefault()
     await updateFarmProfile(formData)
@@ -66,6 +79,7 @@ export default function FarmerProfile() {
         ]}
       />
 
+      // Form/event handling: validates input, updates state, or submits data when the user acts.
       <Card as="form" onSubmit={handleSubmit} className="p-5">
           <div className="grid gap-4 md:grid-cols-2">
             <div>

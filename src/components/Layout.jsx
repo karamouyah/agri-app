@@ -1,3 +1,7 @@
+// File responsibility: Defines a reusable React UI component shared across pages.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
+// Imports: bring in React, routing, UI components, services, and helpers used below.
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import {
   FiBarChart2,
@@ -74,6 +78,7 @@ const workspaceNotes = {
   ministry: 'Approvals and reporting support platform oversight.',
 }
 
+// userDisplayName handles this module workflow, using its parameters and returning JSX, data, or a service result.
 function userDisplayName(user) {
   if (!user) return 'Workspace User'
   return user.name || user.email || 'Workspace User'
@@ -88,6 +93,8 @@ export default function Layout({ role }) {
   const meta = roleMeta[role] || roleMeta.farmer
   const activeLink = links.find((link) => location.pathname.startsWith(link.to))
 
+// Form/event handling: validates input, updates state, or submits data when the user acts.
+  // handleLogout handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleLogout = () => {
     logout()
     navigate('/login')
@@ -154,6 +161,7 @@ export default function Layout({ role }) {
                 <div className="hidden md:block border-r border-slate-200 pr-3 mr-1 dark:border-slate-700">
                   <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{userDisplayName(user)}</p>
                 </div>
+                // Form/event handling: validates input, updates state, or submits data when the user acts.
                 <button type="button" onClick={handleLogout} className={buttonStyles.ghost}>
                   <FiLogOut />
                   Logout

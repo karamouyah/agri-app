@@ -1,3 +1,7 @@
+// File responsibility: Defines the frontend route tree and connects public pages, role-protected layouts, and dashboard screens.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
+// Imports: bring in React, routing, UI components, services, and helpers used below.
 import { Navigate, Route, Routes } from 'react-router-dom'
 import Layout from './components/Layout'
 import PrivateRoute from './components/PrivateRoute'
@@ -28,6 +32,7 @@ import AdminUsers from './mvc/views/admin/AdminUsers'
 import AdminProducts from './mvc/views/admin/AdminProducts'
 import AdminReports from './mvc/views/admin/AdminReports'
 
+// App handles this module workflow, using its parameters and returning JSX, data, or a service result.
 function App() {
   const { isAuthenticated, user } = useAuth()
 

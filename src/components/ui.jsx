@@ -1,5 +1,10 @@
+// File responsibility: Defines a reusable React UI component shared across pages.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
+// Imports: bring in React, routing, UI components, services, and helpers used below.
 import { Link } from 'react-router-dom'
 
+// cn handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export function cn(...classes) {
   return classes.filter(Boolean).join(' ')
 }
@@ -13,11 +18,12 @@ export const buttonStyles = {
     'inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-50 dark:focus-visible:ring-offset-slate-900',
 }
 
+// Card handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export function Card({ as: Tag = 'div', className = '', children, ...props }) {
   return (
     <Tag
       className={cn(
-        'rounded-xl border border-slate-200 bg-white shadow-sm',
+        'rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden',
         'dark:border-slate-800 dark:bg-slate-900',
         className,
       )}
@@ -28,6 +34,7 @@ export function Card({ as: Tag = 'div', className = '', children, ...props }) {
   )
 }
 
+// SoftCard handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export function SoftCard({ className = '', children, ...props }) {
   return (
     <div
@@ -43,6 +50,7 @@ export function SoftCard({ className = '', children, ...props }) {
   )
 }
 
+// Eyebrow handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export function Eyebrow({ children, className = '' }) {
   return (
     <p className={cn('text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400', className)}>
@@ -51,6 +59,7 @@ export function Eyebrow({ children, className = '' }) {
   )
 }
 
+// SectionHeader handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export function SectionHeader({ eyebrow, title, description, actions, className = '' }) {
   return (
     <div className={cn('flex flex-col gap-3 md:flex-row md:items-end md:justify-between', className)}>
@@ -70,6 +79,7 @@ const toneStyles = {
   sky: 'bg-sky-50 text-sky-700 dark:bg-sky-500/10 dark:text-sky-400',
 }
 
+// StatCard handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export function StatCard({ icon: Icon, label, value, help, tone = 'emerald', className = '' }) {
   return (
     <Card className={cn('p-4', className)}>
@@ -89,6 +99,7 @@ export function StatCard({ icon: Icon, label, value, help, tone = 'emerald', cla
   )
 }
 
+// PageHeader handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export function PageHeader({
   eyebrow,
   title,
@@ -131,6 +142,7 @@ export function PageHeader({
   )
 }
 
+// StatusBadge handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export function StatusBadge({ status, className = '' }) {
   const value = String(status || 'unknown').toLowerCase()
 
@@ -156,6 +168,7 @@ export function StatusBadge({ status, className = '' }) {
   )
 }
 
+// FormField handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export function FormField({ label, icon: Icon, hint, children, className = '' }) {
   return (
     <label className={cn('block', className)}>
@@ -169,6 +182,7 @@ export function FormField({ label, icon: Icon, hint, children, className = '' })
   )
 }
 
+// Input handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export function Input({ className = '', ...props }) {
   return (
     <input
@@ -181,6 +195,7 @@ export function Input({ className = '', ...props }) {
   )
 }
 
+// Select handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export function Select({ className = '', children, ...props }) {
   return (
     <select
@@ -195,6 +210,7 @@ export function Select({ className = '', children, ...props }) {
   )
 }
 
+// Textarea handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export function Textarea({ className = '', ...props }) {
   return (
     <textarea
@@ -207,10 +223,12 @@ export function Textarea({ className = '', ...props }) {
   )
 }
 
+// SkeletonBlock handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export function SkeletonBlock({ className = '' }) {
   return <div className={cn('animate-pulse rounded-lg bg-slate-200/70 dark:bg-slate-800/80', className)} />
 }
 
+// EmptyState handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export function EmptyState({ icon: Icon, title, description, action, className = '' }) {
   return (
     <Card className={cn('flex flex-col items-center px-6 py-10 text-center', className)}>
@@ -236,6 +254,7 @@ export function EmptyState({ icon: Icon, title, description, action, className =
   )
 }
 
+// ActionCard handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export function ActionCard({ to, onClick, icon: Icon, title, description, meta, className = '' }) {
   const shared = cn(
     'group flex h-full flex-col rounded-xl border border-slate-200 bg-white p-5 text-left transition-colors hover:border-slate-300 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700 dark:hover:bg-slate-800/50',

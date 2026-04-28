@@ -1,5 +1,10 @@
+// File responsibility: Centralizes browser-to-backend API calls and response shaping for the frontend.
+// Used by the React frontend or build tooling as part of the full-stack agriculture app.
+
+// Imports: bring in React, routing, UI components, services, and helpers used below.
 import { apiRequest } from './apiClient'
 
+// normalizeMission handles this module workflow, using its parameters and returning JSX, data, or a service result.
 const normalizeMission = (mission) => ({
   id: mission.id,
   orderId: mission.order_id,
@@ -20,6 +25,7 @@ const normalizeMission = (mission) => ({
   status: mission.status,
 })
 
+// getTransporterProfile handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const getTransporterProfile = async () => {
   const profile = await apiRequest('/auth/transporter/profile/')
   return {
@@ -33,6 +39,7 @@ export const getTransporterProfile = async () => {
   }
 }
 
+// updateTransporterProfile handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const updateTransporterProfile = async (profile) => {
   const payload = await apiRequest('/auth/transporter/profile/', {
     method: 'PATCH',
@@ -55,31 +62,37 @@ export const updateTransporterProfile = async (profile) => {
   }
 }
 
+// getDeliveryRequests handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const getDeliveryRequests = async () => {
   const data = await apiRequest('/logistics/requests/')
   return data.map(normalizeMission)
 }
 
+// getActiveDeliveries handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const getActiveDeliveries = async () => {
   const data = await apiRequest('/logistics/active/')
   return data.map(normalizeMission)
 }
 
+// getDeliveryById handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const getDeliveryById = async (id) => {
   const data = await apiRequest(`/logistics/missions/${id}/`)
   return normalizeMission(data)
 }
 
+// acceptMission handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const acceptMission = async (id) => {
   const data = await apiRequest(`/logistics/missions/${id}/accept/`, { method: 'POST' })
   return normalizeMission(data)
 }
 
+// declineMission handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const declineMission = async (id) => {
   const data = await apiRequest(`/logistics/missions/${id}/decline/`, { method: 'POST' })
   return normalizeMission(data)
 }
 
+// updateDeliveryStatus handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const updateDeliveryStatus = async (id, newStatus) => {
   const data = await apiRequest(`/logistics/missions/${id}/status/`, {
     method: 'PATCH',

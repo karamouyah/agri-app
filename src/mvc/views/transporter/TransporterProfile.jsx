@@ -40,15 +40,11 @@ export default function TransporterProfile() {
 
     load()
   }, [])
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleChange handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleChange = (event) => {
     const { name, value } = event.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleSubmit handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -77,8 +73,6 @@ export default function TransporterProfile() {
           { label: 'Coverage', value: formData.deliveryWilayaIds.length, help: 'Delivery wilayas currently selected' },
         ]}
       />
-
-      // Form/event handling: validates input, updates state, or submits data when the user acts.
       <Card as="form" onSubmit={handleSubmit} className="space-y-4 p-5">
         <FormField label="Vehicle Type" icon={FiTruck}>
           <Input name="vehicle" value={formData.vehicle} onChange={handleChange} required />

@@ -38,15 +38,11 @@ export default function BuyerCart() {
   }, [])
 
   const totals = calculateCartTotals(items)
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleQuantityChange handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleQuantityChange = async (productId, quantity) => {
     await updateCartQuantity(productId, quantity)
     await load()
   }
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleRemove handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleRemove = async (productId) => {
     await removeCartItem(productId)

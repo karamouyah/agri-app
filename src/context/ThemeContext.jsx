@@ -77,8 +77,6 @@ export function ThemeProvider({ children }) {
     }
 
     syncTheme()
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
     // handleChange handles this module workflow, using its parameters and returning JSX, data, or a service result.
     const handleChange = () => {
       if (mode === 'auto') {

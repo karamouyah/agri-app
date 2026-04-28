@@ -39,15 +39,11 @@ export default function LoginPage() {
   if (isAuthenticated && user) {
     return <Navigate to={getDashboardPath(user.role)} replace />
   }
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleChange handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleChange = (event) => {
     const { name, value } = event.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleSubmit handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -119,8 +115,6 @@ export default function LoginPage() {
                 {notice}
               </div>
             ) : null}
-
-            // Form/event handling: validates input, updates state, or submits data when the user acts.
             <form onSubmit={handleSubmit} className="mt-6 space-y-4">
               <FormField label="Email">
                 <Input

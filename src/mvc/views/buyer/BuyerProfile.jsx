@@ -40,8 +40,6 @@ export default function BuyerProfile() {
 
     load()
   }, [])
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleChange handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleChange = (event) => {
     const { name, value } = event.target
@@ -51,8 +49,6 @@ export default function BuyerProfile() {
       ...(name === 'wilayaId' ? { communeId: '' } : {}),
     }))
   }
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleSubmit handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -81,8 +77,6 @@ export default function BuyerProfile() {
           { label: 'Commune', value: formData.communeId || '-', help: 'Commune linked to the selected wilaya' },
         ]}
       />
-
-      // Form/event handling: validates input, updates state, or submits data when the user acts.
       <Card as="form" onSubmit={handleSubmit} className="space-y-4 p-5">
         <FormField label="Street Address" icon={FiType}>
           <Input name="address" value={formData.address} onChange={handleChange} required />

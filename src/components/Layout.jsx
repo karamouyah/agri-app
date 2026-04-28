@@ -92,8 +92,6 @@ export default function Layout({ role }) {
   const links = navByRole[role] || []
   const meta = roleMeta[role] || roleMeta.farmer
   const activeLink = links.find((link) => location.pathname.startsWith(link.to))
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleLogout handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleLogout = () => {
     logout()
@@ -161,7 +159,6 @@ export default function Layout({ role }) {
                 <div className="hidden md:block border-r border-slate-200 pr-3 mr-1 dark:border-slate-700">
                   <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{userDisplayName(user)}</p>
                 </div>
-                // Form/event handling: validates input, updates state, or submits data when the user acts.
                 <button type="button" onClick={handleLogout} className={buttonStyles.ghost}>
                   <FiLogOut />
                   Logout

@@ -37,8 +37,6 @@ export default function FarmerProfile() {
 
     load()
   }, [])
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleChange handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleChange = (event) => {
     const { name, value } = event.target
@@ -48,8 +46,6 @@ export default function FarmerProfile() {
       ...(name === 'wilaya_id' ? { commune_id: '' } : {}),
     }))
   }
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleSubmit handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -78,8 +74,6 @@ export default function FarmerProfile() {
           { label: 'Contact', value: formData.contactInfo || '-', help: 'Primary number shown on the platform' },
         ]}
       />
-
-      // Form/event handling: validates input, updates state, or submits data when the user acts.
       <Card as="form" onSubmit={handleSubmit} className="p-5">
           <div className="grid gap-4 md:grid-cols-2">
             <div>

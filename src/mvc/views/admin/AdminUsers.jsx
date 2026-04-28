@@ -122,24 +122,18 @@ export default function AdminUsers() {
     setSelectedUser(null)
     setInfoMessage('')
   }
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleApprove handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleApprove = async (id) => {
     await approveUser(id)
     setFeedback('Account approved successfully.')
     await load()
   }
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleReject handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleReject = async (id) => {
     await rejectUser(id)
     setFeedback('Account rejected.')
     await load()
   }
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleRequestInfo handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleRequestInfo = async () => {
     if (!selectedUser || !infoMessage.trim()) return
@@ -372,7 +366,6 @@ export default function AdminUsers() {
               >
                 Reject
               </button>
-              // Form/event handling: validates input, updates state, or submits data when the user acts.
               <button type="button" onClick={handleRequestInfo} className={buttonStyles.primary}>
                 Send Request
               </button>

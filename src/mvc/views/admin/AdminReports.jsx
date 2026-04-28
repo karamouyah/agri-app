@@ -33,15 +33,11 @@ export default function AdminReports() {
   const [formData, setFormData] = useState(initialForm)
   // State: stores local UI data and is updated by event handlers or API responses.
   const [result, setResult] = useState({ rows: [] })
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleChange handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleChange = (event) => {
     const { name, value } = event.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleGenerate handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleGenerate = async (event) => {
     event.preventDefault()
@@ -80,8 +76,6 @@ export default function AdminReports() {
           title="Build and export a report"
           description="Generate a fresh report, then export the current data view as CSV or PDF."
         />
-
-        // Form/event handling: validates input, updates state, or submits data when the user acts.
         <form onSubmit={handleGenerate} className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-[1fr_1fr_1fr_1fr_auto]">
           <Select name="region" value={formData.region} onChange={handleChange}>
             <option value="">All Regions</option>

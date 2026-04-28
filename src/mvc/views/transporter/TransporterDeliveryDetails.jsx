@@ -33,8 +33,6 @@ export default function TransporterDeliveryDetails() {
 
     load()
   }, [id])
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleUpdate handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleUpdate = async () => {
     const updated = await updateDeliveryStatus(id, status)
@@ -126,8 +124,6 @@ export default function TransporterDeliveryDetails() {
                 </option>
               ))}
             </Select>
-
-            // Form/event handling: validates input, updates state, or submits data when the user acts.
             <button type="button" onClick={handleUpdate} className="btn-primary w-full px-4 py-3 text-sm">
               <span className="inline-flex items-center gap-2">
                 <FiSave />

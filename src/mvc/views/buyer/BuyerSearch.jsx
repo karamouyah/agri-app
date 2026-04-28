@@ -62,8 +62,6 @@ export default function BuyerSearch() {
     // Initial browse view should load the first catalog page once.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleFilterChange handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleFilterChange = (event) => {
     const { name, value } = event.target
@@ -73,21 +71,15 @@ export default function BuyerSearch() {
       ...(name === 'wilaya' ? { commune: '' } : {}),
     }))
   }
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleSearch handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleSearch = async (event) => {
     event.preventDefault()
     await load(1, query, filters)
   }
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handlePage handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handlePage = async (nextPage) => {
     await load(nextPage, query, filters)
   }
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleAddToCart handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleAddToCart = async (product) => {
     await addToCart(product, 1)
@@ -112,7 +104,6 @@ export default function BuyerSearch() {
       />
 
       <Card className="p-5">
-        // Form/event handling: validates input, updates state, or submits data when the user acts.
         <form onSubmit={handleSearch} className="mt-1 flex flex-col gap-2 sm:flex-row">
           <Input
             value={query}

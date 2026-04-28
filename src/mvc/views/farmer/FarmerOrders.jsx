@@ -47,15 +47,11 @@ export default function FarmerOrders() {
       active = false
     }
   }, [selectedOrder])
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleAccept handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleAccept = async (id) => {
     await acceptOrder(id)
     await loadOrders()
   }
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleDecline handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleDecline = async (id) => {
     await declineOrder(id)
@@ -80,8 +76,6 @@ export default function FarmerOrders() {
     }
     setSelectedIds(filteredOrders.map((order) => order.id))
   }
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleBulkConfirm handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleBulkConfirm = async () => {
     const pendingIds = selectedIds.filter((id) =>

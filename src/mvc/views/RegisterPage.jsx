@@ -123,8 +123,6 @@ export default function RegisterPage() {
     () => roleFieldConfig[formData.role] || roleFieldConfig.farmer,
     [formData.role],
   )
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleChange handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleChange = (event) => {
     const { name, value } = event.target
@@ -135,8 +133,6 @@ export default function RegisterPage() {
       ...(name === 'wilayaId' ? { communeId: '' } : {}),
     }))
   }
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleSubmit handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -210,8 +206,6 @@ export default function RegisterPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">Create Account</p>
             <h2 className="mt-2 text-xl font-semibold text-slate-900 dark:text-slate-100">Role-based signup</h2>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">The form updates based on the role you choose.</p>
-
-            // Form/event handling: validates input, updates state, or submits data when the user acts.
             <form onSubmit={handleSubmit} className="mt-6 space-y-4">
               <FormField label="Full Name">
                 <Input id="name" name="name" required value={formData.name} onChange={handleChange} />

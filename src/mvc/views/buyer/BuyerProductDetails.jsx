@@ -40,8 +40,6 @@ export default function BuyerProductDetails() {
   if (!product) {
     return <p className="text-sm text-slate-600 dark:text-slate-300">Product not found.</p>
   }
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleAddToCart handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleAddToCart = async () => {
     await addToCart(product, quantity)
@@ -107,7 +105,6 @@ export default function BuyerProductDetails() {
                 onChange={(event) => setQuantity(Number(event.target.value))}
                 className="field-control w-24 px-3 py-2"
               />
-              // Form/event handling: validates input, updates state, or submits data when the user acts.
               <button type="button" onClick={handleAddToCart} className="btn-primary px-4 py-2 text-sm">
                 <span className="inline-flex items-center gap-2">
                   <FiPlus />

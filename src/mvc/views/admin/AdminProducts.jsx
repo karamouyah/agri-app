@@ -129,8 +129,6 @@ export default function AdminProducts() {
       setCurrentPage(totalPages)
     }
   }, [currentPage, totalPages])
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleAddCategory handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleAddCategory = async (event) => {
     event.preventDefault()
@@ -145,8 +143,6 @@ export default function AdminProducts() {
       setCategoryError(error?.message || 'Unable to add this category right now.')
     }
   }
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleDeleteCategory handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleDeleteCategory = async (id) => {
     const confirmed = window.confirm('Delete this category?')
@@ -160,8 +156,6 @@ export default function AdminProducts() {
       setCategoryError(error?.message || 'Unable to delete this category right now.')
     }
   }
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleSaveCategory handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleSaveCategory = async () => {
     if (!editingCategory || !editName.trim()) return
@@ -176,8 +170,6 @@ export default function AdminProducts() {
       setCategoryError(error?.message || 'Unable to save this category right now.')
     }
   }
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleProductChange handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleProductChange = (event) => {
     const { name, value } = event.target
@@ -221,8 +213,6 @@ export default function AdminProducts() {
 
     return ''
   }
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleProductSubmit handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleProductSubmit = async (event) => {
     event.preventDefault()
@@ -251,8 +241,6 @@ export default function AdminProducts() {
       setIsSavingProduct(false)
     }
   }
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleDeleteProduct handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleDeleteProduct = async (productId) => {
     const confirmed = window.confirm('Delete this product?')
@@ -297,8 +285,6 @@ export default function AdminProducts() {
             title="Organize approved product groups"
             description="Add, rename, and maintain the top-level categories used across the marketplace."
           />
-
-          // Form/event handling: validates input, updates state, or submits data when the user acts.
           <form onSubmit={handleAddCategory} className="mt-5 flex gap-3">
             <Input
               value={newCategory}
@@ -332,7 +318,6 @@ export default function AdminProducts() {
 
                 <div className="flex flex-wrap gap-2">
                   {editingCategory?.id === category.id ? (
-                    // Form/event handling: validates input, updates state, or submits data when the user acts.
                     <button type="button" onClick={handleSaveCategory} className={buttonStyles.primary}>
                       Save
                     </button>
@@ -377,7 +362,6 @@ export default function AdminProducts() {
               Add at least one category before creating products.
             </div>
           ) : (
-            // Form/event handling: validates input, updates state, or submits data when the user acts.
             <form onSubmit={handleProductSubmit} className="mt-5 space-y-4">
               {productError && (
                 <p className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">

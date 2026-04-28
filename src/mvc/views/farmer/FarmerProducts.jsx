@@ -131,15 +131,11 @@ export default function FarmerProducts() {
     setSubmitError('')
     setFormData(initialForm)
   }
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleChange handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleChange = (event) => {
     const { name, value } = event.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleSelectProduct handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleSelectProduct = (productId) => {
     setSubmitError('')
@@ -172,8 +168,6 @@ export default function FarmerProducts() {
 
     return ''
   }
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleSubmit handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -208,8 +202,6 @@ export default function FarmerProducts() {
       setIsSubmitting(false)
     }
   }
-
-// Form/event handling: validates input, updates state, or submits data when the user acts.
   // handleDelete handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleDelete = async (id) => {
     const confirmed = window.confirm('Delete this product listing?')
@@ -400,7 +392,6 @@ export default function FarmerProducts() {
                 </div>
               </div>
             ) : (
-              // Form/event handling: validates input, updates state, or submits data when the user acts.
               <form onSubmit={handleSubmit} className="mt-4 space-y-4">
                 {submitError && (
                   <p className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">

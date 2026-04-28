@@ -22,6 +22,8 @@ class AdminProductSerializer(serializers.ModelSerializer):
     """Defines AdminProductSerializer for this app and is used by the serializers, views, routes, or admin when imported."""
     category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
     category_name = serializers.CharField(source="category.name", read_only=True)
+    image_data_url = serializers.CharField(required=False, allow_blank=True, write_only=True)
+    image_url = serializers.SerializerMethodField()
     min_price_dzd = serializers.IntegerField(source="min_price", min_value=0)
     max_price_dzd = serializers.IntegerField(source="max_price", min_value=0)
     suggested_price_dzd = serializers.IntegerField(
@@ -43,9 +45,15 @@ class AdminProductSerializer(serializers.ModelSerializer):
             "min_price_dzd",
             "max_price_dzd",
             "suggested_price_dzd",
+            "image_data_url",
+            "image_url",
             "is_active",
         ]
-        read_only_fields = ["unit", "is_active", "category_name"]
+        read_only_fields = ["unit", "is_active", "category_name", "image_url"]
+
+    def get_image_url(self, obj):
+        """Returns the stored product image data URL when one exists."""
+        return obj.image_data_url or ""
 
     def validate_name(self, value):
         """Handles validate_name, using the declared parameters and returning the expected value or API response."""
@@ -61,6 +69,18 @@ class AdminProductSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("A product with this name already exists.")
 
         return name
+
+    def validate_image_data_url(self, value):
+        """Accepts compact browser-created image data URLs for product catalog photos."""
+        if not value:
+            return ""
+
+        if not value.startswith("data:image/"):
+            raise serializers.ValidationError("Product picture must be an image file.")
+        if len(value) > 2_000_000:
+            raise serializers.ValidationError("Product picture must be 1.5 MB or smaller.")
+
+        return value
 
     def validate(self, attrs):
         """Handles validate, using the declared parameters and returning the expected value or API response."""
@@ -217,7 +237,8 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def get_image_url(self, _obj):
         """Handles get_image_url, using the declared parameters and returning the expected value or API response."""
-        return ""
+        product = getattr(_obj, "product", None)
+        return product.image_data_url if product else ""
 
     def get_description(self, _obj):
         """Handles get_description, using the declared parameters and returning the expected value or API response."""

@@ -32,6 +32,7 @@ class Product(models.Model):
     unit = models.CharField(max_length=20, db_column="Unit", default="kg")
     min_price = models.IntegerField(db_column="MinPrice", default=0)
     max_price = models.IntegerField(db_column="MaxPrice", default=0)
+    image_data_url = models.TextField(blank=True, db_column="ImageDataUrl")
     is_active = models.BooleanField(db_column="IsActive", default=True)
 
     class Meta:

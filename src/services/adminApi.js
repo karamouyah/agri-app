@@ -90,19 +90,28 @@ const normalizeAdminProduct = (item) => ({
     item.suggested_price_dzd === null || item.suggested_price_dzd === undefined
       ? null
       : Number(item.suggested_price_dzd),
+  imageUrl: item.image_url || '',
 })
 
 // buildProductPayload handles this module workflow, using its parameters and returning JSX, data, or a service result.
-const buildProductPayload = (product) => ({
-  name: product.name.trim(),
-  category: Number(product.categoryId),
-  min_price_dzd: Number(product.minPrice),
-  max_price_dzd: Number(product.maxPrice),
-  suggested_price_dzd:
-    product.suggestedPrice === '' || product.suggestedPrice === null || product.suggestedPrice === undefined
-      ? null
-      : Number(product.suggestedPrice),
-})
+const buildProductPayload = (product) => {
+  const payload = {
+    name: product.name.trim(),
+    category: Number(product.categoryId),
+    min_price_dzd: Number(product.minPrice),
+    max_price_dzd: Number(product.maxPrice),
+    suggested_price_dzd:
+      product.suggestedPrice === '' || product.suggestedPrice === null || product.suggestedPrice === undefined
+        ? null
+        : Number(product.suggestedPrice),
+  }
+
+  if (product.imageDataUrl) {
+    payload.image_data_url = product.imageDataUrl
+  }
+
+  return payload
+}
 
 // getProducts handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const getProducts = async () => {

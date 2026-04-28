@@ -24,6 +24,10 @@ const initialProductForm = {
   minPrice: '',
   maxPrice: '',
   suggestedPrice: '',
+  imageFile: null,
+  imagePreview: '',
+  imageDataUrl: '',
+  imageUrl: '',
 }
 
 const PRODUCTS_PER_PAGE = 8
@@ -178,6 +182,39 @@ export default function AdminProducts() {
     setProductForm((prev) => ({ ...prev, [name]: value }))
   }
 
+  // handleProductImageChange stores a local image preview and sends the file with the next save.
+  const handleProductImageChange = (event) => {
+    const file = event.target.files?.[0] || null
+    setProductError('')
+
+    if (!file) {
+      setProductForm((prev) => ({ ...prev, imageFile: null, imagePreview: '', imageDataUrl: '' }))
+      return
+    }
+
+    if (!file.type.startsWith('image/')) {
+      setProductError('Product picture must be an image file.')
+      return
+    }
+
+    if (file.size > 1.5 * 1024 * 1024) {
+      setProductError('Product picture must be 1.5 MB or smaller.')
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = () => {
+      const dataUrl = typeof reader.result === 'string' ? reader.result : ''
+      setProductForm((prev) => ({
+        ...prev,
+        imageFile: file,
+        imagePreview: dataUrl,
+        imageDataUrl: dataUrl,
+      }))
+    }
+    reader.readAsDataURL(file)
+  }
+
   // startProductEdit handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const startProductEdit = (product) => {
     setProductError('')
@@ -188,6 +225,13 @@ export default function AdminProducts() {
       minPrice: String(product.minPrice),
       maxPrice: String(product.maxPrice),
       suggestedPrice: product.suggestedPrice === null ? '' : String(product.suggestedPrice),
+      imageFile: null,
+      imagePreview: '',
+      imageDataUrl: '',
+      imageUrl: product.imageUrl || '',
+    })
+    window.requestAnimationFrame(() => {
+      document.getElementById('product-editor')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     })
   }
 
@@ -260,6 +304,9 @@ export default function AdminProducts() {
     }
   }
 
+  const getDisplayImage = (product) => product.imageUrl || getProductImage(product.name)
+  const productImagePreview = productForm.imagePreview || productForm.imageUrl || getProductImage(productForm.name)
+
   return (
     <section className="app-page space-y-4">
       <PageHeader
@@ -280,7 +327,7 @@ export default function AdminProducts() {
       )}
 
       <div className="grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
-        <Card className="p-5 md:p-6">
+        <Card id="product-editor" className="p-5 md:p-6">
           <SectionHeader
             eyebrow="Categories"
             title="Organize approved product groups"
@@ -382,6 +429,33 @@ export default function AdminProducts() {
                   placeholder="Enter product name"
                   required
                 />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="productImage"
+                  className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200"
+                >
+                  Product picture
+                </label>
+                <div className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950/40 sm:flex-row sm:items-center">
+                  <div className="h-20 w-20 shrink-0 overflow-hidden rounded-[6px] bg-slate-100 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+                    <img src={productImagePreview} alt="" className="h-full w-full object-cover" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <Input
+                      id="productImage"
+                      name="productImage"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleProductImageChange}
+                      className="py-2"
+                    />
+                    <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                      {productForm.imageFile ? productForm.imageFile.name : 'Choose a new image from your computer.'}
+                    </p>
+                  </div>
+                </div>
               </div>
 
               <div>
@@ -517,7 +591,7 @@ export default function AdminProducts() {
                       <tr key={product.id}>
                         <td>
                           <div className="h-10 w-10 overflow-hidden rounded-[4px] bg-slate-100 ring-1 ring-slate-200">
-                            <img src={getProductImage(product.name)} alt="" className="h-full w-full object-cover" />
+                            <img src={getDisplayImage(product)} alt="" className="h-full w-full object-cover" />
                           </div>
                         </td>
                         <td>
@@ -601,4 +675,3 @@ export default function AdminProducts() {
     </section>
   )
 }
-

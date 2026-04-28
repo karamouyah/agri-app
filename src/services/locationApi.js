@@ -5,17 +5,37 @@
 import fallbackDataset from '../../shared/algeria-locations.json'
 import { apiRequest } from './apiClient'
 
+const WILAYA_NAMES_BY_CODE = {
+  '06': 'Bejaia',
+  '08': 'Bechar',
+  '12': 'Tebessa',
+  '19': 'Setif',
+  '20': 'Saida',
+  '22': 'Sidi Bel Abbes',
+  '26': 'Medea',
+  '35': 'Boumerdes',
+  '44': 'Ain Defla',
+  '45': 'Naama',
+  '46': 'Ain Temouchent',
+  '47': 'Ghardaia',
+  '52': 'Beni Abbes',
+}
+
 // normalizeWilaya handles this module workflow, using its parameters and returning JSX, data, or a service result.
-const normalizeWilaya = (wilaya) => ({
-  id: Number(wilaya.id),
-  code: String(wilaya.code).padStart(2, '0'),
-  name: wilaya.name,
-  communes: (wilaya.communes || []).map((commune) => ({
-    id: Number(commune.id),
-    name: commune.name,
-    wilayaId: Number(commune.wilaya ?? wilaya.id),
-  })),
-})
+const normalizeWilaya = (wilaya) => {
+  const code = String(wilaya.code).padStart(2, '0')
+
+  return {
+    id: Number(wilaya.id),
+    code,
+    name: WILAYA_NAMES_BY_CODE[code] || wilaya.name,
+    communes: (wilaya.communes || []).map((commune) => ({
+      id: Number(commune.id),
+      name: commune.name,
+      wilayaId: Number(commune.wilaya ?? wilaya.id),
+    })),
+  }
+}
 
 // normalizeDataset handles this module workflow, using its parameters and returning JSX, data, or a service result.
 const normalizeDataset = (payload) => (payload?.wilayas || payload || []).map(normalizeWilaya)

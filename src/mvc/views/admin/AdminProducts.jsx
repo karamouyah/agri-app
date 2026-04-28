@@ -15,6 +15,7 @@ import {
 } from '../../controllers/adminController'
 import { Card, Input, PageHeader, SectionHeader, Select, buttonStyles, cn } from '../../../components/ui'
 import { formatDzd } from '../../../utils/currency'
+import { getProductImage } from '../../../utils/productImages'
 
 const initialProductForm = {
   id: null,
@@ -504,6 +505,7 @@ export default function AdminProducts() {
                 <table className="table-base">
                   <thead>
                     <tr>
+                      <th className="w-12">Photo</th>
                       <th>Name</th>
                       <th>Category</th>
                       <th>Prices</th>
@@ -513,6 +515,11 @@ export default function AdminProducts() {
                   <tbody>
                     {paginatedProducts.map((product) => (
                       <tr key={product.id}>
+                        <td>
+                          <div className="h-10 w-10 overflow-hidden rounded-[4px] bg-slate-100 ring-1 ring-slate-200">
+                            <img src={getProductImage(product.name)} alt="" className="h-full w-full object-cover" />
+                          </div>
+                        </td>
                         <td>
                           <div className="font-semibold text-slate-900 dark:text-slate-100">{product.name}</div>
                         </td>

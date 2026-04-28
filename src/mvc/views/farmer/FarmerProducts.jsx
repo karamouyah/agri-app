@@ -13,6 +13,7 @@ import {
 import PageHero from '../../../components/PageHero'
 import { Card, Input, Select, StatusBadge, buttonStyles, cn } from '../../../components/ui'
 import { formatDzd, formatDzdRange } from '../../../utils/currency'
+import { getProductImage } from '../../../utils/productImages'
 
 const initialForm = {
   id: null,
@@ -290,6 +291,9 @@ export default function FarmerProducts() {
             <table className="table-base min-w-full text-left text-sm">
               <thead>
                 <tr>
+                  <th className="w-12 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                    Photo
+                  </th>
                   <th className="px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
                     Product
                   </th>
@@ -316,6 +320,11 @@ export default function FarmerProducts() {
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {products.map((product) => (
                   <tr key={product.id} className="transition hover:bg-slate-50/80 dark:hover:bg-slate-800/50">
+                    <td className="px-4 py-3">
+                      <div className="h-10 w-10 overflow-hidden rounded-[4px] bg-slate-100 ring-1 ring-slate-200">
+                        <img src={getProductImage(product.name)} alt="" className="h-full w-full object-cover" />
+                      </div>
+                    </td>
                     <td className="px-4 py-3">
                       <div>
                         <p className="font-semibold text-slate-900 dark:text-slate-100">{product.name}</p>

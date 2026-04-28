@@ -7,6 +7,7 @@ import { Link, useParams } from 'react-router-dom'
 import { FiMapPin, FiPackage, FiPlus, FiShield, FiUser } from 'react-icons/fi'
 import { addToCart, getProductById, getRelatedProducts } from '../../controllers/buyerController'
 import { formatDzd, formatDzdPerUnit } from '../../../utils/currency'
+import { getProductImage } from '../../../utils/productImages'
 import AgriIllustration from '../../../components/AgriIllustration'
 import { Card } from '../../../components/ui'
 
@@ -50,11 +51,15 @@ export default function BuyerProductDetails() {
   return (
     <section className="app-page">
       <Card className="grid gap-4 p-5 md:grid-cols-[1.1fr_0.9fr]">
-          <div className="media-shell p-3">
-            <AgriIllustration variant="hero" className="h-72" />
+          <div className="overflow-hidden rounded-xl bg-slate-100 p-0 shadow-inner dark:bg-slate-800">
+            <img 
+              src={getProductImage(product.name)} 
+              alt={product.name}
+              className="h-[400px] w-full object-cover object-center"
+            />
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-4 p-2">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-300">{product.category}</p>
               <h2 className="mt-2 text-3xl font-bold text-slate-900 dark:text-slate-100">{product.name}</h2>
@@ -123,18 +128,20 @@ export default function BuyerProductDetails() {
             <span className="badge-soft px-3 py-1 text-xs">Same category</span>
           </div>
 
-          <div className="grid gap-3 md:grid-cols-3">
+          <div className="grid gap-3 md:grid-cols-3 md:gap-4">
             {related.map((item) => (
               <Link
                 key={item.id}
                 to={`/buyer/product/${item.id}`}
-                className="surface-muted lift-card overflow-hidden p-3"
+                className="surface-muted lift-card flex flex-col overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200 transition-all hover:shadow-md dark:bg-slate-800 dark:ring-slate-700 p-0"
               >
-                <div className="media-shell mb-3 p-2">
-                  <AgriIllustration variant="buyer" className="h-24" />
+                <div className="h-32 w-full bg-slate-100 overflow-hidden">
+                  <img src={getProductImage(item.name)} alt={item.name} className="h-full w-full object-cover transition-transform hover:scale-105" />
                 </div>
-                <p className="font-semibold text-slate-800 dark:text-slate-100">{item.name}</p>
-                <p className="mt-1 text-sm text-emerald-700 dark:text-emerald-300">{formatDzd(item.price)}</p>
+                <div className="p-4">
+                  <p className="font-semibold text-slate-800 dark:text-slate-100">{item.name}</p>
+                  <p className="mt-1 text-sm font-bold text-emerald-700 dark:text-emerald-300">{formatDzd(item.price)}</p>
+                </div>
               </Link>
             ))}
           </div>

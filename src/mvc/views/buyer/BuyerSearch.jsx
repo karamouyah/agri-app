@@ -9,6 +9,8 @@ import { formatDzdPerUnit } from '../../../utils/currency'
 import LocationFields from '../../../components/LocationFields'
 import { Card, Input, PageHeader, Select, buttonStyles, cn } from '../../../components/ui'
 
+import { getProductImage } from '../../../utils/productImages'
+
 const initialFilters = {
   category: '',
   minPrice: '',
@@ -249,28 +251,37 @@ export default function BuyerSearch() {
           ) : data.items.length ? (
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {data.items.map((product) => (
-                <Card key={product.id} className="lift-card p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h3 className="text-base font-semibold text-slate-800 dark:text-slate-100">{product.name}</h3>
-                      <p className="mt-1 text-xs uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-300">{product.category}</p>
-                    </div>
-                    <span className="badge-soft px-2.5 py-1 text-[11px]">{product.unit}</span>
+                <Card key={product.id} className="lift-card overflow-hidden">
+                  <div className="h-40 w-full overflow-hidden bg-slate-100">
+                    <img 
+                      src={getProductImage(product.name)} 
+                      alt={product.name}
+                      className="h-full w-full object-cover object-center transition-transform hover:scale-105"
+                    />
                   </div>
-                  <p className="mt-3 text-base font-bold text-slate-900 dark:text-slate-100">{formatDzdPerUnit(product.price, product.unit)}</p>
-                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Farmer: {product.farmerName}</p>
-                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Location: {product.farmerRegion || 'Unknown'}</p>
-                  <div className="mt-4 flex items-center gap-2">
-                    <Link to={`/buyer/product/${product.id}`} className={cn(buttonStyles.secondary, 'px-3 py-1.5 text-xs')}>
-                      Details
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={() => handleAddToCart(product)}
-                      className="btn-primary px-3 py-1.5 text-xs font-medium text-white"
-                    >
-                      Add to Cart
-                    </button>
+                  <div className="p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="text-base font-semibold text-slate-800 dark:text-slate-100">{product.name}</h3>
+                        <p className="mt-1 text-xs uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-300">{product.category}</p>
+                      </div>
+                      <span className="badge-soft px-2.5 py-1 text-[11px]">{product.unit}</span>
+                    </div>
+                    <p className="mt-3 text-base font-bold text-slate-900 dark:text-slate-100">{formatDzdPerUnit(product.price, product.unit)}</p>
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Farmer: {product.farmerName}</p>
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Location: {product.farmerRegion || 'Unknown'}</p>
+                    <div className="mt-4 flex items-center gap-2">
+                      <Link to={`/buyer/product/${product.id}`} className={cn(buttonStyles.secondary, 'px-3 py-1.5 text-xs')}>
+                        Details
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => handleAddToCart(product)}
+                        className="btn-primary px-3 py-1.5 text-xs font-medium text-white"
+                      >
+                        Add to Cart
+                      </button>
+                    </div>
                   </div>
                 </Card>
               ))}

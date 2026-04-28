@@ -182,13 +182,8 @@ export default function AdminProducts() {
     setProductForm((prev) => ({ ...prev, [name]: value }))
   }
 
-  // handleProductImageChange stores a local image preview and sends the file with the next save.
-  const handleProductImageChange = (event) => {
-    const file = event.target.files?.[0] || null
-    setProductError('')
-
+  const readProductImage = (file, onLoad) => {
     if (!file) {
-      setProductForm((prev) => ({ ...prev, imageFile: null, imagePreview: '', imageDataUrl: '' }))
       return
     }
 
@@ -205,14 +200,29 @@ export default function AdminProducts() {
     const reader = new FileReader()
     reader.onload = () => {
       const dataUrl = typeof reader.result === 'string' ? reader.result : ''
+      onLoad(dataUrl)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  // handleProductImageChange stores a local image preview and sends the file with the next save.
+  const handleProductImageChange = (event) => {
+    const file = event.target.files?.[0] || null
+    setProductError('')
+
+    if (!file) {
+      setProductForm((prev) => ({ ...prev, imageFile: null, imagePreview: '', imageDataUrl: '' }))
+      return
+    }
+
+    readProductImage(file, (dataUrl) => {
       setProductForm((prev) => ({
         ...prev,
         imageFile: file,
         imagePreview: dataUrl,
         imageDataUrl: dataUrl,
       }))
-    }
-    reader.readAsDataURL(file)
+    })
   }
 
   // startProductEdit handles this module workflow, using its parameters and returning JSX, data, or a service result.
@@ -231,7 +241,36 @@ export default function AdminProducts() {
       imageUrl: product.imageUrl || '',
     })
     window.requestAnimationFrame(() => {
-      document.getElementById('product-editor')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      document.getElementById('product-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  }
+
+  const handleProductTableImageChange = (product, event) => {
+    const file = event.target.files?.[0] || null
+    event.target.value = ''
+    setProductError('')
+
+    if (!file) return
+
+    readProductImage(file, async (dataUrl) => {
+      try {
+        setIsSavingProduct(true)
+        await updateProduct(product.id, {
+          id: product.id,
+          name: product.name,
+          categoryId: product.categoryId,
+          minPrice: product.minPrice,
+          maxPrice: product.maxPrice,
+          suggestedPrice: product.suggestedPrice ?? '',
+          imageDataUrl: dataUrl,
+        })
+        const freshProducts = await getProducts()
+        setProducts(freshProducts)
+      } catch (error) {
+        setProductError(error?.message || 'Unable to save this product picture right now.')
+      } finally {
+        setIsSavingProduct(false)
+      }
     })
   }
 
@@ -327,7 +366,7 @@ export default function AdminProducts() {
       )}
 
       <div className="grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
-        <Card id="product-editor" className="p-5 md:p-6">
+        <Card className="p-5 md:p-6">
           <SectionHeader
             eyebrow="Categories"
             title="Organize approved product groups"
@@ -398,7 +437,7 @@ export default function AdminProducts() {
           </div>
         </Card>
 
-        <Card className="p-5 md:p-6">
+        <Card id="product-form" className="p-5 md:p-6">
           <SectionHeader
             eyebrow="Products"
             title={isEditingProduct ? 'Edit approved product' : 'Add approved product'}
@@ -616,6 +655,15 @@ export default function AdminProducts() {
                         </td>
                         <td>
                           <div className="flex flex-wrap gap-2">
+                            <label className={cn(buttonStyles.secondary, 'cursor-pointer px-3 py-2 text-xs')}>
+                              Picture
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(event) => handleProductTableImageChange(product, event)}
+                                className="sr-only"
+                              />
+                            </label>
                             <button
                               type="button"
                               onClick={() => startProductEdit(product)}

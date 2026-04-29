@@ -52,15 +52,17 @@ export default function AdminProducts() {
   // State: stores local UI data and is updated by event handlers or API responses.
   const [editName, setEditName] = useState('')
   // State: stores local UI data and is updated by event handlers or API responses.
-  const [productForm, setProductForm] = useState(initialProductForm)
+  const [addForm, setAddForm] = useState(initialProductForm)
+  // State: stores local UI data and is updated by event handlers or API responses.
+  const [editModal, setEditModal] = useState(null)
   // State: stores local UI data and is updated by event handlers or API responses.
   const [isSavingProduct, setIsSavingProduct] = useState(false)
   // State: stores local UI data and is updated by event handlers or API responses.
   const [productSearch, setProductSearch] = useState('')
   // State: stores local UI data and is updated by event handlers or API responses.
   const [currentPage, setCurrentPage] = useState(1)
-
-  const isEditingProduct = useMemo(() => Boolean(productForm.id), [productForm.id])
+  // State: stores local UI data and is updated by event handlers or API responses.
+  const [successMsg, setSuccessMsg] = useState('')
   const filteredProducts = useMemo(() => {
     const normalizedQuery = productSearch.trim().toLowerCase()
 
@@ -78,10 +80,10 @@ export default function AdminProducts() {
     return filteredProducts.slice(startIndex, startIndex + PRODUCTS_PER_PAGE)
   }, [currentPage, filteredProducts])
 
-  // resetProductForm handles this module workflow, using its parameters and returning JSX, data, or a service result.
-  const resetProductForm = (nextCategories = categories) => {
+  // resetAddForm handles this module workflow, using its parameters and returning JSX, data, or a service result.
+  const resetAddForm = (nextCategories = categories) => {
     setProductError('')
-    setProductForm({
+    setAddForm({
       ...initialProductForm,
       categoryId: nextCategories[0]?.id ? String(nextCategories[0].id) : '',
     })
@@ -96,8 +98,8 @@ export default function AdminProducts() {
 
     if (categoriesResult.status === 'fulfilled') {
       setCategories(categoriesResult.value)
-      setProductForm((current) => {
-        if (current.categoryId || current.id) return current
+      setAddForm((current) => {
+        if (current.categoryId) return current
         return {
           ...current,
           categoryId: categoriesResult.value[0]?.id ? String(categoriesResult.value[0].id) : '',
@@ -175,11 +177,18 @@ export default function AdminProducts() {
       setCategoryError(error?.message || 'Unable to save this category right now.')
     }
   }
-  // handleProductChange handles this module workflow, using its parameters and returning JSX, data, or a service result.
-  const handleProductChange = (event) => {
+  // handleAddChange handles this module workflow, using its parameters and returning JSX, data, or a service result.
+  const handleAddChange = (event) => {
     const { name, value } = event.target
     setProductError('')
-    setProductForm((prev) => ({ ...prev, [name]: value }))
+    setAddForm((prev) => ({ ...prev, [name]: value }))
+  }
+
+  // handleEditChange handles this module workflow, using its parameters and returning JSX, data, or a service result.
+  const handleEditChange = (event) => {
+    const { name, value } = event.target
+    setProductError('')
+    setEditModal((prev) => ({ ...prev, [name]: value }))
   }
 
   const readProductImage = (file, onLoad) => {
@@ -205,18 +214,18 @@ export default function AdminProducts() {
     reader.readAsDataURL(file)
   }
 
-  // handleProductImageChange stores a local image preview and sends the file with the next save.
-  const handleProductImageChange = (event) => {
+  // handleAddImageChange stores a local image preview and sends the file with the next save.
+  const handleAddImageChange = (event) => {
     const file = event.target.files?.[0] || null
     setProductError('')
 
     if (!file) {
-      setProductForm((prev) => ({ ...prev, imageFile: null, imagePreview: '', imageDataUrl: '' }))
+      setAddForm((prev) => ({ ...prev, imageFile: null, imagePreview: '', imageDataUrl: '' }))
       return
     }
 
     readProductImage(file, (dataUrl) => {
-      setProductForm((prev) => ({
+      setAddForm((prev) => ({
         ...prev,
         imageFile: file,
         imagePreview: dataUrl,
@@ -225,10 +234,30 @@ export default function AdminProducts() {
     })
   }
 
-  // startProductEdit handles this module workflow, using its parameters and returning JSX, data, or a service result.
-  const startProductEdit = (product) => {
+  // handleEditImageChange stores a local image preview and sends the file with the next save.
+  const handleEditImageChange = (event) => {
+    const file = event.target.files?.[0] || null
     setProductError('')
-    setProductForm({
+
+    if (!file) {
+      setEditModal((prev) => ({ ...prev, imageFile: null, imagePreview: '', imageDataUrl: '' }))
+      return
+    }
+
+    readProductImage(file, (dataUrl) => {
+      setEditModal((prev) => ({
+        ...prev,
+        imageFile: file,
+        imagePreview: dataUrl,
+        imageDataUrl: dataUrl,
+      }))
+    })
+  }
+
+  // openEditModal handles this module workflow, using its parameters and returning JSX, data, or a service result.
+  const openEditModal = (product) => {
+    setProductError('')
+    setEditModal({
       id: product.id,
       name: product.name,
       categoryId: String(product.categoryId),
@@ -240,9 +269,12 @@ export default function AdminProducts() {
       imageDataUrl: '',
       imageUrl: product.imageUrl || '',
     })
-    window.requestAnimationFrame(() => {
-      document.getElementById('product-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    })
+  }
+
+  // closeEditModal handles this module workflow, using its parameters and returning JSX, data, or a service result.
+  const closeEditModal = () => {
+    setEditModal(null)
+    setProductError('')
   }
 
   const handleProductTableImageChange = (product, event) => {
@@ -275,21 +307,21 @@ export default function AdminProducts() {
   }
 
   // validateProductForm handles this module workflow, using its parameters and returning JSX, data, or a service result.
-  const validateProductForm = () => {
-    const name = productForm.name.trim()
+  const validateProductForm = (form) => {
+    const name = form.name.trim()
     if (!name) return 'Product name is required.'
-    if (!productForm.categoryId) return 'Category is required.'
+    if (!form.categoryId) return 'Category is required.'
 
-    const minPrice = Number(productForm.minPrice)
-    const maxPrice = Number(productForm.maxPrice)
+    const minPrice = Number(form.minPrice)
+    const maxPrice = Number(form.maxPrice)
 
     if (!Number.isFinite(minPrice) || minPrice < 0) return 'Minimum price must be 0 or higher.'
     if (!Number.isFinite(maxPrice) || maxPrice < minPrice) {
       return 'Maximum price must be greater than or equal to the minimum price.'
     }
 
-    if (productForm.suggestedPrice !== '') {
-      const suggestedPrice = Number(productForm.suggestedPrice)
+    if (form.suggestedPrice !== '') {
+      const suggestedPrice = Number(form.suggestedPrice)
       if (!Number.isFinite(suggestedPrice) || suggestedPrice < minPrice || suggestedPrice > maxPrice) {
         return 'Suggested price must stay between the minimum and maximum prices.'
       }
@@ -297,10 +329,10 @@ export default function AdminProducts() {
 
     return ''
   }
-  // handleProductSubmit handles this module workflow, using its parameters and returning JSX, data, or a service result.
-  const handleProductSubmit = async (event) => {
+  // handleAddSubmit handles this module workflow, using its parameters and returning JSX, data, or a service result.
+  const handleAddSubmit = async (event) => {
     event.preventDefault()
-    const validationError = validateProductForm()
+    const validationError = validateProductForm(addForm)
     if (validationError) {
       setProductError(validationError)
       return
@@ -309,25 +341,46 @@ export default function AdminProducts() {
     try {
       setIsSavingProduct(true)
       setProductError('')
-
-      if (isEditingProduct) {
-        await updateProduct(productForm.id, productForm)
-      } else {
-        await addProduct(productForm)
-      }
-
+      await addProduct(addForm)
       const freshProducts = await getProducts()
       setProducts(freshProducts)
-      resetProductForm()
+      resetAddForm()
+      setSuccessMsg('Product added successfully!')
+      setTimeout(() => setSuccessMsg(''), 3000)
     } catch (error) {
-      setProductError(error?.message || 'Unable to save this product right now.')
+      setProductError(error?.message || 'Unable to add this product right now.')
+    } finally {
+      setIsSavingProduct(false)
+    }
+  }
+
+  // handleEditSubmit handles this module workflow, using its parameters and returning JSX, data, or a service result.
+  const handleEditSubmit = async (event) => {
+    event.preventDefault()
+    const validationError = validateProductForm(editModal)
+    if (validationError) {
+      setProductError(validationError)
+      return
+    }
+
+    try {
+      setIsSavingProduct(true)
+      setProductError('')
+      await updateProduct(editModal.id, editModal)
+      const freshProducts = await getProducts()
+      setProducts(freshProducts)
+      closeEditModal()
+      setSuccessMsg('Product updated successfully!')
+      setTimeout(() => setSuccessMsg(''), 3000)
+    } catch (error) {
+      setProductError(error?.message || 'Unable to update this product right now.')
     } finally {
       setIsSavingProduct(false)
     }
   }
   // handleDeleteProduct handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleDeleteProduct = async (productId) => {
-    const confirmed = window.confirm('Delete this product?')
+    const confirmed = window.confirm('Delete this product permanently?')
     if (!confirmed) return
 
     try {
@@ -335,16 +388,23 @@ export default function AdminProducts() {
       await deleteProduct(productId)
       const freshProducts = await getProducts()
       setProducts(freshProducts)
-      if (productForm.id === productId) {
-        resetProductForm()
-      }
+      setSuccessMsg('Product deleted successfully!')
+      setTimeout(() => setSuccessMsg(''), 3000)
     } catch (error) {
-      setProductError(error?.message || 'Unable to delete this product right now.')
+      const msg = error?.message || 'Unable to delete this product.'
+      if (msg.includes('orders')) {
+        setProductError('Cannot delete: Product is linked to existing orders.')
+      } else if (msg.includes('permission') || msg.includes('403')) {
+        setProductError('Permission denied: Only ministry users can delete products.')
+      } else {
+        setProductError(msg)
+      }
     }
   }
 
   const getDisplayImage = (product) => product.imageUrl || getProductImage(product.name)
-  const productImagePreview = productForm.imagePreview || productForm.imageUrl || getProductImage(productForm.name)
+  const addImagePreview = addForm.imagePreview || addForm.imageUrl || getProductImage(addForm.name)
+  const editImagePreview = editModal ? (editModal.imagePreview || editModal.imageUrl || getProductImage(editModal.name)) : ''
 
   return (
     <section className="app-page space-y-4">
@@ -362,6 +422,12 @@ export default function AdminProducts() {
       {pageError && (
         <Card className="border-amber-200/90 bg-amber-50/90 px-4 py-3 text-sm text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200">
           {pageError}
+        </Card>
+      )}
+
+      {successMsg && (
+        <Card className="border-emerald-200/90 bg-emerald-50/90 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-200">
+          {successMsg}
         </Card>
       )}
 
@@ -440,8 +506,8 @@ export default function AdminProducts() {
         <Card id="product-form" className="p-5 md:p-6">
           <SectionHeader
             eyebrow="Products"
-            title={isEditingProduct ? 'Edit approved product' : 'Add approved product'}
-            description="Create and maintain products linked to existing categories, with minimum, maximum, and optional suggested DZD prices."
+            title="Add approved product"
+            description="Create new products linked to existing categories, with minimum, maximum, and optional suggested DZD prices."
           />
 
           {categories.length === 0 ? (
@@ -449,7 +515,7 @@ export default function AdminProducts() {
               Add at least one category before creating products.
             </div>
           ) : (
-            <form onSubmit={handleProductSubmit} className="mt-5 space-y-4">
+            <form onSubmit={handleAddSubmit} className="mt-5 space-y-4">
               {productError && (
                 <p className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">
                   {productError}
@@ -463,8 +529,8 @@ export default function AdminProducts() {
                 <Input
                   id="name"
                   name="name"
-                  value={productForm.name}
-                  onChange={handleProductChange}
+                  value={addForm.name}
+                  onChange={handleAddChange}
                   placeholder="Enter product name"
                   required
                 />
@@ -479,7 +545,7 @@ export default function AdminProducts() {
                 </label>
                 <div className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950/40 sm:flex-row sm:items-center">
                   <div className="h-20 w-20 shrink-0 overflow-hidden rounded-[6px] bg-slate-100 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
-                    <img src={productImagePreview} alt="" className="h-full w-full object-cover" />
+                    <img src={addImagePreview} alt="" className="h-full w-full object-cover" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <Input
@@ -487,11 +553,11 @@ export default function AdminProducts() {
                       name="productImage"
                       type="file"
                       accept="image/*"
-                      onChange={handleProductImageChange}
+                      onChange={handleAddImageChange}
                       className="py-2"
                     />
                     <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-                      {productForm.imageFile ? productForm.imageFile.name : 'Choose a new image from your computer.'}
+                      {addForm.imageFile ? addForm.imageFile.name : 'Choose a new image from your computer.'}
                     </p>
                   </div>
                 </div>
@@ -504,8 +570,8 @@ export default function AdminProducts() {
                 <Select
                   id="categoryId"
                   name="categoryId"
-                  value={productForm.categoryId}
-                  onChange={handleProductChange}
+                  value={addForm.categoryId}
+                  onChange={handleAddChange}
                   required
                 >
                   <option value="">Select a category</option>
@@ -528,8 +594,8 @@ export default function AdminProducts() {
                     type="number"
                     min="0"
                     step="1"
-                    value={productForm.minPrice}
-                    onChange={handleProductChange}
+                    value={addForm.minPrice}
+                    onChange={handleAddChange}
                     required
                   />
                 </div>
@@ -544,8 +610,8 @@ export default function AdminProducts() {
                     type="number"
                     min="0"
                     step="1"
-                    value={productForm.maxPrice}
-                    onChange={handleProductChange}
+                    value={addForm.maxPrice}
+                    onChange={handleAddChange}
                     required
                   />
                 </div>
@@ -564,20 +630,15 @@ export default function AdminProducts() {
                   type="number"
                   min="0"
                   step="1"
-                  value={productForm.suggestedPrice}
-                  onChange={handleProductChange}
+                  value={addForm.suggestedPrice}
+                  onChange={handleAddChange}
                   placeholder="Optional suggested price"
                 />
               </div>
 
               <div className="flex flex-wrap justify-end gap-2">
-                {isEditingProduct ? (
-                  <button type="button" onClick={() => resetProductForm()} className={buttonStyles.secondary}>
-                    Cancel
-                  </button>
-                ) : null}
                 <button type="submit" disabled={isSavingProduct} className={buttonStyles.primary}>
-                  {isSavingProduct ? 'Saving...' : 'Save'}
+                  {isSavingProduct ? 'Adding...' : 'Add Product'}
                 </button>
               </div>
             </form>
@@ -666,7 +727,7 @@ export default function AdminProducts() {
                             </label>
                             <button
                               type="button"
-                              onClick={() => startProductEdit(product)}
+                              onClick={() => openEditModal(product)}
                               className={cn(buttonStyles.secondary, 'px-3 py-2 text-xs')}
                             >
                               Edit
@@ -720,6 +781,143 @@ export default function AdminProducts() {
           )}
         </div>
       </Card>
+
+      {editModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={closeEditModal}>
+          <Card className="max-h-[90vh] w-full max-w-2xl overflow-y-auto p-5 md:p-6" onClick={(e) => e.stopPropagation()}>
+            <SectionHeader
+              eyebrow="Edit Product"
+              title="Update product details"
+              description="Modify product information, pricing, and image."
+            />
+
+            <form onSubmit={handleEditSubmit} className="mt-5 space-y-4">
+              {productError && (
+                <p className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">
+                  {productError}
+                </p>
+              )}
+
+              <div>
+                <label htmlFor="edit-name" className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                  Product name
+                </label>
+                <Input
+                  id="edit-name"
+                  name="name"
+                  value={editModal.name}
+                  onChange={handleEditChange}
+                  placeholder="Enter product name"
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="edit-image" className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                  Product picture
+                </label>
+                <div className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950/40 sm:flex-row sm:items-center">
+                  <div className="h-20 w-20 shrink-0 overflow-hidden rounded-[6px] bg-slate-100 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+                    <img src={editImagePreview} alt="" className="h-full w-full object-cover" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <Input
+                      id="edit-image"
+                      name="productImage"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleEditImageChange}
+                      className="py-2"
+                    />
+                    <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                      {editModal.imageFile ? editModal.imageFile.name : 'Choose a new image to replace current.'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="edit-category" className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                  Category
+                </label>
+                <Select
+                  id="edit-category"
+                  name="categoryId"
+                  value={editModal.categoryId}
+                  onChange={handleEditChange}
+                  required
+                >
+                  <option value="">Select a category</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-2">
+                <div>
+                  <label htmlFor="edit-minPrice" className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    Min price (DZD)
+                  </label>
+                  <Input
+                    id="edit-minPrice"
+                    name="minPrice"
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={editModal.minPrice}
+                    onChange={handleEditChange}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="edit-maxPrice" className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    Max price (DZD)
+                  </label>
+                  <Input
+                    id="edit-maxPrice"
+                    name="maxPrice"
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={editModal.maxPrice}
+                    onChange={handleEditChange}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="edit-suggestedPrice" className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                  Suggested price (optional)
+                </label>
+                <Input
+                  id="edit-suggestedPrice"
+                  name="suggestedPrice"
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={editModal.suggestedPrice}
+                  onChange={handleEditChange}
+                  placeholder="Optional suggested price"
+                />
+              </div>
+
+              <div className="flex flex-wrap justify-end gap-2">
+                <button type="button" onClick={closeEditModal} className={buttonStyles.secondary}>
+                  Cancel
+                </button>
+                <button type="submit" disabled={isSavingProduct} className={buttonStyles.primary}>
+                  {isSavingProduct ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            </form>
+          </Card>
+        </div>
+      )}
     </section>
   )
 }

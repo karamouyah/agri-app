@@ -30,7 +30,7 @@ const normalizeUser = (user) => ({
 // getNationalStats handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const getNationalStats = () => apiRequest('/auth/admin/stats/')
 
-// getUsers handles this module workflow, using its parameters and returning JSX, data, or a service result.
+// getUsers handles this Imodule workflow, using its parameters and returning JSX, data, or a service result.
 export const getUsers = async (filters = {}) => {
   const search = new URLSearchParams()
   if (filters.role) search.set('role', filters.role)

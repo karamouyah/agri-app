@@ -202,4 +202,8 @@ export const getProductImage = (productName) => {
   return productImages[key] || productImages.default;
 };
 
+export const getProductDisplayImage = (product) => {
+  return product?.imageUrl || productImages.default;
+};
+
 export default productImages;

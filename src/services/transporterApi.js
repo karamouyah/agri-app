@@ -7,9 +7,14 @@ import { apiRequest } from './apiClient'
 // normalizeMission handles this module workflow, using its parameters and returning JSX, data, or a service result.
 const normalizeMission = (mission) => ({
   id: mission.id,
+  trackingNumber: mission.tracking_number || '',
   orderId: mission.order_id,
-  pickupLocation: mission.pickup_location,
-  deliveryLocation: mission.delivery_location,
+  orderDate: mission.order_date || '',
+  deliveryRequestDate: mission.delivery_request_date || '',
+  pickupLocation: mission.pickup_location || '',
+  deliveryLocation: mission.delivery_location || '',
+  pickupAddress: mission.pickup_address || '',
+  deliveryAddress: mission.delivery_address || '',
   pickupWilayaId: Number(mission.pickup_wilaya_id || 0) || '',
   pickupWilayaName: mission.pickup_wilaya_name || '',
   pickupCommuneId: Number(mission.pickup_commune_id || 0) || '',
@@ -18,11 +23,27 @@ const normalizeMission = (mission) => ({
   deliveryWilayaName: mission.delivery_wilaya_name || '',
   deliveryCommuneId: Number(mission.delivery_commune_id || 0) || '',
   deliveryCommuneName: mission.delivery_commune_name || '',
-  deadline: mission.deadline,
+  deadline: mission.deadline || '',
   loadKg: Number(mission.load_kg || 0),
-  buyerContact: mission.buyer_contact,
-  farmerContact: mission.farmer_contact,
-  status: mission.status,
+  shippingFee: Number(mission.shipping_fee || 0),
+  totalAmount: Number(mission.total_amount || 0),
+  completedAt: mission.completed_at || '',
+  buyerName: mission.buyer_name || '',
+  farmerName: mission.farmer_name || '',
+  buyerContact: mission.buyer_contact || '',
+  farmerContact: mission.farmer_contact || '',
+  status: mission.status || 'pending',
+  orderStatus: mission.order_status || '',
+  paymentMethod: mission.payment_method || '',
+  items: Array.isArray(mission.items)
+    ? mission.items.map((item) => ({
+        name: item.name || 'Product',
+        quantity: Number(item.quantity || 0),
+        unit: item.unit || 'kg',
+        unitPrice: Number(item.unit_price || 0),
+        total: Number(item.total || 0),
+      }))
+    : [],
 })
 
 // getTransporterProfile handles this module workflow, using its parameters and returning JSX, data, or a service result.
@@ -71,6 +92,18 @@ export const getDeliveryRequests = async () => {
 // getActiveDeliveries handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const getActiveDeliveries = async () => {
   const data = await apiRequest('/logistics/active/')
+  return data.map(normalizeMission)
+}
+
+// getCompletedDeliveries returns missions already delivered by the signed-in transporter.
+export const getCompletedDeliveries = async () => {
+  const data = await apiRequest('/logistics/completed/')
+  return data.map(normalizeMission)
+}
+
+// getDeclinedDeliveries returns missions declined or cancelled for the signed-in transporter.
+export const getDeclinedDeliveries = async () => {
+  const data = await apiRequest('/logistics/declined/')
   return data.map(normalizeMission)
 }
 

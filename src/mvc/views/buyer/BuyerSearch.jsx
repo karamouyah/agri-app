@@ -9,7 +9,7 @@ import { formatDzdPerUnit } from '../../../utils/currency'
 import LocationFields from '../../../components/LocationFields'
 import { Card, Input, PageHeader, Select, buttonStyles, cn } from '../../../components/ui'
 
-import { getProductImage } from '../../../utils/productImages'
+import { getProductDisplayImage } from '../../../utils/productImages'
 
 const initialFilters = {
   category: '',
@@ -254,7 +254,7 @@ export default function BuyerSearch() {
                 <Card key={product.id} className="lift-card overflow-hidden">
                   <div className="h-40 w-full overflow-hidden bg-slate-100">
                     <img 
-                      src={getProductImage(product.name)} 
+                      src={getProductDisplayImage(product)}
                       alt={product.name}
                       className="h-full w-full object-cover object-center transition-transform hover:scale-105"
                     />
@@ -323,5 +323,4 @@ export default function BuyerSearch() {
     </section>
   )
 }
-
 

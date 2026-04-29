@@ -6,6 +6,8 @@ export {
   updateTransporterProfile,
   getDeliveryRequests,
   getActiveDeliveries,
+  getCompletedDeliveries,
+  getDeclinedDeliveries,
   getDeliveryById,
   acceptMission,
   declineMission,

@@ -7,7 +7,7 @@ import { Link, useParams } from 'react-router-dom'
 import { FiMapPin, FiPackage, FiPlus, FiShield, FiUser } from 'react-icons/fi'
 import { addToCart, getProductById, getRelatedProducts } from '../../controllers/buyerController'
 import { formatDzd, formatDzdPerUnit } from '../../../utils/currency'
-import { getProductImage } from '../../../utils/productImages'
+import { getProductDisplayImage } from '../../../utils/productImages'
 import AgriIllustration from '../../../components/AgriIllustration'
 import { Card } from '../../../components/ui'
 
@@ -53,7 +53,7 @@ export default function BuyerProductDetails() {
       <Card className="grid gap-4 p-5 md:grid-cols-[1.1fr_0.9fr]">
           <div className="overflow-hidden rounded-xl bg-slate-100 p-0 shadow-inner dark:bg-slate-800">
             <img 
-              src={getProductImage(product.name)} 
+              src={getProductDisplayImage(product)}
               alt={product.name}
               className="h-[400px] w-full object-cover object-center"
             />
@@ -136,7 +136,7 @@ export default function BuyerProductDetails() {
                 className="surface-muted lift-card flex flex-col overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200 transition-all hover:shadow-md dark:bg-slate-800 dark:ring-slate-700 p-0"
               >
                 <div className="h-32 w-full bg-slate-100 overflow-hidden">
-                  <img src={getProductImage(item.name)} alt={item.name} className="h-full w-full object-cover transition-transform hover:scale-105" />
+                  <img src={getProductDisplayImage(item)} alt={item.name} className="h-full w-full object-cover transition-transform hover:scale-105" />
                 </div>
                 <div className="p-4">
                   <p className="font-semibold text-slate-800 dark:text-slate-100">{item.name}</p>

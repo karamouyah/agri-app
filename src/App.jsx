@@ -29,6 +29,7 @@ import BuyerOrderConfirmation from './mvc/views/buyer/BuyerOrderConfirmation'
 import TransporterDeliveryDetails from './mvc/views/transporter/TransporterDeliveryDetails'
 import AdminDashboard from './mvc/views/admin/AdminDashboard'
 import AdminUsers from './mvc/views/admin/AdminUsers'
+import AdminOrders from './mvc/views/admin/AdminOrders'
 import AdminProducts from './mvc/views/admin/AdminProducts'
 import AdminReports from './mvc/views/admin/AdminReports'
 
@@ -91,6 +92,7 @@ function App() {
         <Route path="/admin" element={<Layout role="ministry" />}>
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="users" element={<AdminUsers />} />
+          <Route path="orders" element={<AdminOrders />} />
           <Route path="products" element={<AdminProducts />} />
           <Route path="reports" element={<AdminReports />} />
           <Route index element={<Navigate to="dashboard" replace />} />

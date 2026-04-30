@@ -43,6 +43,7 @@ const navByRole = {
   ministry: [
     { to: '/admin/dashboard', label: 'Dashboard', icon: FiHome },
     { to: '/admin/users', label: 'Users', icon: FiUsers },
+    { to: '/admin/orders', label: 'Orders', icon: FiClipboard },
     { to: '/admin/products', label: 'Products', icon: FiShoppingBag },
     { to: '/admin/reports', label: 'Reports', icon: FiBarChart2 },
   ],

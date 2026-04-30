@@ -62,6 +62,71 @@ export const rejectUser = async (id) => {
 // requestInfo handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const requestInfo = async (id, message) => ({ id, message, sentAt: new Date().toISOString() })
 
+const normalizePerson = (person) => ({
+  id: person?.id ?? null,
+  name: person?.name || '',
+  email: person?.email || '',
+  phoneNumber: person?.phone_number || '',
+})
+
+const normalizeLocation = (location) => ({
+  address: location?.address || '',
+  wilaya: location?.wilaya || '',
+  commune: location?.commune || '',
+  label: location?.label || '',
+})
+
+const normalizeAdminOrder = (order) => ({
+  id: order?.order_id ?? order?.id ?? null,
+  items: Array.isArray(order?.items)
+    ? order.items.map((item) => ({
+        productId: item?.product_id ?? null,
+        name: item?.name || '',
+        category: item?.category || '',
+        unit: item?.unit || '',
+        quantity: Number(item?.quantity || 0),
+        unitPrice: Number(item?.unit_price || 0),
+        total: Number(item?.total || 0),
+      }))
+    : [],
+  buyer: normalizePerson(order?.buyer),
+  farmer: normalizePerson(order?.farmer),
+  transporter: order?.transporter ? normalizePerson(order.transporter) : null,
+  totalAmount: Number(order?.total_amount || 0),
+  currency: order?.currency || 'DZD',
+  payment: order?.payment
+    ? {
+        id: order.payment.id ?? null,
+        amount: Number(order.payment.amount || 0),
+        method: order.payment.method || '',
+        transactionDate: order.payment.transaction_date || '',
+        status: order.payment.status || '',
+      }
+    : null,
+  shipment: order?.shipment
+    ? {
+        id: order.shipment.id ?? null,
+        trackingNumber: order.shipment.tracking_number || '',
+        status: order.shipment.status || '',
+        shippingFee: Number(order.shipment.shipping_fee || 0),
+        pickupDate: order.shipment.pickup_date || '',
+        estimatedDeliveryDate: order.shipment.estimated_delivery_date || '',
+        actualDeliveryDate: order.shipment.actual_delivery_date || '',
+      }
+    : null,
+  pickupLocation: normalizeLocation(order?.pickup_location),
+  deliveryLocation: normalizeLocation(order?.delivery_location),
+  orderStatus: order?.order_status || '',
+  createdAt: order?.created_at || '',
+  updatedAt: order?.updated_at || '',
+})
+
+// getAdminOrders returns Ministry-visible orders with order, payment, and shipment fields only.
+export const getAdminOrders = async () => {
+  const orders = await apiRequest('/orders/admin/')
+  return Array.isArray(orders) ? orders.map(normalizeAdminOrder) : []
+}
+
 // getCategories handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const getCategories = () => apiRequest('/catalog/categories/')
 

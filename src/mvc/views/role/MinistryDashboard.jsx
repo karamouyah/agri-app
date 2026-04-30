@@ -23,6 +23,13 @@ const quickActions = [
     meta: 'Products and categories',
   },
   {
+    to: '/admin/orders',
+    icon: FiClipboard,
+    title: 'Orders and transactions',
+    description: 'Review marketplace orders, payment records, delivery assignments, and shipment status.',
+    meta: 'Order oversight',
+  },
+  {
     to: '/admin/reports',
     icon: FiBarChart2,
     title: 'Platform reports',
@@ -88,4 +95,3 @@ export default function MinistryDashboard() {
     </section>
   )
 }
-

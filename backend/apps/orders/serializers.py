@@ -311,3 +311,163 @@ class OrderStatusUpdateSerializer(serializers.Serializer):
         """Handles get_status_code, using the declared parameters and returning the expected value or API response."""
         status_slug = self.validated_data["status"]
         return ORDER_STATUS_CODES[status_slug]
+
+
+class AdminOrderSerializer(serializers.ModelSerializer):
+    """Read-only order tracking response for Ministry/Admin oversight pages."""
+    order_id = serializers.IntegerField(source="id", read_only=True)
+    items = serializers.SerializerMethodField()
+    buyer = serializers.SerializerMethodField()
+    farmer = serializers.SerializerMethodField()
+    transporter = serializers.SerializerMethodField()
+    total_amount = serializers.IntegerField(read_only=True)
+    currency = serializers.SerializerMethodField()
+    payment = serializers.SerializerMethodField()
+    shipment = serializers.SerializerMethodField()
+    pickup_location = serializers.SerializerMethodField()
+    delivery_location = serializers.SerializerMethodField()
+    order_status = serializers.SerializerMethodField()
+    created_at = serializers.DateTimeField(source="order_date", read_only=True)
+    updated_at = serializers.SerializerMethodField()
+
+    class Meta:
+        """Defines the safe fields returned to Ministry/Admin order tracking."""
+        model = Order
+        fields = [
+            "order_id",
+            "items",
+            "buyer",
+            "farmer",
+            "transporter",
+            "total_amount",
+            "currency",
+            "payment",
+            "shipment",
+            "pickup_location",
+            "delivery_location",
+            "order_status",
+            "created_at",
+            "updated_at",
+        ]
+
+    def get_currency(self, _obj):
+        """Returns the marketplace currency code used by stored order amounts."""
+        return "DZD"
+
+    def _person_summary(self, profile):
+        """Builds a null-safe person summary from farmer, buyer, or transporter profiles."""
+        person = getattr(profile, "person", None)
+        if not person:
+            return None
+
+        full_name = f"{person.first_name} {person.last_name}".strip()
+        return {
+            "id": getattr(profile, "id", None),
+            "name": full_name or person.email or "",
+            "email": person.email or "",
+            "phone_number": person.phone_number or "",
+        }
+
+    def _location_payload(self, *, address, wilaya, commune):
+        """Returns structured location fields without assuming all address parts exist."""
+        wilaya_name = wilaya.name if wilaya else ""
+        commune_name = commune.name if commune else ""
+        label = compose_location_label(commune, wilaya, address or "")
+        return {
+            "address": address or "",
+            "wilaya": wilaya_name,
+            "commune": commune_name,
+            "label": label or "",
+        }
+
+    def get_items(self, obj):
+        """Returns real order items with safe product details for the admin table and modal."""
+        items = []
+        for item in obj.items.all():
+            product_list = getattr(item, "product_list", None)
+            product = getattr(product_list, "product", None)
+            items.append(
+                {
+                    "product_id": getattr(product_list, "id", None),
+                    "name": getattr(product, "name", "") or "",
+                    "category": getattr(getattr(product, "category", None), "name", "") or "",
+                    "unit": getattr(product, "unit", "") or "",
+                    "quantity": item.quantity,
+                    "unit_price": item.price,
+                    "total": item.total_items_price,
+                }
+            )
+        return items
+
+    def get_buyer(self, obj):
+        """Returns buyer account data when the order still has a buyer profile."""
+        return self._person_summary(getattr(obj, "buyer", None))
+
+    def get_farmer(self, obj):
+        """Returns farmer account data when the order still has a farmer profile."""
+        return self._person_summary(getattr(obj, "farmer", None))
+
+    def get_transporter(self, obj):
+        """Returns the first assigned transporter, if any shipment has one."""
+        shipment = self._primary_shipment(obj)
+        return self._person_summary(getattr(shipment, "transporter", None)) if shipment else None
+
+    def _primary_payment(self, obj):
+        """Selects the first stored payment without creating payment data."""
+        return obj.payments.order_by("id").first()
+
+    def _primary_shipment(self, obj):
+        """Selects the first stored shipment without inventing delivery data."""
+        return obj.shipments.order_by("id").first()
+
+    def get_payment(self, obj):
+        """Returns payment details when checkout created a payment row."""
+        payment = self._primary_payment(obj)
+        if not payment:
+            return None
+        return {
+            "id": payment.id,
+            "amount": payment.amount,
+            "method": payment.payment_method or "",
+            "transaction_date": payment.transaction_date,
+            "status": "recorded",
+        }
+
+    def get_shipment(self, obj):
+        """Returns shipment/delivery details when logistics created a shipment row."""
+        shipment = self._primary_shipment(obj)
+        if not shipment:
+            return None
+        return {
+            "id": shipment.id,
+            "tracking_number": shipment.tracking_number or "",
+            "status": (shipment.get_status_display() or "Pending").lower(),
+            "shipping_fee": shipment.shipping_fee,
+            "pickup_date": shipment.pickup_date,
+            "estimated_delivery_date": shipment.estimated_delivery_date,
+            "actual_delivery_date": shipment.actual_delivery_date,
+        }
+
+    def get_pickup_location(self, obj):
+        """Returns pickup address and structured location fields when available."""
+        return self._location_payload(
+            address=obj.pickup_address,
+            wilaya=obj.pickup_wilaya,
+            commune=obj.pickup_commune,
+        )
+
+    def get_delivery_location(self, obj):
+        """Returns delivery address and structured location fields when available."""
+        return self._location_payload(
+            address=obj.delivery_address,
+            wilaya=obj.delivery_wilaya,
+            commune=obj.delivery_commune,
+        )
+
+    def get_order_status(self, obj):
+        """Returns the stored order status as a stable frontend label."""
+        return ORDER_STATUS_SLUGS.get(obj.status, "pending")
+
+    def get_updated_at(self, obj):
+        """Orders do not currently store an update timestamp."""
+        return None

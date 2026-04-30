@@ -8,6 +8,7 @@ export {
   approveUser,
   rejectUser,
   requestInfo,
+  getAdminOrders,
   getCategories,
   addCategory,
   updateCategory,

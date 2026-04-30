@@ -10,8 +10,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.common.permissions import IsBuyer
+from apps.common.permissions import IsMinistry
 from apps.orders.models import Order, Payment
 from apps.orders.serializers import (
+    AdminOrderSerializer,
     CheckoutSerializer,
     InvoiceSerializer,
     OrderSerializer,
@@ -53,6 +55,34 @@ class MyOrdersView(generics.ListAPIView):
         if user.role == User.Role.FARMER and hasattr(user, "farmer"):
             return base.filter(farmer=user.farmer)
         return Order.objects.none()
+
+
+class AdminOrdersView(generics.ListAPIView):
+    """Read-only Ministry/Admin order and transaction tracking list."""
+    serializer_class = AdminOrderSerializer
+    permission_classes = [IsMinistry]
+
+    def get_queryset(self):
+        """Returns all orders with the related data needed by the admin order table."""
+        return Order.objects.select_related(
+            "buyer",
+            "buyer__person",
+            "farmer",
+            "farmer__person",
+            "delivery_wilaya",
+            "delivery_commune",
+            "pickup_wilaya",
+            "pickup_commune",
+        ).prefetch_related(
+            "items",
+            "items__product_list",
+            "items__product_list__product",
+            "items__product_list__product__category",
+            "payments",
+            "shipments",
+            "shipments__transporter",
+            "shipments__transporter__person",
+        )
 
 
 class UpdateOrderStatusView(APIView):

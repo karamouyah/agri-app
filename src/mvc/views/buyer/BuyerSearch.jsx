@@ -4,12 +4,14 @@
 // Imports: bring in React, routing, UI components, services, and helpers used below.
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { FiFlag } from 'react-icons/fi'
 import { addToCart, buyerFilterOptions, searchProducts } from '../../controllers/buyerController'
 import { formatDzdPerUnit } from '../../../utils/currency'
 import LocationFields from '../../../components/LocationFields'
 import { Card, Input, PageHeader, Select, buttonStyles, cn } from '../../../components/ui'
 
 import { getProductDisplayImage } from '../../../utils/productImages'
+import ReportModal from '../../../components/ReportModal'
 
 const initialFilters = {
   category: '',
@@ -36,6 +38,7 @@ export default function BuyerSearch() {
   const [loading, setLoading] = useState(false)
   // State: stores local UI data and is updated by event handlers or API responses.
   const [error, setError] = useState('')
+  const [reportTarget, setReportTarget] = useState(null)
 
   // load handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const load = async (nextPage = 1, nextQuery = query, nextFilters = filters) => {
@@ -270,7 +273,7 @@ export default function BuyerSearch() {
                     <p className="mt-3 text-base font-bold text-slate-900 dark:text-slate-100">{formatDzdPerUnit(product.price, product.unit)}</p>
                     <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Farmer: {product.farmerName}</p>
                     <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Location: {product.farmerRegion || 'Unknown'}</p>
-                    <div className="mt-4 flex items-center gap-2">
+                    <div className="mt-4 flex flex-wrap items-center gap-2">
                       <Link to={`/buyer/product/${product.id}`} className={cn(buttonStyles.secondary, 'px-3 py-1.5 text-xs')}>
                         Details
                       </Link>
@@ -280,6 +283,14 @@ export default function BuyerSearch() {
                         className="btn-primary px-3 py-1.5 text-xs font-medium text-white"
                       >
                         Add to Cart
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setReportTarget(product)}
+                        className={cn(buttonStyles.secondary, 'px-3 py-1.5 text-xs')}
+                      >
+                        <FiFlag />
+                        Report
                       </button>
                     </div>
                   </div>
@@ -320,7 +331,16 @@ export default function BuyerSearch() {
           </Card>
         </div>
       </div>
+      <ReportModal
+        open={Boolean(reportTarget)}
+        onClose={() => setReportTarget(null)}
+        title="Report product listing"
+        target={{
+          category: 'product',
+          relatedProductListingId: reportTarget?.id,
+          label: reportTarget ? `${reportTarget?.name || 'Product'} from ${reportTarget?.farmerName || 'Not provided'}` : '',
+        }}
+      />
     </section>
   )
 }
-

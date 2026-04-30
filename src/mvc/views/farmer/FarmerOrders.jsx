@@ -19,6 +19,7 @@ export default function FarmerOrders() {
   // State: stores local UI data and is updated by event handlers or API responses.
   const [selectedIds, setSelectedIds] = useState([])
   const [reportOpen, setReportOpen] = useState(false)
+  const [reportTarget, setReportTarget] = useState(null)
 
   const loadOrders = useCallback(async () => {
     const data = await getOrders()
@@ -241,6 +242,17 @@ export default function FarmerOrders() {
                         >
                           View
                         </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setReportTarget(order)
+                            setReportOpen(true)
+                          }}
+                          className={cn(buttonStyles.secondary, 'px-2 py-1 text-xs')}
+                        >
+                          <FiFlag />
+                          Report
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -299,7 +311,14 @@ export default function FarmerOrders() {
         <div className="surface-card p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Order Details</h3>
-            <button type="button" onClick={() => setReportOpen(true)} className={cn(buttonStyles.secondary, 'text-sm')}>
+            <button
+              type="button"
+              onClick={() => {
+                setReportTarget(selectedOrder)
+                setReportOpen(true)
+              }}
+              className={cn(buttonStyles.secondary, 'text-sm')}
+            >
               <FiFlag />
               Report order
             </button>
@@ -332,16 +351,18 @@ export default function FarmerOrders() {
       )}
       <ReportModal
         open={reportOpen}
-        onClose={() => setReportOpen(false)}
+        onClose={() => {
+          setReportOpen(false)
+          setReportTarget(null)
+        }}
         title="Report order"
         target={{
           category: 'order',
-          relatedOrderId: selectedOrder?.id,
-          label: selectedOrder ? `Order ${selectedOrder.id}` : '',
+          relatedOrderId: reportTarget?.id,
+          label: reportTarget ? `Order ${reportTarget.id}` : '',
         }}
       />
     </section>
   )
 }
-
 

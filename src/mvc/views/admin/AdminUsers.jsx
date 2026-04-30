@@ -31,6 +31,7 @@ const getProfileDetails = (user) => {
       ['Vehicle', user.vehicle || '-'],
       ['Max Load', user.maxLoadKg ? `${user.maxLoadKg} KG` : '-'],
       ['Delivery Wilayas', user.deliveryWilayas.map((item) => item.name).join(', ') || '-'],
+      ['Documents', `${user.verificationDocumentsCount || 0} (${user.verificationDocumentsStatus || 'not_required'})`],
     ]
   }
 
@@ -39,6 +40,7 @@ const getProfileDetails = (user) => {
       ['Phone Number', user.phoneNumber || '-'],
       ['Address', user.address || '-'],
       ['Structured Location', user.locationLabel || '-'],
+      ['Documents', `${user.verificationDocumentsCount || 0} (${user.verificationDocumentsStatus || 'not_required'})`],
     ]
   }
 
@@ -231,6 +233,7 @@ export default function AdminUsers() {
                     <th>Email</th>
                     <th>Role</th>
                     <th>Approval</th>
+                    <th>Documents</th>
                     <th>Profile</th>
                     <th>Actions</th>
                   </tr>
@@ -243,6 +246,18 @@ export default function AdminUsers() {
                       <td className="capitalize">{user.role}</td>
                       <td>
                         <StatusBadge status={user.approvalStatus} />
+                      </td>
+                      <td>
+                        {['buyer', 'transporter'].includes(user.role) ? (
+                          <div className="space-y-1">
+                            <StatusBadge status={user.verificationDocumentsStatus || 'missing'} />
+                            <p className="text-xs text-slate-500 dark:text-slate-400">
+                              {user.verificationDocumentsCount || 0} uploaded
+                            </p>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-slate-500 dark:text-slate-400">Not required</span>
+                        )}
                       </td>
                       <td>
                         {user.role === 'farmer' && user.farmAddress ? (
@@ -376,4 +391,3 @@ export default function AdminUsers() {
     </section>
   )
 }
-

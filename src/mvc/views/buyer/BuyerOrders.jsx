@@ -15,6 +15,7 @@ export default function BuyerOrders() {
   // State: stores local UI data and is updated by event handlers or API responses.
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [reportOpen, setReportOpen] = useState(false)
+  const [reportTarget, setReportTarget] = useState(null)
 
   // Effect: runs after render to load data, sync storage, or react to dependency changes.
   useEffect(() => {
@@ -52,7 +53,7 @@ export default function BuyerOrders() {
                   <th>Total</th>
                   <th>Status</th>
                   <th>ETA</th>
-                  <th>View</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -66,6 +67,7 @@ export default function BuyerOrders() {
                     </td>
                     <td>{order.status === 'delivered' ? '-' : order.estimatedDelivery}</td>
                     <td>
+                      <div className="flex flex-wrap gap-2">
                       <button
                         type="button"
                         onClick={() => setSelectedOrder(order)}
@@ -73,6 +75,18 @@ export default function BuyerOrders() {
                       >
                         View
                       </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setReportTarget(order)
+                          setReportOpen(true)
+                        }}
+                        className={cn(buttonStyles.secondary, 'px-3 py-1.5 text-xs')}
+                      >
+                        <FiFlag />
+                        Report
+                      </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -133,7 +147,10 @@ export default function BuyerOrders() {
 
             <button
               type="button"
-              onClick={() => setReportOpen(true)}
+              onClick={() => {
+                setReportTarget(selectedOrder)
+                setReportOpen(true)
+              }}
               className={cn(buttonStyles.secondary, 'mt-5 w-full')}
             >
               <FiFlag />
@@ -144,12 +161,15 @@ export default function BuyerOrders() {
       </div>
       <ReportModal
         open={reportOpen}
-        onClose={() => setReportOpen(false)}
+        onClose={() => {
+          setReportOpen(false)
+          setReportTarget(null)
+        }}
         title="Report order"
         target={{
           category: 'order',
-          relatedOrderId: selectedOrder?.id,
-          label: selectedOrder ? `Order ${selectedOrder.id}` : '',
+          relatedOrderId: reportTarget?.id,
+          label: reportTarget ? `Order ${reportTarget.id}` : '',
         }}
       />
     </section>

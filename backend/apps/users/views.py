@@ -78,6 +78,7 @@ class AdminUserViewSet(ModelViewSet):
             "farmer__farms__wilaya",
             "farmer__farms__commune",
             "transporter__delivery_wilayas",
+            "verification_documents",
         )
         .all()
         .order_by("-date_joined")

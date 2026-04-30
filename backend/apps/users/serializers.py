@@ -305,6 +305,8 @@ class UserSerializer(serializers.ModelSerializer):
     max_load_kg = serializers.SerializerMethodField()
     delivery_wilayas = serializers.SerializerMethodField()
     delivery_wilaya_ids = serializers.SerializerMethodField()
+    verification_documents_count = serializers.SerializerMethodField()
+    verification_documents_status = serializers.SerializerMethodField()
 
     class Meta:
         """Defines Meta for this app and is used by the serializers, views, routes, or admin when imported."""
@@ -333,6 +335,8 @@ class UserSerializer(serializers.ModelSerializer):
             "max_load_kg",
             "delivery_wilayas",
             "delivery_wilaya_ids",
+            "verification_documents_count",
+            "verification_documents_status",
         ]
 
     def get_name(self, obj):
@@ -449,6 +453,24 @@ class UserSerializer(serializers.ModelSerializer):
         if obj.role == User.Role.TRANSPORTER and hasattr(obj, "transporter"):
             return TransporterProfileSerializer(obj.transporter).data["delivery_wilaya_ids"]
         return []
+
+    def get_verification_documents_count(self, obj):
+        return obj.verification_documents.count() if obj.role in {User.Role.BUYER, User.Role.TRANSPORTER} else 0
+
+    def get_verification_documents_status(self, obj):
+        if obj.role not in {User.Role.BUYER, User.Role.TRANSPORTER}:
+            return "not_required"
+
+        documents = list(obj.verification_documents.all())
+        if not documents:
+            return "missing"
+        if any(document.status == "rejected" for document in documents):
+            return "rejected"
+        if any(document.status == "pending" for document in documents):
+            return "pending"
+        if all(document.status == "approved" for document in documents):
+            return "approved"
+        return "pending"
 
     def to_representation(self, instance):
         """Handles to_representation, using the declared parameters and returning the expected value or API response."""

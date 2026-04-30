@@ -5,6 +5,8 @@ Connects to the Django backend through imports, app configuration, API routing, 
 
 # Imports: load Django, DRF, models, serializers, and helpers used in this module.
 from django.contrib import admin
+from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import include, path
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -38,6 +40,7 @@ class ApiRootView(APIView):
                 "orders": "/api/orders/",
                 "logistics": "/api/logistics/",
                 "reports": "/api/reports/",
+                "documents": "/api/documents/",
             }
         )
 
@@ -53,4 +56,8 @@ urlpatterns = [
     path("api/orders/", include("apps.orders.urls")),
     path("api/logistics/", include("apps.logistics.urls")),
     path("api/reports/", include("apps.reports.urls")),
+    path("api/documents/", include("apps.documents.urls")),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

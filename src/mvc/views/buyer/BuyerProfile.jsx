@@ -3,7 +3,8 @@
 
 // Imports: bring in React, routing, UI components, services, and helpers used below.
 import { useEffect, useState } from 'react'
-import { FiPhone, FiSave, FiType } from 'react-icons/fi'
+import { FiFileText, FiPhone, FiSave, FiType } from 'react-icons/fi'
+import { Link } from 'react-router-dom'
 import { getBuyerProfile, updateBuyerProfile } from '../../controllers/buyerController'
 import LocationFields from '../../../components/LocationFields'
 import PageHero from '../../../components/PageHero'
@@ -78,6 +79,15 @@ export default function BuyerProfile() {
         ]}
       />
       <Card as="form" onSubmit={handleSubmit} className="space-y-4 p-5">
+        <div className="flex justify-end">
+          <Link to="/buyer/documents" className="btn-secondary px-4 py-2 text-sm">
+            <span className="inline-flex items-center gap-2">
+              <FiFileText />
+              Upload Documents
+            </span>
+          </Link>
+        </div>
+
         <FormField label="Street Address" icon={FiType}>
           <Input name="address" value={formData.address} onChange={handleChange} required />
         </FormField>

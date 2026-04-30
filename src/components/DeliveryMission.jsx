@@ -7,6 +7,7 @@ import {
   FiCalendar,
   FiCheckCircle,
   FiClock,
+  FiFlag,
   FiMapPin,
   FiPackage,
   FiTruck,
@@ -121,6 +122,7 @@ export function DeliveryMissionCard({
   onAccept,
   onDecline,
   onDetails,
+  onReport,
   onStatusChange,
   busy = false,
   compact = false,
@@ -199,6 +201,12 @@ export function DeliveryMissionCard({
             <Link to={`/transporter/delivery/${mission.id}`} className={buttonStyles.secondary}>
               Details
             </Link>
+          ) : null}
+          {onReport ? (
+            <button type="button" onClick={() => onReport(mission)} className={buttonStyles.secondary}>
+              <FiFlag />
+              Report
+            </button>
           ) : null}
         </div>
       </div>

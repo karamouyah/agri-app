@@ -2,7 +2,7 @@
 // Used by the React frontend or build tooling as part of the full-stack agriculture app.
 
 // Imports: bring in React, routing, UI components, services, and helpers used below.
-import { FiClipboard, FiCreditCard, FiMapPin, FiSearch, FiShoppingCart } from 'react-icons/fi'
+import { FiClipboard, FiCreditCard, FiFileText, FiMapPin, FiSearch, FiShoppingCart } from 'react-icons/fi'
 import { useAuth } from '../../../context/AuthContext'
 import { ActionCard, Card, PageHeader } from '../../../components/ui'
 
@@ -41,6 +41,13 @@ const actions = [
     description: 'Follow delivery progress from confirmation through arrival.',
     icon: FiClipboard,
     meta: 'Monitor active orders',
+  },
+  {
+    to: '/buyer/documents',
+    label: 'Upload Documents',
+    description: 'Submit buyer verification files for ministry review.',
+    icon: FiFileText,
+    meta: 'Verification',
   },
   {
     to: '/buyer/invoices',
@@ -101,4 +108,3 @@ export default function BuyerDashboard() {
     </section>
   )
 }
-

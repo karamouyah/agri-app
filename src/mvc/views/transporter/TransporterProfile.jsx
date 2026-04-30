@@ -3,7 +3,8 @@
 
 // Imports: bring in React, routing, UI components, services, and helpers used below.
 import { useEffect, useState } from 'react'
-import { FiPhone, FiSave, FiTruck } from 'react-icons/fi'
+import { FiFileText, FiPhone, FiSave, FiTruck } from 'react-icons/fi'
+import { Link } from 'react-router-dom'
 import { getTransporterProfile, updateTransporterProfile } from '../../controllers/transporterController'
 import PageHero from '../../../components/PageHero'
 import { Card, FormField, Input } from '../../../components/ui'
@@ -74,6 +75,15 @@ export default function TransporterProfile() {
         ]}
       />
       <Card as="form" onSubmit={handleSubmit} className="space-y-4 p-5">
+        <div className="flex justify-end">
+          <Link to="/transporter/documents" className="btn-secondary px-4 py-2 text-sm">
+            <span className="inline-flex items-center gap-2">
+              <FiFileText />
+              Upload Documents
+            </span>
+          </Link>
+        </div>
+
         <FormField label="Vehicle Type" icon={FiTruck}>
           <Input name="vehicle" value={formData.vehicle} onChange={handleChange} required />
         </FormField>

@@ -2,7 +2,8 @@
 // Used by the React router for transporter users.
 
 import { useEffect, useMemo, useState } from 'react'
-import { FiAlertCircle, FiCheckCircle, FiClock, FiInbox, FiTruck, FiXCircle } from 'react-icons/fi'
+import { FiAlertCircle, FiCheckCircle, FiClock, FiFileText, FiInbox, FiTruck, FiXCircle } from 'react-icons/fi'
+import { Link } from 'react-router-dom'
 import {
   acceptMission,
   declineMission,
@@ -18,6 +19,7 @@ import {
   TransporterDashboardStats,
 } from '../../../components/DeliveryMission'
 import { Card, EmptyState, PageHeader, SkeletonBlock, buttonStyles, cn } from '../../../components/ui'
+import ReportModal from '../../../components/ReportModal'
 
 function MissionSection({ id, title, description, icon: Icon, missions, emptyTitle, emptyDescription, actionProps }) {
   return (
@@ -55,6 +57,7 @@ export default function TransporterDashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [busyMissionId, setBusyMissionId] = useState('')
+  const [reportTarget, setReportTarget] = useState(null)
 
   const acceptedMissions = useMemo(
     () => activeDeliveries.filter((mission) => mission.status === 'accepted'),
@@ -111,6 +114,7 @@ export default function TransporterDashboard() {
     onAccept: handleAccept,
     onDecline: handleDecline,
     onDetails: setSelectedMission,
+    onReport: setReportTarget,
     onStatusChange: handleStatusChange,
     busy: Boolean(busyMissionId),
   }
@@ -139,6 +143,10 @@ export default function TransporterDashboard() {
         description="Review each delivery request, confirm pickup and destination details, then update shipment progress as the mission moves."
         actions={
           <div className="flex flex-wrap gap-2">
+            <Link to="/transporter/documents" className={cn(buttonStyles.secondary, 'px-3 py-2')}>
+              <FiFileText />
+              Upload Documents
+            </Link>
             <a href="#new-requests" className={cn(buttonStyles.secondary, 'px-3 py-2')}>Requests</a>
             <a href="#accepted" className={cn(buttonStyles.secondary, 'px-3 py-2')}>Accepted</a>
             <a href="#in-progress" className={cn(buttonStyles.secondary, 'px-3 py-2')}>In progress</a>
@@ -229,6 +237,17 @@ export default function TransporterDashboard() {
         onDecline={handleDecline}
         onStatusChange={handleStatusChange}
         busy={Boolean(busyMissionId)}
+      />
+      <ReportModal
+        open={Boolean(reportTarget)}
+        onClose={() => setReportTarget(null)}
+        title="Report delivery mission"
+        target={{
+          category: 'shipment',
+          relatedShipmentId: reportTarget?.id,
+          relatedOrderId: reportTarget?.orderId,
+          label: reportTarget ? `Mission ${reportTarget?.trackingNumber || reportTarget?.id}` : '',
+        }}
       />
     </section>
   )

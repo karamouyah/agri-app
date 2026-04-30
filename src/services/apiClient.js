@@ -78,6 +78,8 @@ const buildHeaders = (headers = {}, hasBody = false) => {
   return merged
 }
 
+const isFormData = (value) => typeof FormData !== 'undefined' && value instanceof FormData
+
 // getApiUrl handles this module workflow, using its parameters and returning JSX, data, or a service result.
 const getApiUrl = (path) => {
   if (!API_BASE_URL) {
@@ -93,14 +95,15 @@ const getApiUrl = (path) => {
 export const apiRequest = async (path, options = {}) => {
   const method = options.method || 'GET'
   const hasBody = options.body !== undefined
+  const formDataBody = isFormData(options.body)
   let response
 
   try {
     response = await fetch(getApiUrl(path), {
       ...options,
       method,
-      headers: buildHeaders(options.headers, hasBody),
-      body: hasBody && typeof options.body !== 'string' ? JSON.stringify(options.body) : options.body,
+      headers: buildHeaders(options.headers, hasBody && !formDataBody),
+      body: hasBody && !formDataBody && typeof options.body !== 'string' ? JSON.stringify(options.body) : options.body,
     })
   } catch (error) {
     if (error instanceof Error && error.message.includes('VITE_API_BASE_URL')) {

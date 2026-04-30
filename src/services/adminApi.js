@@ -25,6 +25,8 @@ const normalizeUser = (user) => ({
   maxLoadKg: Number(user.max_load_kg || user.profile?.max_load_kg || 0) || '',
   deliveryWilayas: user.delivery_wilayas || user.profile?.delivery_wilayas || [],
   deliveryWilayaIds: user.delivery_wilaya_ids || user.profile?.delivery_wilaya_ids || [],
+  verificationDocumentsCount: Number(user.verification_documents_count || 0),
+  verificationDocumentsStatus: user.verification_documents_status || 'not_required',
 })
 
 // getNationalStats handles this module workflow, using its parameters and returning JSX, data, or a service result.

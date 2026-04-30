@@ -30,6 +30,13 @@ const quickActions = [
     meta: 'Order oversight',
   },
   {
+    to: '/admin/signalements',
+    icon: FiShield,
+    title: 'User reports',
+    description: 'Review submitted signalements, update review status, and add internal notes.',
+    meta: 'Issue review',
+  },
+  {
     to: '/admin/reports',
     icon: FiBarChart2,
     title: 'Platform reports',

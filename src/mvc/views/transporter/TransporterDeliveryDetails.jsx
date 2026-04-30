@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { FiAlertCircle, FiArrowLeft, FiCheckCircle, FiMapPin, FiPackage, FiTruck, FiUser } from 'react-icons/fi'
+import { FiAlertCircle, FiArrowLeft, FiCheckCircle, FiFlag, FiMapPin, FiPackage, FiTruck, FiUser } from 'react-icons/fi'
 import { getDeliveryById, updateDeliveryStatus } from '../../controllers/transporterController'
 import {
   DeliveryMissionCard,
@@ -12,6 +12,7 @@ import {
 import { fallback, formatDate, formatDateTime, locationLine } from '../../../utils/deliveryMissionFormatters'
 import { formatDzd } from '../../../utils/currency'
 import { Card, EmptyState, PageHeader, SkeletonBlock, buttonStyles, cn } from '../../../components/ui'
+import ReportModal from '../../../components/ReportModal'
 
 function DetailBlock({ icon, label, children }) {
   return (
@@ -32,6 +33,7 @@ export default function TransporterDeliveryDetails() {
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
+  const [reportOpen, setReportOpen] = useState(false)
 
   const load = async () => {
     setLoading(true)
@@ -253,8 +255,23 @@ export default function TransporterDeliveryDetails() {
           <Link to="/transporter/dashboard" className={cn(buttonStyles.secondary, 'ml-0 sm:ml-auto')}>
             Back to missions
           </Link>
+          <button type="button" onClick={() => setReportOpen(true)} className={buttonStyles.secondary}>
+            <FiFlag />
+            Report mission
+          </button>
         </div>
       </Card>
+      <ReportModal
+        open={reportOpen}
+        onClose={() => setReportOpen(false)}
+        title="Report delivery mission"
+        target={{
+          category: 'shipment',
+          relatedShipmentId: mission.id,
+          relatedOrderId: mission.orderId,
+          label: `Mission ${mission.trackingNumber || mission.id}`,
+        }}
+      />
     </section>
   )
 }

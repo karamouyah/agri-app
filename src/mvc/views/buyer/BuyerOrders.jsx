@@ -3,16 +3,18 @@
 
 // Imports: bring in React, routing, UI components, services, and helpers used below.
 import { useEffect, useState } from 'react'
-import { FiClock, FiMapPin, FiPackage } from 'react-icons/fi'
+import { FiClock, FiFlag, FiMapPin, FiPackage } from 'react-icons/fi'
 import { getBuyerOrders } from '../../controllers/buyerController'
 import { formatDzd } from '../../../utils/currency'
 import { Card, PageHeader, StatusBadge, buttonStyles, cn } from '../../../components/ui'
+import ReportModal from '../../../components/ReportModal'
 
 export default function BuyerOrders() {
   // State: stores local UI data and is updated by event handlers or API responses.
   const [orders, setOrders] = useState([])
   // State: stores local UI data and is updated by event handlers or API responses.
   const [selectedOrder, setSelectedOrder] = useState(null)
+  const [reportOpen, setReportOpen] = useState(false)
 
   // Effect: runs after render to load data, sync storage, or react to dependency changes.
   useEffect(() => {
@@ -128,9 +130,28 @@ export default function BuyerOrders() {
                 ))}
               </ol>
             </div>
+
+            <button
+              type="button"
+              onClick={() => setReportOpen(true)}
+              className={cn(buttonStyles.secondary, 'mt-5 w-full')}
+            >
+              <FiFlag />
+              Report this order
+            </button>
           </Card>
         ) : null}
       </div>
+      <ReportModal
+        open={reportOpen}
+        onClose={() => setReportOpen(false)}
+        title="Report order"
+        target={{
+          category: 'order',
+          relatedOrderId: selectedOrder?.id,
+          label: selectedOrder ? `Order ${selectedOrder.id}` : '',
+        }}
+      />
     </section>
   )
 }

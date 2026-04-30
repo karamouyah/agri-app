@@ -4,12 +4,12 @@
 // Imports: bring in React, routing, UI components, services, and helpers used below.
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { FiMapPin, FiPackage, FiPlus, FiShield, FiUser } from 'react-icons/fi'
+import { FiFlag, FiMapPin, FiPackage, FiPlus, FiShield, FiUser } from 'react-icons/fi'
 import { addToCart, getProductById, getRelatedProducts } from '../../controllers/buyerController'
 import { formatDzd, formatDzdPerUnit } from '../../../utils/currency'
 import { getProductDisplayImage } from '../../../utils/productImages'
-import AgriIllustration from '../../../components/AgriIllustration'
 import { Card } from '../../../components/ui'
+import ReportModal from '../../../components/ReportModal'
 
 export default function BuyerProductDetails() {
   const { id } = useParams()
@@ -21,6 +21,7 @@ export default function BuyerProductDetails() {
   const [quantity, setQuantity] = useState(1)
   // State: stores local UI data and is updated by event handlers or API responses.
   const [message, setMessage] = useState('')
+  const [reportOpen, setReportOpen] = useState(false)
 
   // Effect: runs after render to load data, sync storage, or react to dependency changes.
   useEffect(() => {
@@ -116,6 +117,12 @@ export default function BuyerProductDetails() {
                   Add to Cart
                 </span>
               </button>
+              <button type="button" onClick={() => setReportOpen(true)} className="btn-secondary px-4 py-2 text-sm">
+                <span className="inline-flex items-center gap-2">
+                  <FiFlag />
+                  Report
+                </span>
+              </button>
             </div>
 
             {message ? <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">{message}</p> : null}
@@ -146,6 +153,16 @@ export default function BuyerProductDetails() {
             ))}
           </div>
       </Card>
+      <ReportModal
+        open={reportOpen}
+        onClose={() => setReportOpen(false)}
+        title="Report product listing"
+        target={{
+          category: 'product',
+          relatedProductListingId: product.id,
+          label: `${product.name} from ${product.farmerName}`,
+        }}
+      />
     </section>
   )
 }

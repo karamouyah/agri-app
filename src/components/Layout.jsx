@@ -8,6 +8,7 @@ import {
   FiBox,
   FiClipboard,
   FiDollarSign,
+  FiFlag,
   FiHome,
   FiLogOut,
   FiMapPin,
@@ -27,6 +28,7 @@ const navByRole = {
     { to: '/farmer/products', label: 'Products', icon: FiShoppingBag },
     { to: '/farmer/orders', label: 'Orders', icon: FiClipboard },
     { to: '/farmer/revenues', label: 'Revenues', icon: FiDollarSign },
+    { to: '/farmer/reports', label: 'Reports', icon: FiFlag },
   ],
   buyer: [
     { to: '/buyer/dashboard', label: 'Dashboard', icon: FiHome },
@@ -35,10 +37,12 @@ const navByRole = {
     { to: '/buyer/cart', label: 'Cart', icon: FiBox },
     { to: '/buyer/orders', label: 'Orders', icon: FiClipboard },
     { to: '/buyer/invoices', label: 'Invoices', icon: FiDollarSign },
+    { to: '/buyer/reports', label: 'Reports', icon: FiFlag },
   ],
   transporter: [
     { to: '/transporter/dashboard', label: 'Dashboard', icon: FiTruck },
     { to: '/transporter/profile', label: 'Profile', icon: FiMapPin },
+    { to: '/transporter/reports', label: 'Reports', icon: FiFlag },
   ],
   ministry: [
     { to: '/admin/dashboard', label: 'Dashboard', icon: FiHome },
@@ -46,6 +50,7 @@ const navByRole = {
     { to: '/admin/orders', label: 'Orders', icon: FiClipboard },
     { to: '/admin/products', label: 'Products', icon: FiShoppingBag },
     { to: '/admin/reports', label: 'Reports', icon: FiBarChart2 },
+    { to: '/admin/signalements', label: 'Signalements', icon: FiFlag },
   ],
 }
 

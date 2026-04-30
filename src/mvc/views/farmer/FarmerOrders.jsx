@@ -3,9 +3,11 @@
 
 // Imports: bring in React, routing, UI components, services, and helpers used below.
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { FiFlag } from 'react-icons/fi'
 import { acceptOrder, declineOrder, getOrders } from '../../controllers/farmerController'
 import { formatDzd } from '../../../utils/currency'
 import { PageHeader, StatusBadge, buttonStyles, cn } from '../../../components/ui'
+import ReportModal from '../../../components/ReportModal'
 
 export default function FarmerOrders() {
   // State: stores local UI data and is updated by event handlers or API responses.
@@ -16,6 +18,7 @@ export default function FarmerOrders() {
   const [activeTab, setActiveTab] = useState('pending')
   // State: stores local UI data and is updated by event handlers or API responses.
   const [selectedIds, setSelectedIds] = useState([])
+  const [reportOpen, setReportOpen] = useState(false)
 
   const loadOrders = useCallback(async () => {
     const data = await getOrders()
@@ -294,7 +297,13 @@ export default function FarmerOrders() {
 
       {selectedOrder && (
         <div className="surface-card p-5">
-          <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Order Details</h3>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Order Details</h3>
+            <button type="button" onClick={() => setReportOpen(true)} className={cn(buttonStyles.secondary, 'text-sm')}>
+              <FiFlag />
+              Report order
+            </button>
+          </div>
           <div className="mt-3 grid gap-2 text-sm text-slate-700 dark:text-slate-300 md:grid-cols-2">
             <p>
               <span className="font-medium">Order ID:</span> {selectedOrder.id}
@@ -321,9 +330,18 @@ export default function FarmerOrders() {
           </div>
         </div>
       )}
+      <ReportModal
+        open={reportOpen}
+        onClose={() => setReportOpen(false)}
+        title="Report order"
+        target={{
+          category: 'order',
+          relatedOrderId: selectedOrder?.id,
+          label: selectedOrder ? `Order ${selectedOrder.id}` : '',
+        }}
+      />
     </section>
   )
 }
-
 
 

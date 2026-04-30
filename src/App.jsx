@@ -32,6 +32,8 @@ import AdminUsers from './mvc/views/admin/AdminUsers'
 import AdminOrders from './mvc/views/admin/AdminOrders'
 import AdminProducts from './mvc/views/admin/AdminProducts'
 import AdminReports from './mvc/views/admin/AdminReports'
+import AdminReportManagement from './mvc/views/admin/AdminReportManagement'
+import MyReports from './mvc/views/reports/MyReports'
 
 // App handles this module workflow, using its parameters and returning JSX, data, or a service result.
 function App() {
@@ -60,6 +62,7 @@ function App() {
           <Route path="products" element={<FarmerProducts />} />
           <Route path="orders" element={<FarmerOrders />} />
           <Route path="revenues" element={<FarmerRevenues />} />
+          <Route path="reports" element={<MyReports />} />
           <Route index element={<Navigate to="dashboard" replace />} />
         </Route>
       </Route>
@@ -74,6 +77,7 @@ function App() {
           <Route path="checkout" element={<BuyerCheckout />} />
           <Route path="orders" element={<BuyerOrders />} />
           <Route path="invoices" element={<BuyerInvoices />} />
+          <Route path="reports" element={<MyReports />} />
           <Route path="confirmation/:id" element={<BuyerOrderConfirmation />} />
           <Route index element={<Navigate to="dashboard" replace />} />
         </Route>
@@ -84,6 +88,7 @@ function App() {
           <Route path="dashboard" element={<TransporterDashboard />} />
           <Route path="profile" element={<TransporterProfile />} />
           <Route path="delivery/:id" element={<TransporterDeliveryDetails />} />
+          <Route path="reports" element={<MyReports />} />
           <Route index element={<Navigate to="dashboard" replace />} />
         </Route>
       </Route>
@@ -95,6 +100,7 @@ function App() {
           <Route path="orders" element={<AdminOrders />} />
           <Route path="products" element={<AdminProducts />} />
           <Route path="reports" element={<AdminReports />} />
+          <Route path="signalements" element={<AdminReportManagement />} />
           <Route index element={<Navigate to="dashboard" replace />} />
         </Route>
       </Route>

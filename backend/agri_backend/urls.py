@@ -37,6 +37,7 @@ class ApiRootView(APIView):
                 "catalog": "/api/catalog/",
                 "orders": "/api/orders/",
                 "logistics": "/api/logistics/",
+                "reports": "/api/reports/",
             }
         )
 
@@ -51,4 +52,5 @@ urlpatterns = [
     path("api/catalog/", include("apps.catalog.urls")),
     path("api/orders/", include("apps.orders.urls")),
     path("api/logistics/", include("apps.logistics.urls")),
+    path("api/reports/", include("apps.reports.urls")),
 ]

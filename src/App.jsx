@@ -18,7 +18,7 @@ import BuyerProfile from './mvc/views/buyer/BuyerProfile'
 import TransporterDashboard from './mvc/views/transporter/TransporterDashboard'
 import TransporterProfile from './mvc/views/transporter/TransporterProfile'
 import LandingPage from './mvc/views/LandingPage'
-import { getDashboardPath } from './utils/roleRoutes'
+import { getEntryPath } from './utils/roleRoutes'
 import BuyerSearch from './mvc/views/buyer/BuyerSearch'
 import BuyerProductDetails from './mvc/views/buyer/BuyerProductDetails'
 import BuyerCart from './mvc/views/buyer/BuyerCart'
@@ -50,7 +50,7 @@ function App() {
         path="/workspace"
         element={
           isAuthenticated && user ? (
-            <Navigate to={getDashboardPath(user.role)} replace />
+            <Navigate to={getEntryPath(user)} replace />
           ) : (
             <Navigate to="/login" replace />
           )

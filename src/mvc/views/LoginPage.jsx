@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { FiCheckCircle, FiClock, FiLogIn, FiShield, FiTruck, FiUser } from 'react-icons/fi'
 import { useAuth } from '../../context/AuthContext'
-import { getDashboardPath } from '../../utils/roleRoutes'
+import { getEntryPath } from '../../utils/roleRoutes'
 import BrandLogo from '../../components/BrandLogo'
 import ThemeToggle from '../../components/ThemeToggle'
 import {
@@ -37,7 +37,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
 
   if (isAuthenticated && user) {
-    return <Navigate to={getDashboardPath(user.role)} replace />
+    return <Navigate to={getEntryPath(user)} replace />
   }
   // handleChange handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleChange = (event) => {
@@ -52,7 +52,7 @@ export default function LoginPage() {
 
     try {
       const loggedIn = await login(formData)
-      navigate(getDashboardPath(loggedIn.role), { replace: true })
+      navigate(getEntryPath(loggedIn), { replace: true })
     } catch (submitError) {
       setError(submitError.message)
     } finally {
@@ -161,5 +161,4 @@ export default function LoginPage() {
     </div>
   )
 }
-
 

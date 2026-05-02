@@ -64,8 +64,8 @@ class VerificationDocumentUploadSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         user = self.context["request"].user
-        if user.role not in {User.Role.BUYER, User.Role.TRANSPORTER}:
-            raise serializers.ValidationError("Only buyers and transporters can upload verification documents.")
+        if user.role not in {User.Role.BUYER, User.Role.TRANSPORTER, User.Role.FARMER}:
+            raise serializers.ValidationError("Only buyers, transporters, and farmers can upload verification documents.")
         return attrs
 
     def create(self, validated_data):

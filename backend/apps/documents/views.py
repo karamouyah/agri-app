@@ -14,7 +14,7 @@ from apps.users.models import User
 
 
 class IsBuyerOrTransporter(BasePermission):
-    allowed_roles = {User.Role.BUYER, User.Role.TRANSPORTER}
+    allowed_roles = {User.Role.BUYER, User.Role.TRANSPORTER, User.Role.FARMER}
 
     def has_permission(self, request, view):
         user = request.user

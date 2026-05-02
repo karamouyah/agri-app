@@ -23,6 +23,7 @@ def validate_verification_file(file):
 
 class VerificationDocument(models.Model):
     class Role(models.TextChoices):
+        FARMER = "farmer", "Farmer"
         BUYER = "buyer", "Buyer"
         TRANSPORTER = "transporter", "Transporter"
 

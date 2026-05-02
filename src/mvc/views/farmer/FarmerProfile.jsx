@@ -7,6 +7,7 @@ import { FiMapPin, FiPhone, FiSave, FiType } from 'react-icons/fi'
 import { getFarmProfile, updateFarmProfile } from '../../controllers/farmerController'
 import LocationFields from '../../../components/LocationFields'
 import PageHero from '../../../components/PageHero'
+import DocumentUpload from '../../../components/DocumentUpload'
 import { Card, Input, Textarea } from '../../../components/ui'
 
 const initialForm = {
@@ -74,8 +75,10 @@ export default function FarmerProfile() {
           { label: 'Contact', value: formData.contactInfo || '-', help: 'Primary number shown on the platform' },
         ]}
       />
-      <Card as="form" onSubmit={handleSubmit} className="p-5">
-          <div className="grid gap-4 md:grid-cols-2">
+      
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card as="form" onSubmit={handleSubmit} className="p-5">
+          <div className="grid gap-4">
             <div>
               <label htmlFor="name" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
                 <span className="inline-flex items-center gap-2">
@@ -93,7 +96,7 @@ export default function FarmerProfile() {
               />
             </div>
 
-            <div className="md:col-span-2">
+            <div>
               <label htmlFor="location" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
                 <span className="inline-flex items-center gap-2">
                   <FiMapPin />
@@ -110,7 +113,7 @@ export default function FarmerProfile() {
               />
             </div>
 
-            <div className="md:col-span-2">
+            <div>
               <LocationFields
                 wilayaId={formData.wilaya_id}
                 communeId={formData.commune_id}
@@ -121,7 +124,7 @@ export default function FarmerProfile() {
               />
             </div>
 
-            <div className="md:col-span-2">
+            <div>
               <label htmlFor="description" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Short note
               </label>
@@ -136,7 +139,7 @@ export default function FarmerProfile() {
               />
             </div>
 
-            <div className="md:col-span-2">
+            <div>
               <label htmlFor="contactInfo" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
                 <span className="inline-flex items-center gap-2">
                   <FiPhone />
@@ -153,7 +156,7 @@ export default function FarmerProfile() {
               />
             </div>
 
-            <div className="md:col-span-2 flex items-center gap-3">
+            <div className="flex items-center gap-3">
               <button type="submit" className="btn-primary px-4 py-2 text-sm">
                 <span className="inline-flex items-center gap-2">
                   <FiSave />
@@ -163,7 +166,10 @@ export default function FarmerProfile() {
               {message ? <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">{message}</span> : null}
             </div>
           </div>
-      </Card>
+        </Card>
+
+        <DocumentUpload />
+      </div>
     </section>
   )
 }

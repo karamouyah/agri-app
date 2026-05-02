@@ -13,7 +13,7 @@ import {
 import PageHero from '../../../components/PageHero'
 import { Card, Input, Select, StatusBadge, buttonStyles, cn } from '../../../components/ui'
 import { formatDzd, formatDzdRange } from '../../../utils/currency'
-import { getProductImage } from '../../../utils/productImages'
+import { getProductDisplayImage } from '../../../utils/productImages'
 
 const initialForm = {
   id: null,
@@ -322,7 +322,7 @@ export default function FarmerProducts() {
                   <tr key={product.id} className="transition hover:bg-slate-50/80 dark:hover:bg-slate-800/50">
                     <td className="px-4 py-3">
                       <div className="h-10 w-10 overflow-hidden rounded-[4px] bg-slate-100 ring-1 ring-slate-200">
-                        <img src={getProductImage(product.name)} alt="" className="h-full w-full object-cover" />
+                        <img src={getProductDisplayImage(product)} alt="" className="h-full w-full object-cover" />
                       </div>
                     </td>
                     <td className="px-4 py-3">
@@ -551,4 +551,3 @@ export default function FarmerProducts() {
     </section>
   )
 }
-

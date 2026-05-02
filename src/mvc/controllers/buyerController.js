@@ -3,6 +3,7 @@
 
 export {
   buyerFilterOptions,
+  getBuyerFilterOptions,
   searchProducts,
   getProductById,
   getRelatedProducts,

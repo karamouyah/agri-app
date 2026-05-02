@@ -5,7 +5,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FiFlag } from 'react-icons/fi'
-import { addToCart, buyerFilterOptions, searchProducts } from '../../controllers/buyerController'
+import { addToCart, buyerFilterOptions, getBuyerFilterOptions, searchProducts } from '../../controllers/buyerController'
 import { formatDzdPerUnit } from '../../../utils/currency'
 import LocationFields from '../../../components/LocationFields'
 import { Card, Input, PageHeader, Select, buttonStyles, cn } from '../../../components/ui'
@@ -32,6 +32,7 @@ export default function BuyerSearch() {
   const [page, setPage] = useState(1)
   // State: stores local UI data and is updated by event handlers or API responses.
   const [data, setData] = useState({ items: [], total: 0, totalPages: 1 })
+  const [filterOptions, setFilterOptions] = useState(buyerFilterOptions)
   // State: stores local UI data and is updated by event handlers or API responses.
   const [message, setMessage] = useState('')
   // State: stores local UI data and is updated by event handlers or API responses.
@@ -60,7 +61,14 @@ export default function BuyerSearch() {
   useEffect(() => {
     // syncResults handles this module workflow, using its parameters and returning JSX, data, or a service result.
     const syncResults = async () => {
-      await load(1, '', initialFilters)
+      const [nextFilterOptions] = await Promise.allSettled([
+        getBuyerFilterOptions(),
+        load(1, '', initialFilters),
+      ])
+
+      if (nextFilterOptions.status === 'fulfilled') {
+        setFilterOptions(nextFilterOptions.value)
+      }
     }
 
     syncResults()
@@ -151,7 +159,7 @@ export default function BuyerSearch() {
                 className="px-3 py-2"
               >
                 <option value="">All</option>
-                {buyerFilterOptions.categories.map((category) => (
+                {filterOptions.categories.map((category) => (
                   <option key={category} value={category}>
                     {category}
                   </option>
@@ -211,7 +219,7 @@ export default function BuyerSearch() {
                 className="px-3 py-2"
               >
                 <option value="">All</option>
-                {buyerFilterOptions.qualities.map((quality) => (
+                {filterOptions.qualities.map((quality) => (
                   <option key={quality} value={quality}>
                     {quality}
                   </option>

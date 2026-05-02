@@ -46,6 +46,17 @@ apiRequest('/catalog/filters/')
     // Keep defaults when backend is unavailable during initial load.
   })
 
+export const getBuyerFilterOptions = async () => {
+  const payload = await apiRequest('/catalog/filters/')
+  return {
+    categories: payload.categories || [],
+    locations: payload.locations || [],
+    wilayas: payload.wilayas || [],
+    communes: payload.communes || [],
+    qualities: payload.qualities || buyerFilterOptions.qualities,
+  }
+}
+
 // normalizeProduct handles this module workflow, using its parameters and returning JSX, data, or a service result.
 const normalizeProduct = (item) => ({
   id: item.id,

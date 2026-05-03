@@ -146,6 +146,12 @@ export const loginUser = async (credentials) => {
     },
   })
 
+  if (!payload || !payload.access) {
+    throw new Error(
+      'Server returned an invalid response. This usually means VITE_API_BASE_URL is pointing to the frontend static server instead of the Django backend.',
+    )
+  }
+
   setStoredTokens({ access: payload.access, refresh: payload.refresh })
   return normalizeUser(payload.user)
 }
@@ -185,6 +191,12 @@ export const registerUser = async (payload) => {
     method: 'POST',
     body,
   })
+
+  if (!created || !created.id) {
+    throw new Error(
+      'Server returned an invalid registration response. Check VITE_API_BASE_URL configuration.',
+    )
+  }
 
   return normalizeUser(created)
 }

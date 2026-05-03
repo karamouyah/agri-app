@@ -16,8 +16,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
 INSECURE_SECRET_KEY = "insecure-dev-only-secret-key-change-me"
+# Allow all hosts by default — restrict via DJANGO_ALLOWED_HOSTS env var in production.
 DEFAULT_ALLOWED_HOSTS = "*"
-DEFAULT_FRONTEND_ORIGINS = "http://localhost:5173,http://127.0.0.1:5173,https://agri-app-peach.vercel.app"
+# Local dev CORS origins. Override in production via CORS_ALLOWED_ORIGINS env var.
+DEFAULT_CORS_ORIGINS = "http://localhost:5173,http://127.0.0.1:5173"
+# CSRF trusted origins — must include the Railway backend HTTPS domain for POST to work.
+DEFAULT_CSRF_ORIGINS = "http://localhost:5173,http://127.0.0.1:5173,https://agri-app-production-4d98.up.railway.app"
 
 
 def get_bool(name: str, default: bool = False) -> bool:
@@ -215,11 +219,11 @@ SECURE_REFERRER_POLICY = "same-origin"
 
 CORS_ALLOWED_ORIGINS = get_list(
     "CORS_ALLOWED_ORIGINS",
-    DEFAULT_FRONTEND_ORIGINS,
+    DEFAULT_CORS_ORIGINS,
 )
 CSRF_TRUSTED_ORIGINS = get_list(
     "CSRF_TRUSTED_ORIGINS",
-    DEFAULT_FRONTEND_ORIGINS,
+    DEFAULT_CSRF_ORIGINS,
 )
 
 REST_FRAMEWORK = {

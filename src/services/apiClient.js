@@ -11,7 +11,7 @@ const normalizeBaseUrl = (value) => {
 
 const API_BASE_URL =
   normalizeBaseUrl(import.meta.env.VITE_API_BASE_URL) ||
-  (import.meta.env.DEV ? DEFAULT_DEV_API_BASE_URL : '/_/backend/api')
+  (import.meta.env.DEV ? DEFAULT_DEV_API_BASE_URL : '')
 
 const TOKENS_KEY = 'agri_auth_tokens'
 
@@ -84,7 +84,7 @@ const isFormData = (value) => typeof FormData !== 'undefined' && value instanceo
 const getApiUrl = (path) => {
   if (!API_BASE_URL) {
     throw new Error(
-      'VITE_API_BASE_URL is not configured. Set it in Vercel before using the production build.',
+      'VITE_API_BASE_URL is not configured. Set VITE_API_BASE_URL=https://agri-app-production-4d98.up.railway.app/api in your frontend environment (Vercel or Railway).',
     )
   }
 

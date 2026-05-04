@@ -115,6 +115,7 @@ const normalizeOrder = (order) => ({
   pickupCommuneName: order.pickup_commune_name || '',
   transporterContact: order.transporter_contact || null,
   buyerContact: order.buyer_contact || null,
+  farmerContact: order.farmer_contact || null,
   items: order.items.map((item) => ({
     productId: item.product_id,
     name: item.name,

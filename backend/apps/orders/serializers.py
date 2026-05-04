@@ -128,6 +128,7 @@ class OrderSerializer(serializers.ModelSerializer):
     pickup_commune_name = serializers.CharField(source="pickup_commune.name", read_only=True)
     buyer_contact = serializers.SerializerMethodField()
     transporter_contact = serializers.SerializerMethodField()
+    farmer_contact = serializers.SerializerMethodField()
 
     class Meta:
         """Defines Meta for this app and is used by the serializers, views, routes, or admin when imported."""
@@ -152,6 +153,7 @@ class OrderSerializer(serializers.ModelSerializer):
             "pickup_commune_name",
             "buyer_contact",
             "transporter_contact",
+            "farmer_contact",
         ]
 
     def _get_contact_data(self, user_instance, obj):
@@ -182,6 +184,9 @@ class OrderSerializer(serializers.ModelSerializer):
 
     def get_buyer_contact(self, obj):
         return self._get_contact_data(obj.buyer.person, obj)
+
+    def get_farmer_contact(self, obj):
+        return self._get_contact_data(obj.farmer.person, obj)
 
     def get_transporter_contact(self, obj):
         shipment = obj.shipments.order_by("id").first()

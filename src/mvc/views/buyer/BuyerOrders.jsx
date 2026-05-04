@@ -26,7 +26,7 @@ function ContactInfoCard({ title, contact }) {
             href={`tel:${contact.phone_number}`}
             className="inline-flex items-center gap-2 rounded-md bg-emerald-100 px-3 py-1.5 text-sm font-medium text-emerald-800 transition-colors hover:bg-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-300 dark:hover:bg-emerald-900/60"
           >
-            <FiPhone className="shrink-0" /> Call
+            <FiPhone className="shrink-0" /> {contact.phone_number}
           </a>
         )}
         {contact.email && (
@@ -34,7 +34,7 @@ function ContactInfoCard({ title, contact }) {
             href={`mailto:${contact.email}`}
             className="inline-flex items-center gap-2 rounded-md bg-sky-100 px-3 py-1.5 text-sm font-medium text-sky-800 transition-colors hover:bg-sky-200 dark:bg-sky-900/40 dark:text-sky-300 dark:hover:bg-sky-900/60"
           >
-            <FiMail className="shrink-0" /> Email
+            <FiMail className="shrink-0" /> {contact.email}
           </a>
         )}
       </div>

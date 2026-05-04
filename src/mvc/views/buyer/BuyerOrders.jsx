@@ -3,11 +3,44 @@
 
 // Imports: bring in React, routing, UI components, services, and helpers used below.
 import { useEffect, useState } from 'react'
-import { FiClock, FiFlag, FiMapPin, FiPackage } from 'react-icons/fi'
+import { FiClock, FiFlag, FiMapPin, FiPackage, FiPhone, FiMail, FiUser } from 'react-icons/fi'
 import { getBuyerOrders } from '../../controllers/buyerController'
 import { formatDzd } from '../../../utils/currency'
 import { Card, PageHeader, StatusBadge, buttonStyles, cn } from '../../../components/ui'
 import ReportModal from '../../../components/ReportModal'
+
+function ContactInfoCard({ title, contact }) {
+  if (!contact) return null
+  return (
+    <div className="space-y-3 rounded-lg border border-emerald-200 bg-emerald-50/50 p-4 dark:border-emerald-900/50 dark:bg-emerald-900/20 mt-4">
+      <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-400">
+        <FiUser className="shrink-0" />
+        {title}
+      </p>
+      <div className="mt-2">
+        <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{contact.full_name || contact.email}</p>
+      </div>
+      <div className="flex flex-wrap gap-2 mt-2">
+        {contact.phone_number && (
+          <a
+            href={`tel:${contact.phone_number}`}
+            className="inline-flex items-center gap-2 rounded-md bg-emerald-100 px-3 py-1.5 text-sm font-medium text-emerald-800 transition-colors hover:bg-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-300 dark:hover:bg-emerald-900/60"
+          >
+            <FiPhone className="shrink-0" /> Call
+          </a>
+        )}
+        {contact.email && (
+          <a
+            href={`mailto:${contact.email}`}
+            className="inline-flex items-center gap-2 rounded-md bg-sky-100 px-3 py-1.5 text-sm font-medium text-sky-800 transition-colors hover:bg-sky-200 dark:bg-sky-900/40 dark:text-sky-300 dark:hover:bg-sky-900/60"
+          >
+            <FiMail className="shrink-0" /> Email
+          </a>
+        )}
+      </div>
+    </div>
+  )
+}
 
 export default function BuyerOrders() {
   // State: stores local UI data and is updated by event handlers or API responses.
@@ -128,6 +161,9 @@ export default function BuyerOrders() {
                 <p className="mt-1 text-slate-600 capitalize dark:text-slate-300">{selectedOrder.status}</p>
               </div>
             </div>
+
+            <ContactInfoCard title="Transporter Contact" contact={selectedOrder.transporterContact} />
+            <ContactInfoCard title="Farmer Contact" contact={selectedOrder.farmerContact} />
 
             <div className="mt-5">
               <h4 className="text-sm font-bold uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-300">Timeline</h4>

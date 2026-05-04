@@ -113,6 +113,8 @@ const normalizeOrder = (order) => ({
   pickupWilayaName: order.pickup_wilaya_name || '',
   pickupCommuneId: Number(order.pickup_commune_id || 0) || '',
   pickupCommuneName: order.pickup_commune_name || '',
+  transporterContact: order.transporter_contact || null,
+  buyerContact: order.buyer_contact || null,
   items: order.items.map((item) => ({
     productId: item.product_id,
     name: item.name,

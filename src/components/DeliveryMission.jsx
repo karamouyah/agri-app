@@ -14,6 +14,8 @@ import {
   FiUser,
   FiX,
   FiXCircle,
+  FiPhone,
+  FiMail,
 } from 'react-icons/fi'
 import { formatDzd } from '../utils/currency'
 import { fallback, formatDate, formatDateTime, locationLine } from '../utils/deliveryMissionFormatters'
@@ -60,6 +62,43 @@ function DetailItem({ icon: Icon, label, value }) {
         {label}
       </p>
       <p className="mt-1 break-words text-sm font-medium text-slate-900 dark:text-slate-100">{value}</p>
+    </div>
+  )
+}
+
+function ContactInfoCard({ title, contact, roleName }) {
+  if (!contact) {
+    return (
+      <DetailItem icon={FiUser} label={roleName} value={`${roleName} not provided or hidden`} />
+    )
+  }
+  return (
+    <div className="space-y-3 rounded-lg border border-emerald-200 bg-emerald-50/50 p-4 dark:border-emerald-900/50 dark:bg-emerald-900/20">
+      <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-400">
+        <FiUser className="shrink-0" />
+        {title}
+      </p>
+      <div className="mt-2">
+        <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{contact.full_name || contact.email}</p>
+      </div>
+      <div className="flex flex-wrap gap-2 mt-2">
+        {contact.phone_number && (
+          <a
+            href={`tel:${contact.phone_number}`}
+            className="inline-flex items-center gap-2 rounded-md bg-emerald-100 px-3 py-1.5 text-sm font-medium text-emerald-800 transition-colors hover:bg-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-300 dark:hover:bg-emerald-900/60"
+          >
+            <FiPhone className="shrink-0" /> Call
+          </a>
+        )}
+        {contact.email && (
+          <a
+            href={`mailto:${contact.email}`}
+            className="inline-flex items-center gap-2 rounded-md bg-sky-100 px-3 py-1.5 text-sm font-medium text-sky-800 transition-colors hover:bg-sky-200 dark:bg-sky-900/40 dark:text-sky-300 dark:hover:bg-sky-900/60"
+          >
+            <FiMail className="shrink-0" /> Email
+          </a>
+        )}
+      </div>
     </div>
   )
 }
@@ -269,13 +308,14 @@ export function DeliveryMissionDetailsModal({ mission, onClose, onAccept, onDecl
                   <MissionItems mission={mission} />
                 </div>
               </div>
-              <div className="space-y-3 rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900/50">
-                <DetailItem icon={FiUser} label="Buyer" value={fallback(mission.buyerName, 'Buyer not provided')} />
-                <DetailItem icon={FiUser} label="Farmer" value={fallback(mission.farmerName, 'Farmer not provided')} />
-                <DetailItem icon={FiTruck} label="Transport fee" value={mission.shippingFee ? formatDzd(mission.shippingFee) : 'Not provided'} />
-                <DetailItem icon={FiAlertCircle} label="Payment" value={fallback(mission.paymentMethod, 'Not provided')} />
-                <DetailItem icon={FiAlertCircle} label="Distance" value="Not provided by backend" />
-                <DetailItem icon={FiAlertCircle} label="Priority" value="Not provided by backend" />
+              <div className="space-y-4">
+                <div className="space-y-3 rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900/50">
+                  <DetailItem icon={FiTruck} label="Transport fee" value={mission.shippingFee ? formatDzd(mission.shippingFee) : 'Not provided'} />
+                  <DetailItem icon={FiAlertCircle} label="Payment" value={fallback(mission.paymentMethod, 'Not provided')} />
+                </div>
+                
+                <ContactInfoCard title="Buyer Contact" roleName="Buyer" contact={mission.buyerContact} />
+                <ContactInfoCard title="Farmer Contact" roleName="Farmer" contact={mission.farmerContact} />
               </div>
             </div>
           </div>

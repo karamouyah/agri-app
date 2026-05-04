@@ -7,18 +7,20 @@ ALLOWED_DOCUMENT_CONTENT_TYPES = {
     "image/jpeg",
     "image/png",
     "image/webp",
-    "application/pdf",
 }
 MAX_DOCUMENT_SIZE = 5 * 1024 * 1024
 
 
-def validate_verification_file(file):
+def validate_verification_image(file):
     content_type = getattr(file, "content_type", "")
     if content_type and content_type not in ALLOWED_DOCUMENT_CONTENT_TYPES:
-        raise ValidationError("Only JPG, PNG, WEBP, or PDF files are allowed.")
+        raise ValidationError("Only JPG, PNG, or WEBP images are allowed.")
 
     if file.size > MAX_DOCUMENT_SIZE:
-        raise ValidationError("Document file size must be 5 MB or less.")
+        raise ValidationError("Image file size must be 5 MB or less.")
+
+# Alias for old migrations
+validate_verification_file = validate_verification_image
 
 
 class VerificationDocument(models.Model):
@@ -44,8 +46,7 @@ class VerificationDocument(models.Model):
     )
     role = models.CharField(max_length=20, choices=Role.choices)
     document_type = models.CharField(max_length=30, choices=DocumentType.choices)
-    file = models.FileField(upload_to="verification_documents/%Y/%m/", validators=[validate_verification_file])
-    pdf_file = models.FileField(upload_to="verification_documents_pdf/%Y/%m/", blank=True, null=True, help_text="Auto-generated PDF version of the document")
+    file = models.ImageField(upload_to="verification_documents/%Y/%m/", validators=[validate_verification_image])
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING, db_index=True)
     admin_notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
@@ -59,4 +60,3 @@ class VerificationDocument(models.Model):
 
     def __str__(self):
         return f"VerificationDocument<{self.id}:{self.role}:{self.status}>"
-

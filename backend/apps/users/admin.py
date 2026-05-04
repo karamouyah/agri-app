@@ -4,18 +4,36 @@ Connects to the Django backend through imports, app configuration, API routing, 
 """
 
 # Imports: load Django, DRF, models, serializers, and helpers used in this module.
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
+from apps.documents.models import VerificationDocument
 from apps.users.models import AdminProfile, Buyer, Farmer, Farm, JoinRequest, Transporter, User
+
+
+@admin.action(description="Approve User and Documents")
+def approve_user_and_documents(modeladmin, request, queryset):
+    for user in queryset:
+        user.status = User.Status.APPROVED
+        user.save(update_fields=["status"])
+        
+        docs = VerificationDocument.objects.filter(user=user, status=VerificationDocument.Status.PENDING)
+        docs.update(status=VerificationDocument.Status.APPROVED)
+        
+    modeladmin.message_user(
+        request,
+        "Selected users and their pending documents have been approved.",
+        messages.SUCCESS,
+    )
 
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
     """Defines UserAdmin for this app and is used by the serializers, views, routes, or admin when imported."""
     ordering = ["email"]
-    list_display = ["id", "email", "role_slug", "approval_status", "status", "is_staff"]
+    list_display = ["id", "email", "role_slug", "documents_count", "approval_status", "status", "is_staff"]
     list_filter = ["role", "status", "is_staff"]
+    actions = [approve_user_and_documents]
 
     fieldsets = BaseUserAdmin.fieldsets + (
         (
@@ -32,6 +50,10 @@ class UserAdmin(BaseUserAdmin):
             },
         ),
     )
+
+    @admin.display(description="Documents")
+    def documents_count(self, obj):
+        return obj.verification_documents.count()
 
     @admin.display(description="Role")
     def role_slug(self, obj):

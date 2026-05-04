@@ -13,6 +13,6 @@ class VerificationDocumentAdmin(admin.ModelAdmin):
 
     def image_preview(self, obj):
         if obj.file:
-            return mark_safe(f'<img src="{obj.file.url}" width="300" style="border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" />')
+            return mark_safe(f'<a href="{obj.file.url}" target="_blank"><img src="{obj.file.url}" width="300" style="border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" /></a>')
         return "No Image"
     image_preview.short_description = "Image Preview"

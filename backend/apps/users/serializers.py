@@ -655,6 +655,18 @@ class RegisterSerializer(LocationValidationMixin, serializers.ModelSerializer):
                 elif role_slug == "buyer":
                     Buyer.objects.create(person=user, wilaya=wilaya, commune=commune)
 
+                from apps.documents.models import VerificationDocument
+                request = self.context.get("request")
+                if request and request.FILES:
+                    for doc_file in request.FILES.getlist("documents"):
+                        VerificationDocument.objects.create(
+                            user=user,
+                            role=user.role_slug,
+                            document_type=VerificationDocument.DocumentType.ID_CARD,
+                            file=doc_file,
+                            status=VerificationDocument.Status.PENDING,
+                        )
+
                 JoinRequest.objects.create(
                     first_name=first_name,
                     last_name=last_name,

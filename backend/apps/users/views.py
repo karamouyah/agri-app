@@ -33,12 +33,15 @@ from apps.users.serializers import (
 )
 
 
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
+
 class RegisterView(generics.CreateAPIView):
     """Defines RegisterView for this app and is used by the serializers, views, routes, or admin when imported."""
     serializer_class = RegisterSerializer
     permission_classes = [AllowAny]
     throttle_classes = [ScopedRateThrottle]
     throttle_scope = "auth"
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
 
 class LoginView(TokenObtainPairView):

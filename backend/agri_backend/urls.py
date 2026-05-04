@@ -58,5 +58,13 @@ urlpatterns = [
     path("api/documents/", include("apps.documents.urls")),
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Serve media files efficiently.
+# In development, Django handles this automatically via the `static()` helper if appended,
+# but we explicitly define a re_path for `serve` so it functions in production on Railway Volume.
+# Note: Ensure the Web Server (Gunicorn) is properly configured, or offload this to an Nginx proxy 
+# for higher performance if traffic scales.
+urlpatterns += [
+    re_path(r'^media/(?P<path>.*)$', serve, {
+        'document_root': settings.MEDIA_ROOT,
+    }),
+]

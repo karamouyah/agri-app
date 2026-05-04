@@ -278,10 +278,24 @@ export default function AdminUsers() {
                       <td>
                         {['buyer', 'transporter'].includes(user.role) ? (
                           <div className="space-y-1">
-                            <StatusBadge status={user.verificationDocumentsStatus || 'missing'} />
-                            <p className="text-xs text-slate-500 dark:text-slate-400">
-                              {user.verificationDocumentsCount || 0} uploaded
-                            </p>
+                            {user.verificationDocuments && user.verificationDocuments.length > 0 ? (
+                              <div className="flex gap-2 items-center">
+                                <button 
+                                  type="button" 
+                                  onClick={() => window.open(user.verificationDocuments[0], '_blank')}
+                                  className="h-10 w-10 overflow-hidden rounded-md border border-slate-200 shadow-sm hover:ring-2 hover:ring-emerald-500 transition-all"
+                                >
+                                  <img src={user.verificationDocuments[0]} alt="Document thumbnail" className="h-full w-full object-cover" />
+                                </button>
+                                {user.verificationDocumentsCount > 1 && (
+                                  <span className="text-xs text-slate-500 dark:text-slate-400">
+                                    +{user.verificationDocumentsCount - 1}
+                                  </span>
+                                )}
+                              </div>
+                            ) : (
+                              <StatusBadge status={user.verificationDocumentsStatus || 'missing'} />
+                            )}
                           </div>
                         ) : (
                           <span className="text-xs text-slate-500 dark:text-slate-400">Not required</span>

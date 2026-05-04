@@ -307,6 +307,7 @@ class UserSerializer(serializers.ModelSerializer):
     delivery_wilaya_ids = serializers.SerializerMethodField()
     verification_documents_count = serializers.SerializerMethodField()
     verification_documents_status = serializers.SerializerMethodField()
+    verification_documents = serializers.SerializerMethodField()
 
     class Meta:
         """Defines Meta for this app and is used by the serializers, views, routes, or admin when imported."""
@@ -337,6 +338,7 @@ class UserSerializer(serializers.ModelSerializer):
             "delivery_wilaya_ids",
             "verification_documents_count",
             "verification_documents_status",
+            "verification_documents",
         ]
 
     def get_name(self, obj):
@@ -471,6 +473,24 @@ class UserSerializer(serializers.ModelSerializer):
         if all(document.status == "approved" for document in documents):
             return "approved"
         return "pending"
+
+    def get_verification_documents(self, obj):
+        if obj.role not in {User.Role.BUYER, User.Role.TRANSPORTER}:
+            return []
+        
+        request = self.context.get("request")
+        docs = []
+        for doc in obj.verification_documents.all():
+            if doc.file:
+                url = doc.file.url
+                if request:
+                    from django.core.exceptions import DisallowedHost
+                    try:
+                        url = request.build_absolute_uri(url)
+                    except DisallowedHost:
+                        pass
+                docs.append(url)
+        return docs
 
     def to_representation(self, instance):
         """Handles to_representation, using the declared parameters and returning the expected value or API response."""

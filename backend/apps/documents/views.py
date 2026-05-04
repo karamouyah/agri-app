@@ -102,9 +102,14 @@ class VerificationDocumentDownloadView(generics.RetrieveAPIView):
             raise Http404("Document file is missing.")
 
         try:
+            if not document.file.storage.exists(document.file.name):
+                raise Http404("Document file is missing from storage.")
             file_handle = document.file.open("rb")
-        except FileNotFoundError as exc:
-            raise Http404("Document file is missing from storage.") from exc
+        except Exception as exc:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error opening document {document.id}: {exc}")
+            raise Http404("Document file cannot be accessed or is missing from storage.") from exc
 
         response = FileResponse(file_handle, as_attachment=True)
         filename = document.file.name.rsplit("/", 1)[-1]
@@ -128,9 +133,14 @@ class VerificationDocumentDownloadPDFView(generics.RetrieveAPIView):
             raise Http404("Document file is missing.")
 
         try:
+            if not file_to_serve.storage.exists(file_to_serve.name):
+                raise Http404("Document file is missing from storage.")
             file_handle = file_to_serve.open("rb")
-        except FileNotFoundError as exc:
-            raise Http404("Document file is missing from storage.") from exc
+        except Exception as exc:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error opening PDF document {document.id}: {exc}")
+            raise Http404("Document file cannot be accessed or is missing from storage.") from exc
 
         response = FileResponse(file_handle, as_attachment=False)  # Open in browser
         filename = file_to_serve.name.rsplit("/", 1)[-1]

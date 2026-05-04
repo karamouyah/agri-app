@@ -50,7 +50,7 @@ const fallbackControlledProducts = controlledCatalog.map((item, index) =>
 // mapOrderForFarmer handles this module workflow, using its parameters and returning JSX, data, or a service result.
 const mapOrderForFarmer = (order) => ({
   id: order.id,
-  buyerName: 'Buyer',
+  buyerName: order.buyer_contact?.full_name || 'Buyer',
   product: order.items[0]?.name || '-',
   quantity: order.items.reduce((sum, item) => sum + item.quantity, 0),
   orderDate: order.created_at.slice(0, 10),
@@ -58,6 +58,8 @@ const mapOrderForFarmer = (order) => ({
   amount: Number(order.total),
   currency: order.currency || PLATFORM_CURRENCY,
   deliveryAddress: order.address,
+  buyerContact: order.buyer_contact || null,
+  transporterContact: order.transporter_contact || null,
 })
 
 // getControlledProducts handles this module workflow, using its parameters and returning JSX, data, or a service result.

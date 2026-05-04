@@ -3,6 +3,7 @@
 
 // Imports: bring in React, routing, UI components, services, and helpers used below.
 import { useEffect, useState } from 'react'
+import { FiPhone, FiMail } from 'react-icons/fi'
 import {
   approveUser,
   getPendingUsers,
@@ -230,7 +231,7 @@ export default function AdminUsers() {
                 <thead>
                   <tr>
                     <th>Name</th>
-                    <th>Email</th>
+                    <th>Contact</th>
                     <th>Role</th>
                     <th>Approval</th>
                     <th>Documents</th>
@@ -242,7 +243,34 @@ export default function AdminUsers() {
                   {users.map((user) => (
                     <tr key={user.id}>
                       <td className="font-semibold text-slate-900 dark:text-slate-100">{user.name}</td>
-                      <td>{user.email}</td>
+                      <td>
+                        <div className="flex flex-col gap-1.5 min-w-[160px]">
+                          {user.phoneNumber ? (
+                            <a
+                              href={`tel:${user.phoneNumber}`}
+                              className="inline-flex items-center gap-1.5 text-sm text-emerald-700 hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-300"
+                            >
+                              <FiPhone className="shrink-0" /> {user.phoneNumber}
+                            </a>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 text-sm text-slate-400 dark:text-slate-500">
+                              <FiPhone className="shrink-0" /> No number
+                            </span>
+                          )}
+                          {user.email ? (
+                            <a
+                              href={`mailto:${user.email}`}
+                              className="inline-flex items-center gap-1.5 text-sm text-sky-700 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300"
+                            >
+                              <FiMail className="shrink-0" /> {user.email}
+                            </a>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 text-sm text-slate-400 dark:text-slate-500">
+                              <FiMail className="shrink-0" /> No email
+                            </span>
+                          )}
+                        </div>
+                      </td>
                       <td className="capitalize">{user.role}</td>
                       <td>
                         <StatusBadge status={user.approvalStatus} />

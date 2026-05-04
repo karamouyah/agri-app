@@ -3,11 +3,44 @@
 
 // Imports: bring in React, routing, UI components, services, and helpers used below.
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { FiFlag } from 'react-icons/fi'
+import { FiFlag, FiPhone, FiMail, FiUser } from 'react-icons/fi'
 import { acceptOrder, declineOrder, getOrders } from '../../controllers/farmerController'
 import { formatDzd } from '../../../utils/currency'
 import { PageHeader, StatusBadge, buttonStyles, cn } from '../../../components/ui'
 import ReportModal from '../../../components/ReportModal'
+
+function ContactInfoCard({ title, contact }) {
+  if (!contact) return null
+  return (
+    <div className="space-y-3 rounded-lg border border-emerald-200 bg-emerald-50/50 p-4 dark:border-emerald-900/50 dark:bg-emerald-900/20 mt-4">
+      <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-400">
+        <FiUser className="shrink-0" />
+        {title}
+      </p>
+      <div className="mt-2">
+        <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{contact.full_name || contact.email}</p>
+      </div>
+      <div className="flex flex-wrap gap-2 mt-2">
+        {contact.phone_number && (
+          <a
+            href={`tel:${contact.phone_number}`}
+            className="inline-flex items-center gap-2 rounded-md bg-emerald-100 px-3 py-1.5 text-sm font-medium text-emerald-800 transition-colors hover:bg-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-300 dark:hover:bg-emerald-900/60"
+          >
+            <FiPhone className="shrink-0" /> Call
+          </a>
+        )}
+        {contact.email && (
+          <a
+            href={`mailto:${contact.email}`}
+            className="inline-flex items-center gap-2 rounded-md bg-sky-100 px-3 py-1.5 text-sm font-medium text-sky-800 transition-colors hover:bg-sky-200 dark:bg-sky-900/40 dark:text-sky-300 dark:hover:bg-sky-900/60"
+          >
+            <FiMail className="shrink-0" /> Email
+          </a>
+        )}
+      </div>
+    </div>
+  )
+}
 
 export default function FarmerOrders() {
   // State: stores local UI data and is updated by event handlers or API responses.
@@ -347,6 +380,12 @@ export default function FarmerOrders() {
               <span className="font-medium">Delivery Address:</span> {selectedOrder.deliveryAddress}
             </p>
           </div>
+
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
+            <ContactInfoCard title="Buyer Contact" contact={selectedOrder.buyerContact} />
+            <ContactInfoCard title="Transporter Contact" contact={selectedOrder.transporterContact} />
+          </div>
+
         </div>
       )}
       <ReportModal
@@ -365,4 +404,5 @@ export default function FarmerOrders() {
     </section>
   )
 }
+
 

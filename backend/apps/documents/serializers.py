@@ -45,7 +45,7 @@ class VerificationDocumentSerializer(serializers.ModelSerializer):
         if not obj.file:
             return ""
         request = self.context.get("request")
-        url = obj.file.url
+        url = f"/api/documents/{obj.id}/download/"
         if not request:
             return url
         try:

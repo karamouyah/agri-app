@@ -7,7 +7,8 @@ Connects to the Django backend through imports, app configuration, API routing, 
 from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
-from django.urls import include, path
+from django.urls import include, path, re_path
+from django.views.static import serve
 from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework.views import APIView

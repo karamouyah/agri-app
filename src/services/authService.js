@@ -160,36 +160,45 @@ export const loginUser = async (credentials) => {
 export const registerUser = async (payload) => {
   const validated = validateRegistrationPayload(payload)
 
-  const body = {
-    name: validated.name,
-    email: validated.email,
-    password: validated.password,
-    role: validated.role,
-    phone_number: validated.phoneNumber,
-  }
+  const formData = new FormData()
+  formData.append('name', validated.name)
+  formData.append('email', validated.email)
+  formData.append('password', validated.password)
+  formData.append('role', validated.role)
+  formData.append('phone_number', validated.phoneNumber)
 
   if (validated.role === 'farmer') {
-    body.farm_name = validated.farmName
-    body.farm_address = validated.farmAddress
-    body.wilaya_id = validated.wilayaId
-    body.commune_id = validated.communeId
+    formData.append('farm_name', validated.farmName || '')
+    formData.append('farm_address', validated.farmAddress || '')
+    formData.append('wilaya_id', validated.wilayaId || '')
+    formData.append('commune_id', validated.communeId || '')
   }
 
   if (validated.role === 'buyer') {
-    body.address = validated.address
-    body.wilaya_id = validated.wilayaId
-    body.commune_id = validated.communeId
+    formData.append('address', validated.address || '')
+    formData.append('wilaya_id', validated.wilayaId || '')
+    formData.append('commune_id', validated.communeId || '')
   }
 
   if (validated.role === 'transporter') {
-    body.vehicle = validated.vehicle
-    body.max_load_kg = validated.maxLoadKg
-    body.delivery_wilaya_ids = validated.deliveryWilayaIds
+    formData.append('vehicle', validated.vehicle || '')
+    formData.append('max_load_kg', validated.maxLoadKg || '')
+    if (validated.deliveryWilayaIds) {
+      validated.deliveryWilayaIds.forEach((id) => {
+        formData.append('delivery_wilaya_ids', id)
+      })
+    }
+  }
+
+  if (payload.documents && payload.documents.length > 0) {
+    payload.documents.forEach((file) => {
+      formData.append('documents', file)
+    })
   }
 
   const created = await apiRequest('/auth/register/', {
     method: 'POST',
-    body,
+    body: formData,
   })
 
   if (!created || !created.id) {

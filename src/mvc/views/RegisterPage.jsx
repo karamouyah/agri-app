@@ -311,6 +311,33 @@ export default function RegisterPage() {
                 </>
               ) : null}
 
+              <FormField label="Verification Documents (ID/License)">
+                <Input
+                  id="documents"
+                  name="documents"
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleFileChange}
+                />
+                {formData.documents.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {formData.documents.map((file, idx) => (
+                      <div key={idx} className="relative h-16 w-16 overflow-hidden rounded-md border border-slate-200">
+                        <img src={URL.createObjectURL(file)} alt="preview" className="h-full w-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => removeDocument(idx)}
+                          className="absolute right-0 top-0 flex h-5 w-5 items-center justify-center bg-black/50 text-white hover:bg-rose-500"
+                        >
+                          &times;
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </FormField>
+
               {error ? <div className="rounded-lg border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">{error}</div> : null}
 
               <button type="submit" disabled={loading} className={`${buttonStyles.primary} w-full`}>

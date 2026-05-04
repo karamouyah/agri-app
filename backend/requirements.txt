@@ -8,5 +8,5 @@ whitenoise==6.11.0
 gunicorn==23.0.0
 Faker>=30,<41
 Pillow==11.1.0
-python-docx==1.2.2
+python-docx==1.2.0
 reportlab==4.2.5

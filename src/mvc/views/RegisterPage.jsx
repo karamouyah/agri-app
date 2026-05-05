@@ -330,11 +330,11 @@ export default function RegisterPage() {
                     Upload ID Documents
                   </label>
                 </div>
-                {formData.documents.length > 0 && (
+                {formData.documents && formData.documents.length > 0 && (
                   <div className="mt-3 flex flex-wrap gap-2">
                     {formData.documents.map((file, idx) => (
                       <div key={idx} className="relative h-[80px] w-[80px] overflow-hidden rounded-md border border-slate-200 shadow-sm">
-                        <img src={URL.createObjectURL(file)} alt="preview" className="h-full w-full object-cover" />
+                        <img src={file._previewUrl || URL.createObjectURL(file)} alt="preview" className="h-full w-full object-cover" />
                         <button
                           type="button"
                           onClick={() => removeDocument(idx)}

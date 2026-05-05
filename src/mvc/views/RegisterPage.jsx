@@ -210,48 +210,16 @@ export default function RegisterPage() {
           <ThemeToggle />
         </div>
         <div className="grid gap-6 lg:grid-cols-[1.02fr_0.98fr]">
-          <Card className="overflow-hidden p-6 md:p-8">
+          <Card className="overflow-hidden p-6 md:p-8 flex flex-col items-center justify-center text-center">
             <BrandLogo size="sm" />
-            <p className="mt-6 inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/40 dark:text-emerald-300">
-              <FiCheckCircle />
-              Ministry-reviewed onboarding
-            </p>
             <h1 className="mt-5 max-w-xl text-3xl font-bold leading-tight text-slate-900 dark:text-slate-100">
               Create an account for your role.
             </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-300 md:text-base">
-              Provide the required contact, location, and role details so your account can be reviewed and approved.
-            </p>
-
-            <div className="mt-6 space-y-3">
-              {trustPoints.map((item) => {
-                const Icon = item.icon
-                return (
-                  <SoftCard key={item.text} className="flex items-start gap-3">
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-white text-emerald-700 shadow-sm ring-1 ring-emerald-100 dark:bg-slate-800 dark:text-emerald-300 dark:ring-slate-700">
-                      <Icon />
-                    </span>
-                    <p className="text-sm leading-6 text-slate-600">{item.text}</p>
-                  </SoftCard>
-                )
-              })}
-            </div>
-
-            <Card className="mt-6 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Approval Flow</p>
-              <div className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-300">
-                <p>1. Submit your role details.</p>
-                <p>2. Ministry staff review the account.</p>
-                <p>3. Sign in after approval.</p>
-              </div>
-            </Card>
           </Card>
 
           <Card className="p-6 md:p-8">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">Create Account</p>
-            <h2 className="mt-2 text-xl font-semibold text-slate-900 dark:text-slate-100">Role-based signup</h2>
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">The form updates based on the role you choose.</p>
-            <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Role-based signup</h2>
+            <form onSubmit={handleSubmit} className="mt-4 space-y-4">
               <FormField label="Full Name">
                 <Input id="name" name="name" required value={formData.name} onChange={handleChange} />
               </FormField>
@@ -297,7 +265,6 @@ export default function RegisterPage() {
               {roleConfig.addressField ? (
                 <FormField
                   label={roleConfig.addressField.label}
-                  hint={formData.role === 'farmer' ? 'Each farm address can only be registered once.' : ''}
                 >
                   <Input
                     id={roleConfig.addressField.id}
@@ -315,11 +282,6 @@ export default function RegisterPage() {
                   wilayaId={formData.wilayaId}
                   communeId={formData.communeId}
                   onChange={handleChange}
-                  hint={
-                    formData.role === 'farmer'
-                      ? 'The selected commune must belong to the chosen wilaya.'
-                      : 'Buyers must register with a valid Algeria wilaya and commune.'
-                  }
                 />
               )}
 

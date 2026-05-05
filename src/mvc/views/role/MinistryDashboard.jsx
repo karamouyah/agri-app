@@ -50,9 +50,7 @@ export default function MinistryDashboard() {
   return (
     <section className="app-page">
       <PageHero
-        eyebrow="Ministry Workspace"
         title={`Welcome, ${user?.name || 'Administrator'}`}
-        description="Use the ministry dashboard to review pending access, monitor product activity, and move into reports or moderation tasks without leaving the admin workspace."
         variant="admin"
         stats={[
           { label: 'Approvals', value: 'Pending', help: 'Open the user module to review onboarding requests' },

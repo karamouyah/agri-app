@@ -86,10 +86,9 @@ export default function FarmerDashboard() {
 
       <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
         <Card className="p-5 md:p-6">
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
             <div>
               <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Revenue Trend</h3>
-              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Monthly earnings overview</p>
             </div>
             <StatusBadge status="active" />
           </div>

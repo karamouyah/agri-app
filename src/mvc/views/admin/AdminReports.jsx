@@ -125,12 +125,9 @@ export default function AdminReports() {
       </Card>
 
       <Card className="overflow-hidden">
-        <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-5 md:px-6">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 md:px-6">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
-              Report Results
-            </p>
-            <h3 className="mt-2 text-lg font-semibold text-slate-900 dark:text-slate-100">Table and revenue chart</h3>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Table and revenue chart</h3>
           </div>
           <span className="badge-soft px-3 py-1.5 text-xs">{result.rows.length} rows</span>
         </div>

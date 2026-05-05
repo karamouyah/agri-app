@@ -63,9 +63,7 @@ export default function BuyerDashboard() {
   return (
     <section className="app-page">
       <PageHeader
-        eyebrow="Buyer Workspace"
         title={`Welcome, ${user?.name || 'Buyer'}`}
-        description="Use the buyer workspace to search the approved catalog, place orders, and follow billing and delivery status."
         meta={[
           { label: 'Catalog', value: 'Approved' },
           { label: 'Orders', value: 'Tracked' },
@@ -80,30 +78,8 @@ export default function BuyerDashboard() {
             to={action.to}
             icon={action.icon}
             title={action.label}
-            description={action.description}
-            meta={action.meta}
           />
         ))}
-      </div>
-
-      <div className="grid gap-4 xl:grid-cols-2">
-        <Card className="p-5 md:p-6">
-          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Order Flow</p>
-          <div className="mt-4 space-y-3 text-sm text-slate-600 dark:text-slate-300">
-            <p>1. Browse approved products by category, price, quality, wilaya, and commune.</p>
-            <p>2. Add products to your cart and confirm quantities before checkout.</p>
-            <p>3. Submit delivery details, track order progress, and review invoices after purchase.</p>
-          </div>
-        </Card>
-
-        <Card className="p-5 md:p-6">
-          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Before Checkout</p>
-          <div className="mt-4 space-y-3 text-sm text-slate-600 dark:text-slate-300">
-            <p>Keep your address and location details updated in your profile.</p>
-            <p>Review supplier region and unit pricing before adding products to the cart.</p>
-            <p>Use orders and invoices pages to follow fulfilled purchases and reorder when needed.</p>
-          </div>
-        </Card>
       </div>
     </section>
   )

@@ -149,9 +149,7 @@ export default function AdminUsers() {
   return (
     <section className="app-page">
       <PageHeader
-        eyebrow="Approval Queue"
         title="Review and approve user onboarding"
-        description="Filter accounts by role, approval status, and wilaya before reviewing the submitted details."
         meta={[
           { label: 'Pending', value: pendingCount },
           { label: 'Visible users', value: users.length },

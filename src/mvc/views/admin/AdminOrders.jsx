@@ -347,10 +347,7 @@ export default function AdminOrders() {
         <Card className="overflow-hidden">
           <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 md:px-6">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
-                Live Orders
-              </p>
-              <h3 className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-100">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
                 {filteredOrders.length} matching orders
               </h3>
             </div>

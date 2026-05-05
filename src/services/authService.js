@@ -190,9 +190,11 @@ export const registerUser = async (payload) => {
     }
   }
 
-  if (payload.documents && payload.documents.length > 0) {
+  if (Array.isArray(payload.documents) && payload.documents.length > 0) {
     payload.documents.forEach((file) => {
-      formData.append('documents', file)
+      if (file instanceof File || file instanceof Blob) {
+        formData.append('documents', file)
+      }
     })
   }
 

@@ -138,21 +138,23 @@ export default function RegisterPage() {
     event.preventDefault()
     setError('')
 
-    const validationMessage = validateForm(formData)
-    if (validationMessage) {
-      setError(validationMessage)
-      return
-    }
-
-    setLoading(true)
     try {
+      const validationMessage = validateForm(formData)
+      if (validationMessage) {
+        setError(validationMessage)
+        return
+      }
+
+      setLoading(true)
       await registerUser(formData)
       navigate('/login', {
         replace: true,
         state: { notice: APPROVAL_NOTICE },
       })
     } catch (submitError) {
-      setError(submitError.message)
+      console.error('Registration Runtime Error:', submitError)
+      alert(`Registration failed: ${submitError.message || 'Unknown error occurred'}`)
+      setError(submitError.message || 'Failed to submit registration.')
     } finally {
       setLoading(false)
     }

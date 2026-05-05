@@ -59,14 +59,11 @@ export function Eyebrow({ children, className = '' }) {
   )
 }
 
-// SectionHeader handles this module workflow, using its parameters and returning JSX, data, or a service result.
-export function SectionHeader({ eyebrow, title, description, actions, className = '' }) {
+export function SectionHeader({ title, actions, className = '' }) {
   return (
-    <div className={cn('flex flex-col gap-3 md:flex-row md:items-end md:justify-between', className)}>
+    <div className={cn('flex flex-col gap-2 md:flex-row md:items-center md:justify-between', className)}>
       <div className="max-w-2xl">
-        {eyebrow ? <Eyebrow>{eyebrow}</Eyebrow> : null}
-        <h2 className="text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-100 md:text-2xl">{title}</h2>
-        {description ? <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{description}</p> : null}
+        <h2 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-100 md:text-xl">{title}</h2>
       </div>
       {actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}
     </div>
@@ -99,34 +96,25 @@ export function StatCard({ icon: Icon, label, value, help, tone = 'emerald', cla
   )
 }
 
-// PageHeader handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export function PageHeader({
-  eyebrow,
   title,
-  description,
   actions,
   meta = [],
   className = '',
 }) {
   return (
-    <div className={cn('pb-5 border-b border-slate-200 dark:border-slate-800', className)}>
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <div className={cn('pb-3 border-b border-slate-200 dark:border-slate-800', className)}>
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="max-w-3xl">
-          {eyebrow ? <Eyebrow>{eyebrow}</Eyebrow> : null}
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100 md:text-3xl">
+          <h1 className="text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-100 md:text-2xl">
             {title}
           </h1>
-          {description ? (
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-              {description}
-            </p>
-          ) : null}
         </div>
         {actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}
       </div>
 
       {meta.length > 0 ? (
-        <div className="mt-4 flex flex-wrap gap-2 md:gap-4">
+        <div className="mt-3 flex flex-wrap gap-2 md:gap-4">
           {meta.map((item, index) => (
             <span
               key={`${item.label}-${index}`}

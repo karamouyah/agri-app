@@ -334,9 +334,6 @@ export default function FarmerOrders() {
             </button>
           </div>
 
-          <div className="mt-6 border-t border-slate-100 pt-4 text-xs leading-relaxed text-slate-500 dark:border-slate-800 dark:text-slate-400">
-            Tip: Use bulk confirm to accept multiple pending orders at once and speed up daily dispatch.
-          </div>
         </aside>
       </div>
 

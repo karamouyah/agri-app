@@ -151,8 +151,7 @@ export default function LandingPage() {
           <Reveal delay={60}>
             <section className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
               <Card className="p-6 md:p-7">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700 dark:text-emerald-300">Platform Workflow</p>
-                <h2 className="mt-2 text-xl font-semibold text-slate-900 dark:text-slate-100">Built around operational steps, not marketing sections.</h2>
+                <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Built around operational steps, not marketing sections.</h2>
                 <div className="mt-5 grid gap-3">
                   {workflowSteps.map((step) => (
                     <div key={step} className="rounded-lg border border-slate-200 bg-slate-50/80 px-4 py-3 text-sm text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">
@@ -164,9 +163,7 @@ export default function LandingPage() {
 
               <Card className="p-6 md:p-8">
                 <SectionHeader
-                  eyebrow="Coverage"
                   title="What the platform makes visible"
-                  description="Each role can verify approvals, product scope, and location coverage before taking action."
                 />
                 <div className="mt-6 space-y-4">
                   <div className="grid gap-3">
@@ -178,8 +175,7 @@ export default function LandingPage() {
                   </div>
                   <div className="grid gap-3 md:grid-cols-2">
                     <Card className="p-4">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Supported Categories</p>
-                      <div className="mt-3 flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-2">
                         {categories.map((category) => (
                           <span key={category} className="badge-soft px-3 py-1.5 text-xs">
                             {category}
@@ -188,8 +184,7 @@ export default function LandingPage() {
                       </div>
                     </Card>
                     <Card className="p-4">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Location Coverage</p>
-                      <div className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-300">
+                      <div className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
                         {coveragePoints.map((item) => (
                           <p key={item}>{item}</p>
                         ))}
@@ -204,9 +199,7 @@ export default function LandingPage() {
           <Reveal delay={120}>
             <section className="space-y-4">
               <SectionHeader
-                eyebrow="Role Workspaces"
                 title="Each role opens directly into the tasks they manage"
-                description="Workspaces are separated by role so daily actions stay clear and traceable."
               />
               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                 {roleCards.map((role) => (
@@ -225,11 +218,7 @@ export default function LandingPage() {
           <Reveal delay={180}>
             <Card className="grid gap-6 p-6 md:grid-cols-[1fr_auto] md:items-center md:p-8">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">Get Started</p>
-                <h2 className="mt-2 text-xl font-semibold text-slate-900 dark:text-slate-100">Create an account and continue in the right workspace</h2>
-                <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-300">
-                  Farmers manage listings, buyers place orders, transporters handle missions, and ministry teams review approvals and reports.
-                </p>
+                <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Create an account and continue in the right workspace</h2>
               </div>
               <div className="flex flex-wrap gap-3">
                 <Link to="/register" className={cn(buttonStyles.primary, 'px-5 py-3')}>

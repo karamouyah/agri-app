@@ -57,11 +57,11 @@ export default function PageHero({
   return (
     <div
       className={cn(
-        'relative overflow-hidden rounded-xl border border-slate-200 bg-white p-6 md:p-8 dark:border-slate-800 dark:bg-slate-900 shadow-sm',
+        'relative overflow-hidden rounded-xl border border-slate-200 bg-white p-4 md:p-5 dark:border-slate-800 dark:bg-slate-900 shadow-sm',
         className,
       )}
     >
-      <div className={cn('relative grid gap-6', isWorkspaceHero ? 'lg:grid-cols-[1.2fr_280px] lg:items-start' : 'lg:grid-cols-[1.1fr_0.9fr] lg:items-center')}>
+      <div className={cn('relative grid gap-4', isWorkspaceHero ? 'lg:grid-cols-[1.2fr_280px] lg:items-start' : 'lg:grid-cols-[1.1fr_0.9fr] lg:items-center')}>
         <div>
           {brand && <BrandLogo size="sm" className="mb-4" />}
           {badge ? (
@@ -69,15 +69,9 @@ export default function PageHero({
               {badge}
             </span>
           ) : null}
-          {eyebrow ? <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{eyebrow}</p> : null}
-          <h1 className={cn('mt-2 max-w-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100', isWorkspaceHero ? 'text-2xl md:text-3xl' : 'text-3xl md:text-4xl')}>
+          <h1 className={cn('max-w-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100', isWorkspaceHero ? 'text-2xl md:text-3xl' : 'text-3xl md:text-4xl')}>
             {title}
           </h1>
-          {description ? (
-            <p className={cn('mt-3 max-w-2xl text-sm md:text-base text-slate-600 dark:text-slate-400')}>
-              {description}
-            </p>
-          ) : null}
 
           {actions.length > 0 && <div className="mt-6 flex flex-wrap gap-2">{actions.map(renderAction)}</div>}
 

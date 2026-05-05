@@ -222,13 +222,7 @@ export default function TransporterDashboard() {
         actionProps={actionProps}
       />
 
-      <Card className="border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-900/50 dark:text-slate-300">
-        <span className="inline-flex items-center gap-2 font-medium text-slate-900 dark:text-slate-100">
-          <FiAlertCircle />
-          Missing backend fields
-        </span>
-        <span className="ml-2">Distance and mission priority are not stored by the backend yet, so they appear only as unavailable in mission details.</span>
-      </Card>
+
 
       <DeliveryMissionDetailsModal
         mission={selectedMission}

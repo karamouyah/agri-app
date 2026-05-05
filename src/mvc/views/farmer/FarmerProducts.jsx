@@ -254,15 +254,9 @@ export default function FarmerProducts() {
       <Card className="overflow-hidden p-4 sm:p-5">
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-300">
-              Marketplace table
-            </p>
-            <h3 className="mt-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
               Your approved product listings
             </h3>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-              Farmers can only list approved products, and every price stays inside the DZD range defined by the catalog.
-            </p>
           </div>
           <StatusBadge status={products.length > 0 ? 'Active' : 'No listings'} />
         </div>

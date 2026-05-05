@@ -241,14 +241,7 @@ export default function BuyerSearch() {
             </button>
           </div>
 
-          <Card className="mt-4 p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Tips</p>
-            <div className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-300">
-              <p>Use wilaya and commune filters when you want products from a specific origin.</p>
-              <p>Set a price range before ordering when you need to compare suppliers quickly.</p>
-              <p>Open product details to review the farmer, unit, and product information before checkout.</p>
-            </div>
-          </Card>
+
         </Card>
 
         <div className="space-y-4">

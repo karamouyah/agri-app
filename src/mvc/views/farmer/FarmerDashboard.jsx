@@ -108,7 +108,6 @@ export default function FarmerDashboard() {
         <Card className="p-5 md:p-6">
           <div className="mb-6">
             <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Quick Actions</h3>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Manage your farm operations</p>
           </div>
           <div className="space-y-3">
             <Link to="/farmer/products" className="group flex items-center justify-between rounded-lg border border-slate-200 bg-white p-4 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800/50">

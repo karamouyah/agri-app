@@ -261,9 +261,7 @@ export default function AdminOrders() {
   return (
     <section className="app-page">
       <PageHeader
-        eyebrow="Order Oversight"
         title="Orders and transactions"
-        description="Track real orders, payments, and delivery assignments from existing marketplace data."
         meta={[
           { label: 'Total orders', value: totals.orders },
           { label: 'Visible', value: totals.visible },

@@ -10,3 +10,4 @@ Faker>=30,<41
 Pillow==11.1.0
 python-docx==1.2.0
 reportlab==4.2.5
+django-csp==3.8.0

@@ -242,11 +242,20 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.ScopedRateThrottle",
     ),
     "DEFAULT_THROTTLE_RATES": {
-        "anon": "50/hour",
+        "anon": "100/minute",
         "user": "300/hour",
         "auth": "10/minute",
+        "signup": "3/minute",
     },
 }
+
+# Content Security Policy (django-csp)
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")
+CSP_SCRIPT_SRC = ("'self'",)
+CSP_IMG_SRC = ("'self'", "data:", "blob:")
+CSP_FONT_SRC = ("'self'", "data:")
+CSP_CONNECT_SRC = ("'self'",)
 
 access_minutes = get_int("JWT_ACCESS_MINUTES", 30)
 refresh_days = get_int("JWT_REFRESH_DAYS", 7)

@@ -40,7 +40,7 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
     permission_classes = [AllowAny]
     throttle_classes = [ScopedRateThrottle]
-    throttle_scope = "auth"
+    throttle_scope = "signup"
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
 

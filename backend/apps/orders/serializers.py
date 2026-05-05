@@ -240,14 +240,20 @@ class CheckoutSerializer(serializers.Serializer):
         if not buyer:
             raise serializers.ValidationError("Only buyers can place orders.")
 
-        wilaya_id = parse_int(attrs.get("wilaya_id")) or buyer.wilaya_id
-        commune_id = parse_int(attrs.get("commune_id")) or buyer.commune_id
+        # Pull address directly from the buyer's profile (ignoring request body)
+        wilaya_id = buyer.wilaya_id
+        commune_id = buyer.commune_id
+        address = clean_text(buyer.person.address)
+
+        if not wilaya_id or not commune_id or not address:
+            raise serializers.ValidationError("Profile address is incomplete. Please update your profile before checking out.")
+
         wilaya, commune = validate_location_pair(wilaya_id, commune_id)
         attrs["_delivery_wilaya"] = wilaya
         attrs["_delivery_commune"] = commune
         attrs["wilaya_id"] = wilaya.id
         attrs["commune_id"] = commune.id
-        attrs["address"] = clean_text(attrs.get("address"))
+        attrs["address"] = address
         return attrs
 
     @transaction.atomic

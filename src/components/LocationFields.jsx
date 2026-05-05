@@ -16,6 +16,7 @@ export default function LocationFields({
   communeLabel = 'Commune',
   required = true,
   hint = '',
+  disabled = false,
 }) {
   const { loading, wilayas, getCommunesByWilaya } = useLocations()
   const communes = getCommunesByWilaya(wilayaId)
@@ -23,7 +24,7 @@ export default function LocationFields({
   return (
     <div className="grid gap-4 md:grid-cols-2">
       <FormField label={wilayaLabel} icon={FiMapPin} hint={hint}>
-        <Select name={wilayaName} value={wilayaId || ''} onChange={onChange} required={required} disabled={loading}>
+        <Select name={wilayaName} value={wilayaId || ''} onChange={onChange} required={required} disabled={disabled || loading}>
           <option value="">{loading ? 'Loading wilayas...' : 'Select wilaya'}</option>
           {wilayas.map((wilaya) => (
             <option key={wilaya.id} value={wilaya.id}>
@@ -43,7 +44,7 @@ export default function LocationFields({
           value={communeId || ''}
           onChange={onChange}
           required={required}
-          disabled={loading || !wilayaId}
+          disabled={disabled || loading || !wilayaId}
         >
           <option value="">
             {!wilayaId ? 'Select wilaya first' : communes.length ? 'Select commune' : 'No communes available'}

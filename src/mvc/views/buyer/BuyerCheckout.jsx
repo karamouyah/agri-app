@@ -41,17 +41,21 @@ export default function BuyerCheckout() {
   // State: stores local UI data and is updated by event handlers or API responses.
   const [error, setError] = useState('')
 
-  // Effect: runs after render to load data, sync storage, or react to dependency changes.
   useEffect(() => {
-    // load handles this module workflow, using its parameters and returning JSX, data, or a service result.
     const load = async () => {
       const [cart, profile] = await Promise.all([getCart(), getShippingProfile()])
+      
+      if (!profile.address || !profile.wilayaId || !profile.communeId) {
+        navigate('/buyer/profile', { state: { message: 'Please complete your profile address before checking out.' } })
+        return
+      }
+      
       setCartItems(cart)
       setAddress(profile)
     }
 
     load()
-  }, [])
+  }, [navigate])
 
   const totals = calculateCartTotals(cartItems)
   const selectedCommune = findCommune(address.communeId)
@@ -112,21 +116,22 @@ export default function BuyerCheckout() {
           </div>
 
           <div className="grid gap-3 md:grid-cols-2">
-            <input name="fullName" required value={address.fullName} onChange={handleAddressChange} placeholder="Full name" className="field-control px-3 py-2" />
-            <input name="phone" required value={address.phone} onChange={handleAddressChange} placeholder="Phone" className="field-control px-3 py-2" />
-            <input name="address" required value={address.address} onChange={handleAddressChange} placeholder="Street" className="field-control md:col-span-2 px-3 py-2" />
+            <input name="fullName" required value={address.fullName} placeholder="Full name" className="field-control px-3 py-2" readOnly />
+            <input name="phone" required value={address.phone} placeholder="Phone" className="field-control px-3 py-2" readOnly />
+            <input name="address" required value={address.address} placeholder="Street" className="field-control md:col-span-2 px-3 py-2" readOnly />
             <div className="md:col-span-2">
               <LocationFields
                 wilayaId={address.wilayaId}
                 communeId={address.communeId}
-                onChange={handleAddressChange}
+                onChange={() => {}}
                 wilayaName="wilayaId"
                 communeName="communeId"
-                hint="Delivery commune must match the selected wilaya."
+                hint="Delivery address is managed in your profile."
+                disabled={true}
               />
             </div>
-            <input name="city" value={selectedCommune?.name || address.city} onChange={handleAddressChange} placeholder="Commune display name" className="field-control px-3 py-2" readOnly />
-            <input name="postalCode" required value={address.postalCode} onChange={handleAddressChange} placeholder="Postal code" className="field-control px-3 py-2" />
+            <input name="city" value={selectedCommune?.name || address.city} placeholder="Commune display name" className="field-control px-3 py-2" readOnly />
+            <input name="postalCode" value={address.postalCode} placeholder="Postal code" className="field-control px-3 py-2" readOnly />
           </div>
 
           <div className="soft-divider" />

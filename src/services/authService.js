@@ -158,49 +158,53 @@ export const loginUser = async (credentials) => {
 
 // registerUser handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const registerUser = async (payload) => {
-  const validated = validateRegistrationPayload(payload)
+  let body = payload
 
-  const formData = new FormData()
-  formData.append('name', validated.name)
-  formData.append('email', validated.email)
-  formData.append('password', validated.password)
-  formData.append('role', validated.role)
-  formData.append('phone_number', validated.phoneNumber)
+  // If the component hasn't built FormData yet, do it here for backwards compatibility
+  if (!(payload instanceof FormData)) {
+    const validated = validateRegistrationPayload(payload)
+    body = new FormData()
+    body.append('name', validated.name)
+    body.append('email', validated.email)
+    body.append('password', validated.password)
+    body.append('role', validated.role)
+    body.append('phone_number', validated.phoneNumber)
 
-  if (validated.role === 'farmer') {
-    formData.append('farm_name', validated.farmName || '')
-    formData.append('farm_address', validated.farmAddress || '')
-    formData.append('wilaya_id', validated.wilayaId || '')
-    formData.append('commune_id', validated.communeId || '')
-  }
+    if (validated.role === 'farmer') {
+      body.append('farm_name', validated.farmName || '')
+      body.append('farm_address', validated.farmAddress || '')
+      body.append('wilaya_id', validated.wilayaId || '')
+      body.append('commune_id', validated.communeId || '')
+    }
 
-  if (validated.role === 'buyer') {
-    formData.append('address', validated.address || '')
-    formData.append('wilaya_id', validated.wilayaId || '')
-    formData.append('commune_id', validated.communeId || '')
-  }
+    if (validated.role === 'buyer') {
+      body.append('address', validated.address || '')
+      body.append('wilaya_id', validated.wilayaId || '')
+      body.append('commune_id', validated.communeId || '')
+    }
 
-  if (validated.role === 'transporter') {
-    formData.append('vehicle', validated.vehicle || '')
-    formData.append('max_load_kg', validated.maxLoadKg || '')
-    if (validated.deliveryWilayaIds) {
-      validated.deliveryWilayaIds.forEach((id) => {
-        formData.append('delivery_wilaya_ids', id)
+    if (validated.role === 'transporter') {
+      body.append('vehicle', validated.vehicle || '')
+      body.append('max_load_kg', validated.maxLoadKg || '')
+      if (validated.deliveryWilayaIds) {
+        validated.deliveryWilayaIds.forEach((id) => {
+          body.append('delivery_wilaya_ids', id)
+        })
+      }
+    }
+
+    if (Array.isArray(payload.documents) && payload.documents.length > 0) {
+      payload.documents.forEach((file) => {
+        if (file instanceof File || file instanceof Blob) {
+          body.append('documents', file)
+        }
       })
     }
   }
 
-  if (Array.isArray(payload.documents) && payload.documents.length > 0) {
-    payload.documents.forEach((file) => {
-      if (file instanceof File || file instanceof Blob) {
-        formData.append('documents', file)
-      }
-    })
-  }
-
   const created = await apiRequest('/auth/register/', {
     method: 'POST',
-    body: formData,
+    body: body,
   })
 
   if (!created || !created.id) {

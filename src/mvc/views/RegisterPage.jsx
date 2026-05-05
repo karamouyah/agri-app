@@ -114,10 +114,10 @@ export default function RegisterPage() {
   const navigate = useNavigate()
   // State: stores local UI data and is updated by event handlers or API responses.
   const [formData, setFormData] = useState(initialForm)
-  // State: stores local UI data and is updated by event handlers or API responses.
   const [loading, setLoading] = useState(false)
-  // State: stores local UI data and is updated by event handlers or API responses.
   const [error, setError] = useState('')
+  const [documents, setDocuments] = useState([])
+  const [previews, setPreviews] = useState([])
 
   const roleConfig = useMemo(
     () => roleFieldConfig[formData.role] || roleFieldConfig.farmer,
@@ -133,6 +133,14 @@ export default function RegisterPage() {
       ...(name === 'wilayaId' ? { communeId: '' } : {}),
     }))
   }
+
+  const handleFileChange = (e) => {
+    const selectedFiles = Array.from(e.target.files)
+    setDocuments(selectedFiles)
+    const newPreviews = selectedFiles.map(file => URL.createObjectURL(file))
+    setPreviews(newPreviews)
+  }
+
   // handleSubmit handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -146,7 +154,42 @@ export default function RegisterPage() {
       }
 
       setLoading(true)
-      await registerUser(formData)
+
+      const submitData = new FormData()
+      submitData.append('name', formData.name)
+      submitData.append('email', formData.email)
+      submitData.append('password', formData.password)
+      submitData.append('role', formData.role)
+      submitData.append('phone_number', formData.phoneNumber)
+
+      if (formData.role === 'farmer') {
+        submitData.append('farm_name', formData.farmName || '')
+        submitData.append('farm_address', formData.farmAddress || '')
+        submitData.append('wilaya_id', formData.wilayaId || '')
+        submitData.append('commune_id', formData.communeId || '')
+      }
+
+      if (formData.role === 'buyer') {
+        submitData.append('address', formData.address || '')
+        submitData.append('wilaya_id', formData.wilayaId || '')
+        submitData.append('commune_id', formData.communeId || '')
+      }
+
+      if (formData.role === 'transporter') {
+        submitData.append('vehicle', formData.vehicle || '')
+        submitData.append('max_load_kg', formData.maxLoadKg || '')
+        if (formData.deliveryWilayaIds) {
+          formData.deliveryWilayaIds.forEach((id) => {
+            submitData.append('delivery_wilaya_ids', id)
+          })
+        }
+      }
+
+      documents.forEach((file) => {
+        submitData.append('documents', file)
+      })
+
+      await registerUser(submitData)
       navigate('/login', {
         replace: true,
         state: { notice: APPROVAL_NOTICE },
@@ -313,40 +356,13 @@ export default function RegisterPage() {
                 </>
               ) : null}
 
-              <FormField label="Verification Documents (ID/License)">
-                <div>
-                  <input
-                    id="doc-upload"
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    style={{ display: 'none' }}
-                  />
-                  <label
-                    htmlFor="doc-upload"
-                    className="inline-flex cursor-pointer items-center justify-center rounded-md border border-emerald-600 bg-white px-4 py-2 text-sm font-medium text-emerald-700 shadow-sm hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:border-emerald-500 dark:bg-slate-800 dark:text-emerald-400 dark:hover:bg-slate-700"
-                  >
-                    Upload ID Documents
-                  </label>
+              <div className="document-upload-container mt-4 mb-4">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">Identity Documents</label>
+                <input type="file" multiple onChange={handleFileChange} accept="image/*" className="mb-2 block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100" />
+                <div className="preview-grid flex flex-wrap gap-2 mt-2">
+                  {previews.map((url, i) => <img key={i} src={url} style={{width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ccc'}} alt="preview" />)}
                 </div>
-                {formData.documents && formData.documents.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {formData.documents.map((file, idx) => (
-                      <div key={idx} className="relative h-[80px] w-[80px] overflow-hidden rounded-md border border-slate-200 shadow-sm">
-                        <img src={file._previewUrl || URL.createObjectURL(file)} alt="preview" className="h-full w-full object-cover" />
-                        <button
-                          type="button"
-                          onClick={() => removeDocument(idx)}
-                          className="absolute right-0 top-0 flex h-6 w-6 items-center justify-center bg-black/60 text-white hover:bg-rose-600 rounded-bl-md"
-                        >
-                          &times;
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </FormField>
+              </div>
 
               {error ? <div className="rounded-lg border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">{error}</div> : null}
 

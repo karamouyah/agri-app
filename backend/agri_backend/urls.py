@@ -59,13 +59,11 @@ urlpatterns = [
     path("api/documents/", include("apps.documents.urls")),
 ]
 
-# Serve media files efficiently.
-# In development, Django handles this automatically via the `static()` helper if appended,
-# but we explicitly define a re_path for `serve` so it functions in production on Railway Volume.
-# Note: Ensure the Web Server (Gunicorn) is properly configured, or offload this to an Nginx proxy 
-# for higher performance if traffic scales.
+from apps.documents.views import SecureMediaView
+
+# Serve media files efficiently and securely.
+# We explicitly define a re_path for `SecureMediaView` so it functions in production on Railway Volume
+# while enforcing authentication and IDOR protection.
 urlpatterns += [
-    re_path(r'^media/(?P<path>.*)$', serve, {
-        'document_root': settings.MEDIA_ROOT,
-    }),
+    re_path(r'^media/(?P<path>.*)$', SecureMediaView.as_view()),
 ]

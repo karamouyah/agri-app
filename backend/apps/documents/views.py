@@ -1,7 +1,11 @@
+import os
+from django.conf import settings
+from django.http import FileResponse, Http404
 from rest_framework import generics, status
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.permissions import BasePermission, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from apps.common.permissions import IsMinistry
 from apps.documents.models import VerificationDocument
@@ -11,6 +15,25 @@ from apps.documents.serializers import (
     VerificationDocumentUploadSerializer,
 )
 from apps.users.models import User
+
+class SecureMediaView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, path, *args, **kwargs):
+        safe_path = os.path.normpath(os.path.join(settings.MEDIA_ROOT, path))
+        if not safe_path.startswith(os.path.normpath(settings.MEDIA_ROOT)):
+            raise Http404("Invalid path.")
+
+        # Authorization: IDOR protection
+        if request.user.role != User.Role.MINISTRY:
+            # User must be accessing their own folder based on the UUID naming scheme
+            if not f"/{request.user.id}/" in safe_path:
+                raise Http404("You do not have permission to view this file.")
+
+        if not os.path.exists(safe_path):
+            raise Http404("File not found.")
+
+        return FileResponse(open(safe_path, 'rb'))
 
 
 class IsBuyerOrTransporter(BasePermission):

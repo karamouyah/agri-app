@@ -39,13 +39,11 @@ const navByRole = {
     { to: '/buyer/cart', label: 'Cart', icon: FiBox },
     { to: '/buyer/orders', label: 'Orders', icon: FiClipboard },
     { to: '/buyer/invoices', label: 'Invoices', icon: FiDollarSign },
-    { to: '/buyer/documents', label: 'Documents', icon: FiFileText },
     { to: '/buyer/reports', label: 'Reports', icon: FiFlag },
   ],
   transporter: [
     { to: '/transporter/dashboard', label: 'Dashboard', icon: FiTruck },
     { to: '/transporter/profile', label: 'Profile', icon: FiMapPin },
-    { to: '/transporter/documents', label: 'Documents', icon: FiFileText },
     { to: '/transporter/reports', label: 'Reports', icon: FiFlag },
   ],
   ministry: [
@@ -101,10 +99,8 @@ export default function Layout({ role }) {
   const location = useLocation()
 
   const links = navByRole[role] || []
-  const pending = isPendingUser(user)
-  const visibleLinks = pending ? links.filter((link) => link.to === `/${role}/documents`) : links
   const meta = roleMeta[role] || roleMeta.farmer
-  const activeLink = visibleLinks.find((link) => location.pathname.startsWith(link.to))
+  const activeLink = links.find((link) => location.pathname.startsWith(link.to))
   // handleLogout handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleLogout = () => {
     logout()
@@ -125,12 +121,7 @@ export default function Layout({ role }) {
             </div>
 
             <nav className="space-y-1">
-              {pending ? (
-                <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200">
-                  Your account is waiting for ministry approval. Please upload your verification documents.
-                </div>
-              ) : null}
-              {visibleLinks.map((link) => {
+              {links.map((link) => {
                 const Icon = link.icon
 
                 return (
@@ -185,12 +176,7 @@ export default function Layout({ role }) {
             </div>
 
             <div className="mt-3 flex gap-2 overflow-x-auto border-t border-slate-100 pt-3 dark:border-slate-800 pb-1 xl:hidden">
-              {pending ? (
-                <span className="min-w-full rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200">
-                  Your account is waiting for ministry approval. Please upload your verification documents.
-                </span>
-              ) : null}
-              {visibleLinks.map((link) => {
+              {links.map((link) => {
                 const Icon = link.icon
 
                 return (

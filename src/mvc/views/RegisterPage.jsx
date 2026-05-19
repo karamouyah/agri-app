@@ -14,7 +14,12 @@ import {
   FiFileText,
   FiEye,
   FiEyeOff,
-  FiLock
+  FiLock,
+  FiUser,
+  FiMail,
+  FiHash,
+  FiPhone,
+  FiMapPin
 } from 'react-icons/fi'
 import { register as registerUser } from '../controllers/authController'
 import BrandLogo from '../../components/BrandLogo'
@@ -286,15 +291,15 @@ export default function RegisterPage() {
             </div>
 
             <div className="grid md:grid-cols-2 gap-4">
-              <FormField label="Full Name">
-                <Input id="name" name="name" required value={formData.name} onChange={handleChange} />
+              <FormField label="Full Name" icon={FiUser}>
+                <Input id="name" name="name" required value={formData.name} onChange={handleChange} className="border-emerald-200 dark:border-emerald-800 focus:ring-emerald-500" />
               </FormField>
 
-              <FormField label="Email Address">
-                <Input id="email" name="email" type="email" required value={formData.email} onChange={handleChange} />
+              <FormField label="Email Address" icon={FiMail}>
+                <Input id="email" name="email" type="email" required value={formData.email} onChange={handleChange} className="border-emerald-200 dark:border-emerald-800 focus:ring-emerald-500" />
               </FormField>
 
-              <FormField label="National ID Number (رقم التعريف الوطني)">
+              <FormField label="National ID Number (رقم التعريف الوطني)" icon={FiHash}>
                 <Input 
                   id="nationalId" 
                   name="nationalId" 
@@ -318,7 +323,7 @@ export default function RegisterPage() {
                     minLength={10}
                     value={formData.password}
                     onChange={handleChange}
-                    className="pr-12"
+                    className="pr-12 border-emerald-200 dark:border-emerald-800 focus:ring-emerald-500"
                   />
                   <button
                     type="button"
@@ -340,7 +345,7 @@ export default function RegisterPage() {
                     minLength={10}
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className="pr-12"
+                    className="pr-12 border-emerald-200 dark:border-emerald-800 focus:ring-emerald-500"
                     placeholder="Confirm your password"
                   />
                   <button
@@ -360,7 +365,7 @@ export default function RegisterPage() {
               </h3>
               <div className="grid md:grid-cols-2 gap-4">
                 {roleConfig.requiresPhone ? (
-                  <FormField label="Phone Number">
+                  <FormField label="Phone Number" icon={FiPhone}>
                     <Input
                       id="phone"
                       name="phoneNumber"
@@ -369,12 +374,13 @@ export default function RegisterPage() {
                       value={formData.phoneNumber}
                       onChange={handleChange}
                       placeholder="+213..."
+                      className="border-emerald-200 dark:border-emerald-800 focus:ring-emerald-500"
                     />
                   </FormField>
                 ) : null}
 
                 {roleConfig.addressField ? (
-                  <FormField label={roleConfig.addressField.label}>
+                  <FormField label={roleConfig.addressField.label} icon={FiMapPin}>
                     <Input
                       id={roleConfig.addressField.id}
                       name={roleConfig.addressField.id}
@@ -382,6 +388,7 @@ export default function RegisterPage() {
                       value={formData[roleConfig.addressField.id]}
                       onChange={handleChange}
                       placeholder={roleConfig.addressField.placeholder}
+                      className="border-emerald-200 dark:border-emerald-800 focus:ring-emerald-500"
                     />
                   </FormField>
                 ) : null}
@@ -399,7 +406,7 @@ export default function RegisterPage() {
 
               {formData.role === 'transporter' ? (
                 <div className="mt-4 grid md:grid-cols-2 gap-4">
-                  <FormField label={roleConfig.vehicleField.label}>
+                  <FormField label={roleConfig.vehicleField.label} icon={FiTruck}>
                     <Input
                       id={roleConfig.vehicleField.id}
                       name={roleConfig.vehicleField.id}
@@ -407,6 +414,7 @@ export default function RegisterPage() {
                       value={formData[roleConfig.vehicleField.id]}
                       onChange={handleChange}
                       placeholder={roleConfig.vehicleField.placeholder}
+                      className="border-emerald-200 dark:border-emerald-800 focus:ring-emerald-500"
                     />
                   </FormField>
 
@@ -420,6 +428,7 @@ export default function RegisterPage() {
                       value={formData.maxLoadKg}
                       onChange={handleChange}
                       placeholder="2500"
+                      className="border-emerald-200 dark:border-emerald-800 focus:ring-emerald-500"
                     />
                   </FormField>
 

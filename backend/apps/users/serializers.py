@@ -476,16 +476,19 @@ class UserSerializer(serializers.ModelSerializer):
         docs = []
         
         def build_url(file_field):
-            if not file_field:
+            try:
+                if not file_field:
+                    return None
+                url = file_field.url
+                if request:
+                    from django.core.exceptions import DisallowedHost
+                    try:
+                        url = request.build_absolute_uri(url)
+                    except DisallowedHost:
+                        pass
+                return url
+            except ValueError:
                 return None
-            url = file_field.url
-            if request:
-                from django.core.exceptions import DisallowedHost
-                try:
-                    url = request.build_absolute_uri(url)
-                except DisallowedHost:
-                    pass
-            return url
 
         if obj.role == User.Role.FARMER:
             docs = [build_url(obj.verification.national_id_image), build_url(obj.verification.agricultural_card_image)]

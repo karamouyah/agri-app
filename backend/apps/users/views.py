@@ -76,12 +76,12 @@ class AdminUserViewSet(ModelViewSet):
             "buyer__commune",
             "transporter",
             "admin_profile",
+            "verification",
         )
         .prefetch_related(
             "farmer__farms__wilaya",
             "farmer__farms__commune",
             "transporter__delivery_wilayas",
-            "verification_documents",
         )
         .all()
         .order_by("-date_joined")

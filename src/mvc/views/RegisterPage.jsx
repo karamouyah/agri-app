@@ -1,14 +1,11 @@
 // File responsibility: Renders an application screen that is mounted from the React router for a specific user workflow.
 // Used by the React frontend or build tooling as part of the full-stack agriculture app.
 
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { 
   FiCheckCircle, 
-  FiShield, 
-  FiTruck, 
   FiUserPlus, 
-  FiUploadCloud, 
   FiEye,
   FiEyeOff,
   FiLock,
@@ -17,6 +14,7 @@ import {
   FiHash,
   FiPhone,
   FiMapPin,
+  FiTruck,
   FiXCircle
 } from 'react-icons/fi'
 import { register as registerUser } from '../controllers/authController'
@@ -88,14 +86,6 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   
-  const [nationalIdImage, setNationalIdImage] = useState(null)
-  const [agriculturalCardImage, setAgriculturalCardImage] = useState(null)
-  const [transportLicenseImage, setTransportLicenseImage] = useState(null)
-
-  const [nationalIdPreview, setNationalIdPreview] = useState(null)
-  const [agriculturalCardPreview, setAgriculturalCardPreview] = useState(null)
-  const [transportLicensePreview, setTransportLicensePreview] = useState(null)
-  
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
@@ -103,14 +93,6 @@ export default function RegisterPage() {
     () => roleFieldConfig[formData.role] || roleFieldConfig.farmer,
     [formData.role],
   )
-
-  useEffect(() => {
-    return () => {
-      if (nationalIdPreview) URL.revokeObjectURL(nationalIdPreview)
-      if (agriculturalCardPreview) URL.revokeObjectURL(agriculturalCardPreview)
-      if (transportLicensePreview) URL.revokeObjectURL(transportLicensePreview)
-    }
-  }, [nationalIdPreview, agriculturalCardPreview, transportLicensePreview])
 
   const handleChange = (event) => {
     const { name, value } = event.target
@@ -125,35 +107,6 @@ export default function RegisterPage() {
   const handleRoleSelect = (selectedRole) => {
     setError('')
     setFormData(prev => ({ ...prev, role: selectedRole }))
-    // Reset specific images when role changes to enforce exact slots
-    setNationalIdImage(null)
-    setAgriculturalCardImage(null)
-    setTransportLicenseImage(null)
-    setNationalIdPreview(null)
-    setAgriculturalCardPreview(null)
-    setTransportLicensePreview(null)
-  }
-
-  const validateAndSetFile = (file, setter, previewSetter, label) => {
-    setError('')
-    if (!file) {
-      setter(null)
-      previewSetter(null)
-      return
-    }
-
-    if (file.type === 'application/pdf') {
-      setError(`PDF files are strictly not allowed for ${label}. Please upload an image.`)
-      return
-    }
-
-    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-      setError(`Only JPEG, PNG, and WebP images are allowed for ${label}.`)
-      return
-    }
-
-    setter(file)
-    previewSetter(URL.createObjectURL(file))
   }
 
   const checkValidation = () => {
@@ -217,15 +170,12 @@ export default function RegisterPage() {
         submitData.append('farm_address', formData.farmAddress || '')
         submitData.append('wilaya_id', formData.wilayaId || '')
         submitData.append('commune_id', formData.communeId || '')
-        submitData.append('national_id_image', nationalIdImage)
-        submitData.append('agricultural_card_image', agriculturalCardImage)
       }
 
       if (formData.role === 'buyer') {
         submitData.append('address', formData.address || '')
         submitData.append('wilaya_id', formData.wilayaId || '')
         submitData.append('commune_id', formData.communeId || '')
-        submitData.append('national_id_image', nationalIdImage)
       }
 
       if (formData.role === 'transporter') {
@@ -236,8 +186,6 @@ export default function RegisterPage() {
             submitData.append('delivery_wilaya_ids', id)
           })
         }
-        submitData.append('national_id_image', nationalIdImage)
-        submitData.append('transport_license_image', transportLicenseImage)
       }
 
       await registerUser(submitData)
@@ -251,52 +199,6 @@ export default function RegisterPage() {
     } finally {
       setLoading(false)
     }
-  }
-
-  let isSubmitDisabled = loading
-  if (formData.role === 'farmer') {
-    if (!nationalIdImage || !agriculturalCardImage) isSubmitDisabled = true
-  } else if (formData.role === 'transporter') {
-    if (!nationalIdImage || !transportLicenseImage) isSubmitDisabled = true
-  } else if (formData.role === 'buyer') {
-    if (!nationalIdImage) isSubmitDisabled = true
-  }
-
-  const renderUploadSlot = (file, preview, setter, previewSetter, label) => {
-    return (
-      <div 
-        className={`relative border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center transition-colors overflow-hidden ${
-          file 
-            ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20' 
-            : 'border-emerald-300 hover:border-emerald-500 dark:border-emerald-700 dark:hover:border-emerald-500 bg-white/50 dark:bg-slate-800/50'
-        }`}
-      >
-        <input 
-          type="file" 
-          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
-          accept="image/jpeg, image/png, image/webp" 
-          onChange={(e) => {
-            const f = e.target.files[0]
-            validateAndSetFile(f, setter, previewSetter, label)
-            e.target.value = ''
-          }} 
-        />
-        {preview ? (
-          <div className="flex flex-col items-center z-0">
-            <img src={preview} alt={label} className="w-24 h-24 object-cover rounded-lg shadow-sm border border-emerald-200 dark:border-emerald-700 mb-3" />
-            <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-medium text-sm text-center">
-              <FiCheckCircle /> {label} Selected
-            </div>
-          </div>
-        ) : (
-          <div className="flex flex-col items-center text-center z-0">
-            <FiUploadCloud className="text-3xl text-emerald-500 mb-3" />
-            <span className="text-emerald-800 dark:text-emerald-400 font-semibold mb-1 text-sm">{label}</span>
-            <span className="text-xs text-slate-500 mt-1 font-bold">JPEG, PNG, WebP only. No PDFs.</span>
-          </div>
-        )}
-      </div>
-    )
   }
 
   return (
@@ -493,25 +395,6 @@ export default function RegisterPage() {
               ) : null}
             </div>
 
-            {/* Dynamic Enforced Role-Based Document Slots */}
-            <div className="border border-emerald-100 dark:border-emerald-900/50 bg-emerald-50/50 dark:bg-emerald-900/10 rounded-xl p-5">
-              <h3 className="text-lg font-semibold text-emerald-900 dark:text-emerald-400 flex items-center gap-2 mb-4">
-                <FiShield /> Identity Verification ({roleLabels[formData.role]})
-              </h3>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {renderUploadSlot(nationalIdImage, nationalIdPreview, setNationalIdImage, setNationalIdPreview, 'National ID Card Picture')}
-                
-                {formData.role === 'farmer' && (
-                  renderUploadSlot(agriculturalCardImage, agriculturalCardPreview, setAgriculturalCardImage, setAgriculturalCardPreview, 'Agricultural Card Picture')
-                )}
-                
-                {formData.role === 'transporter' && (
-                  renderUploadSlot(transportLicenseImage, transportLicensePreview, setTransportLicenseImage, setTransportLicensePreview, 'Commercial Transport License Picture')
-                )}
-              </div>
-            </div>
-
             {error ? (
               <div className="mb-6 flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 text-red-700 dark:text-red-400 rounded-lg text-sm shadow-sm">
                 <FiXCircle className="shrink-0 text-lg" />
@@ -521,10 +404,10 @@ export default function RegisterPage() {
 
             <button 
               type="submit" 
-              disabled={isSubmitDisabled} 
+              disabled={loading} 
               className={`
                 w-full py-3 px-4 rounded-lg flex items-center justify-center gap-2 font-bold text-lg transition-all
-                ${isSubmitDisabled 
+                ${loading 
                   ? 'bg-slate-300 text-slate-500 cursor-not-allowed dark:bg-slate-700 dark:text-slate-500 shadow-none' 
                   : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/30'}
               `}
@@ -532,11 +415,6 @@ export default function RegisterPage() {
               <FiUserPlus />
               {loading ? 'Processing...' : 'Create Account'}
             </button>
-            {isSubmitDisabled && !loading && (
-              <p className="text-center text-sm text-slate-500 mt-2 font-medium">
-                * You must upload all required verification pictures for {roleLabels[formData.role]} to proceed.
-              </p>
-            )}
           </form>
 
           <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">

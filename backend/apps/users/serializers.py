@@ -607,40 +607,30 @@ class RegisterSerializer(LocationValidationMixin, serializers.ModelSerializer):
             return None
 
         if not request:
-            errors["documents"] = "Verification documents are required."
+            pass # We no longer require documents on registration
         else:
             files = request.FILES
 
             if role_slug == "farmer":
-                if not files.get("national_id_image"):
-                    errors["national_id_image"] = "National ID Card Picture is required for Farmer."
-                else:
+                if files.get("national_id_image"):
                     err = validate_image_file(files["national_id_image"], "National ID Card Picture")
                     if err: errors["national_id_image"] = err
 
-                if not files.get("agricultural_card_image"):
-                    errors["agricultural_card_image"] = "Agricultural Card Picture is required for Farmer."
-                else:
+                if files.get("agricultural_card_image"):
                     err = validate_image_file(files["agricultural_card_image"], "Agricultural Card Picture")
                     if err: errors["agricultural_card_image"] = err
 
             elif role_slug == "transporter":
-                if not files.get("national_id_image"):
-                    errors["national_id_image"] = "National ID Card Picture is required for Transporter."
-                else:
+                if files.get("national_id_image"):
                     err = validate_image_file(files["national_id_image"], "National ID Card Picture")
                     if err: errors["national_id_image"] = err
 
-                if not files.get("transport_license_image"):
-                    errors["transport_license_image"] = "Commercial Transport License Picture is required for Transporter."
-                else:
+                if files.get("transport_license_image"):
                     err = validate_image_file(files["transport_license_image"], "Commercial Transport License Picture")
                     if err: errors["transport_license_image"] = err
 
             elif role_slug == "buyer":
-                if not files.get("national_id_image"):
-                    errors["national_id_image"] = "National ID Card Picture is required for Buyer."
-                else:
+                if files.get("national_id_image"):
                     err = validate_image_file(files["national_id_image"], "National ID Card Picture")
                     if err: errors["national_id_image"] = err
 

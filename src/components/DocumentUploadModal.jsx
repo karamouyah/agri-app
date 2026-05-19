@@ -61,7 +61,7 @@ export default function DocumentUploadModal({ open, onClose, onUploaded }) {
           <div>
             <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Upload verification document</h3>
             <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-              Upload a JPG, PNG, WEBP, or PDF file. Maximum size is 5 MB.
+              Upload a JPG, PNG, or WEBP file. Maximum size is 5 MB.
             </p>
           </div>
         </div>
@@ -80,7 +80,7 @@ export default function DocumentUploadModal({ open, onClose, onUploaded }) {
           <FormField label="File">
             <Input
               type="file"
-              accept="image/jpeg,image/png,image/webp,application/pdf"
+              accept="image/jpeg,image/png,image/webp"
               onChange={(event) => setFile(event.target.files?.[0] || null)}
               required
             />

@@ -588,6 +588,19 @@ class RegisterSerializer(LocationValidationMixin, serializers.ModelSerializer):
         request = self.context.get("request")
         if not request or not request.FILES.getlist("documents"):
             errors["documents"] = "You must upload the required verification documents."
+        else:
+            from apps.documents.models import validate_verification_image
+            from django.core.exceptions import ValidationError as DjangoValidationError
+            
+            doc_errors = []
+            for doc_file in request.FILES.getlist("documents"):
+                try:
+                    validate_verification_image(doc_file)
+                except DjangoValidationError as exc:
+                    doc_errors.extend(exc.messages)
+            
+            if doc_errors:
+                errors["documents"] = doc_errors
 
         if not attrs["phone_number"]:
             errors["phone_number"] = f"Phone number is required for {role_label} signup."

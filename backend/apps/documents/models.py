@@ -8,8 +8,10 @@ from django.db import models
 
 ALLOWED_DOCUMENT_CONTENT_TYPES = {
     "image/jpeg",
+    "image/jpg",
     "image/png",
     "image/webp",
+    "image/pjpeg",
 }
 MAX_DOCUMENT_SIZE = 5 * 1024 * 1024
 

@@ -457,13 +457,13 @@ export default function RegisterPage() {
                   multiple 
                   required
                   onChange={handleFileChange} 
-                  accept="image/*,.pdf" 
+                  accept="image/jpeg,image/png,image/webp" 
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
                 />
                 <div className="border-2 border-dashed border-emerald-300 dark:border-emerald-700 rounded-lg p-8 flex flex-col items-center justify-center text-center hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors">
                   <FiUploadCloud className="text-4xl text-emerald-500 mb-3" />
                   <span className="text-emerald-700 dark:text-emerald-400 font-semibold mb-1">Click to upload or drag and drop</span>
-                  <span className="text-xs text-slate-500">Supported formats: JPG, PNG, PDF (Min. {roleConfig.minDocs} required)</span>
+                  <span className="text-xs text-slate-500">Supported formats: JPG, PNG, WEBP (Min. {roleConfig.minDocs} required)</span>
                 </div>
               </div>
 

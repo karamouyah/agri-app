@@ -3,7 +3,19 @@
 
 import { useMemo, useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { FiCheckCircle, FiClock, FiFeather, FiShield, FiTruck, FiUserPlus, FiUploadCloud, FiFileText } from 'react-icons/fi'
+import { 
+  FiCheckCircle, 
+  FiClock, 
+  FiFeather, 
+  FiShield, 
+  FiTruck, 
+  FiUserPlus, 
+  FiUploadCloud, 
+  FiFileText,
+  FiEye,
+  FiEyeOff,
+  FiLock
+} from 'react-icons/fi'
 import { register as registerUser } from '../controllers/authController'
 import BrandLogo from '../../components/BrandLogo'
 import LocationFields from '../../components/LocationFields'
@@ -20,6 +32,7 @@ const initialForm = {
   nationalId: '',
   email: '',
   password: '',
+  confirmPassword: '',
   phoneNumber: '',
   farmAddress: '',
   vehicle: '',
@@ -85,6 +98,10 @@ const validateForm = (formData, documents) => {
     return 'Password must be at least 10 characters.'
   }
 
+  if (formData.password !== formData.confirmPassword) {
+    return 'Passwords do not match.'
+  }
+
   const config = roleFieldConfig[formData.role] || roleFieldConfig.farmer
 
   if (config.requiresPhone) {
@@ -123,6 +140,9 @@ export default function RegisterPage() {
   const [error, setError] = useState('')
   const [documents, setDocuments] = useState([])
   const [previews, setPreviews] = useState([])
+  
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const roleConfig = useMemo(
     () => roleFieldConfig[formData.role] || roleFieldConfig.farmer,
@@ -286,16 +306,51 @@ export default function RegisterPage() {
                 />
               </FormField>
 
-              <FormField label="Password">
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  minLength={10}
-                  value={formData.password}
-                  onChange={handleChange}
-                />
+              <div className="hidden md:block" />
+
+              <FormField label="Password" icon={FiLock}>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    minLength={10}
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="pr-12"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-600 transition-colors"
+                  >
+                    {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                  </button>
+                </div>
+              </FormField>
+
+              <FormField label="Confirm Password" icon={FiLock}>
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    required
+                    minLength={10}
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    className="pr-12"
+                    placeholder="Confirm your password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-600 transition-colors"
+                  >
+                    {showConfirmPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                  </button>
+                </div>
               </FormField>
             </div>
 

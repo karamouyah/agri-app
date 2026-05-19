@@ -3,7 +3,7 @@
 
 import { useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { FiLogIn, FiMail, FiLock } from 'react-icons/fi'
+import { FiLogIn, FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi'
 import { useAuth } from '../../context/AuthContext'
 import { getEntryPath } from '../../utils/roleRoutes'
 import BrandLogo from '../../components/BrandLogo'
@@ -19,6 +19,7 @@ export default function LoginPage() {
   const [formData, setFormData] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   if (isAuthenticated && user) {
     return <Navigate to={getEntryPath(user)} replace />
@@ -84,17 +85,26 @@ export default function LoginPage() {
             </FormField>
 
             <FormField label="Password" icon={FiLock}>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                required
-                minLength={4}
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="••••••••"
-                className="border-emerald-200 dark:border-emerald-800 focus:ring-emerald-500"
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  minLength={4}
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  className="border-emerald-200 dark:border-emerald-800 focus:ring-emerald-500 pr-12"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-600 transition-colors"
+                >
+                  {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                </button>
+              </div>
             </FormField>
 
             {error && (

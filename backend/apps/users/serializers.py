@@ -536,6 +536,7 @@ class RegisterSerializer(LocationValidationMixin, serializers.ModelSerializer):
             "password",
             "role",
             "name",
+            "national_id",
             "phone_number",
             "phone",
             "farm_address",

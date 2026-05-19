@@ -192,14 +192,6 @@ export const registerUser = async (payload) => {
         })
       }
     }
-
-    if (Array.isArray(payload.documents) && payload.documents.length > 0) {
-      payload.documents.forEach((file) => {
-        if (file instanceof File || file instanceof Blob) {
-          body.append('documents', file)
-        }
-      })
-    }
   }
 
   const created = await apiRequest('/auth/register/', {

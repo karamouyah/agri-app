@@ -33,9 +33,7 @@ import AdminOrders from './mvc/views/admin/AdminOrders'
 import AdminProducts from './mvc/views/admin/AdminProducts'
 import AdminReports from './mvc/views/admin/AdminReports'
 import AdminReportManagement from './mvc/views/admin/AdminReportManagement'
-import AdminDocumentsManagement from './mvc/views/admin/AdminDocumentsManagement'
 import MyReports from './mvc/views/reports/MyReports'
-import MyDocuments from './mvc/views/documents/MyDocuments'
 
 // App handles this module workflow, using its parameters and returning JSX, data, or a service result.
 function App() {
@@ -105,7 +103,6 @@ function App() {
           <Route path="products" element={<AdminProducts />} />
           <Route path="reports" element={<AdminReports />} />
           <Route path="signalements" element={<AdminReportManagement />} />
-          <Route path="documents" element={<AdminDocumentsManagement />} />
           <Route index element={<Navigate to="dashboard" replace />} />
         </Route>
       </Route>

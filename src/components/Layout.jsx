@@ -51,7 +51,6 @@ const navByRole = {
     { to: '/admin/users', label: 'Users', icon: FiUsers },
     { to: '/admin/orders', label: 'Orders', icon: FiClipboard },
     { to: '/admin/products', label: 'Products', icon: FiShoppingBag },
-    { to: '/admin/documents', label: 'Documents', icon: FiFileText },
     { to: '/admin/reports', label: 'Reports', icon: FiBarChart2 },
     { to: '/admin/signalements', label: 'Signalements', icon: FiFlag },
   ],

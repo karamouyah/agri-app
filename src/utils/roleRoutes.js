@@ -8,18 +8,10 @@ export const ROLE_DASHBOARD = {
   ministry: '/admin/dashboard',
 }
 
-export const PENDING_DOCUMENT_PATHS = {
-  buyer: '/buyer/documents',
-  transporter: '/transporter/documents',
-}
-
 export const isPendingUser = (user) => user?.approvalStatus === 'pending' || user?.status === 'pending'
 
 export const getEntryPath = (user) => {
-  if (isPendingUser(user) && PENDING_DOCUMENT_PATHS[user?.role]) {
-    return PENDING_DOCUMENT_PATHS[user.role]
-  }
-  return getDashboardPath(user?.role)
+  return ROLE_DASHBOARD[user?.role] || '/'
 }
 
 // getDashboardPath handles this module workflow, using its parameters and returning JSX, data, or a service result.

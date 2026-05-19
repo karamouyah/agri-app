@@ -143,10 +143,6 @@ export default function TransporterDashboard() {
         description="Review each delivery request, confirm pickup and destination details, then update shipment progress as the mission moves."
         actions={
           <div className="flex flex-wrap gap-2">
-            <Link to="/transporter/documents" className={cn(buttonStyles.secondary, 'px-3 py-2')}>
-              <FiFileText />
-              Upload Documents
-            </Link>
             <a href="#new-requests" className={cn(buttonStyles.secondary, 'px-3 py-2')}>Requests</a>
             <a href="#accepted" className={cn(buttonStyles.secondary, 'px-3 py-2')}>Accepted</a>
             <a href="#in-progress" className={cn(buttonStyles.secondary, 'px-3 py-2')}>In progress</a>

@@ -504,6 +504,7 @@ class RegisterSerializer(LocationValidationMixin, serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     name = serializers.CharField(write_only=True)
     role = serializers.CharField(write_only=True)
+    national_id = serializers.CharField(write_only=True, required=True, allow_blank=False)
     phone_number = serializers.CharField(write_only=True, required=False, allow_blank=True)
     phone = serializers.CharField(write_only=True, required=False, allow_blank=True)
     farm_address = serializers.CharField(write_only=True, required=False, allow_blank=True)
@@ -558,6 +559,7 @@ class RegisterSerializer(LocationValidationMixin, serializers.ModelSerializer):
         role_slug = clean_text(attrs.get("role")).lower()
         role_code = User.role_from_slug(role_slug)
 
+        national_id = clean_text(attrs.get("national_id"))
         phone_number = clean_text(attrs.get("phone_number"))
         phone_alias = clean_text(attrs.get("phone"))
         farm_address = clean_text(attrs.get("farm_address"))
@@ -565,6 +567,7 @@ class RegisterSerializer(LocationValidationMixin, serializers.ModelSerializer):
         address = clean_text(attrs.get("address"))
         farm_name = clean_text(attrs.get("farm_name"))
 
+        attrs["national_id"] = national_id
         attrs["phone_number"] = phone_number or phone_alias
         attrs["phone"] = attrs["phone_number"]
         attrs["farm_address"] = farm_address
@@ -578,6 +581,13 @@ class RegisterSerializer(LocationValidationMixin, serializers.ModelSerializer):
 
         if role_slug not in allowed_signup_roles or not role_code:
             errors["role"] = "Invalid signup role."
+
+        if not national_id:
+            errors["national_id"] = "National ID Number (رقم التعريف الوطني) is strictly required."
+
+        request = self.context.get("request")
+        if not request or not request.FILES.getlist("documents"):
+            errors["documents"] = "You must upload the required verification documents."
 
         if not attrs["phone_number"]:
             errors["phone_number"] = f"Phone number is required for {role_label} signup."
@@ -637,12 +647,14 @@ class RegisterSerializer(LocationValidationMixin, serializers.ModelSerializer):
         commune = validated_data.pop("_commune", None)
         delivery_wilayas = validated_data.pop("_delivery_wilayas", [])
         max_load_kg = validated_data.pop("max_load_kg", None)
+        national_id = validated_data.pop("national_id", None)
 
         try:
             with transaction.atomic():
                 user = User(
                     username=email,
                     email=email,
+                    national_id=national_id,
                     first_name=first_name,
                     last_name=last_name,
                     role=role_code,

@@ -1,16 +1,15 @@
 // File responsibility: Renders an application screen that is mounted from the React router for a specific user workflow.
 // Used by the React frontend or build tooling as part of the full-stack agriculture app.
 
-// Imports: bring in React, routing, UI components, services, and helpers used below.
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { FiCheckCircle, FiClock, FiFeather, FiShield, FiTruck, FiUserPlus } from 'react-icons/fi'
+import { FiCheckCircle, FiClock, FiFeather, FiShield, FiTruck, FiUserPlus, FiUploadCloud, FiFileText } from 'react-icons/fi'
 import { register as registerUser } from '../controllers/authController'
 import BrandLogo from '../../components/BrandLogo'
 import LocationFields from '../../components/LocationFields'
 import ThemeToggle from '../../components/ThemeToggle'
 import WilayaMultiSelect from '../../components/WilayaMultiSelect'
-import { Card, FormField, Input, Select, SoftCard, buttonStyles } from '../../components/ui'
+import { Card, FormField, Input, buttonStyles } from '../../components/ui'
 
 const PHONE_REGEX = /^\+?[0-9()\-\s]{7,20}$/
 const APPROVAL_NOTICE = 'Your account has been created and is waiting for ministry approval.'
@@ -18,6 +17,7 @@ const APPROVAL_NOTICE = 'Your account has been created and is waiting for minist
 const initialForm = {
   name: '',
   role: 'farmer',
+  nationalId: '',
   email: '',
   password: '',
   phoneNumber: '',
@@ -39,6 +39,8 @@ const roleLabels = {
 const roleFieldConfig = {
   farmer: {
     requiresPhone: true,
+    docInstructions: 'Please upload your National ID and Agricultural Card/License',
+    minDocs: 2,
     addressField: {
       id: 'farmAddress',
       label: 'Farm Address',
@@ -48,6 +50,8 @@ const roleFieldConfig = {
   },
   transporter: {
     requiresPhone: true,
+    docInstructions: 'Please upload your National ID and Vehicle/Driver License',
+    minDocs: 2,
     vehicleField: {
       id: 'vehicle',
       label: 'Vehicle Type',
@@ -57,6 +61,8 @@ const roleFieldConfig = {
   },
   buyer: {
     requiresPhone: true,
+    docInstructions: 'Please upload your National ID Card',
+    minDocs: 1,
     addressField: {
       id: 'address',
       label: 'Address',
@@ -66,17 +72,13 @@ const roleFieldConfig = {
   },
 }
 
-const trustPoints = [
-  { icon: FiShield, text: 'Every new account is reviewed before marketplace access is approved.' },
-  { icon: FiFeather, text: 'Farmers register product and farm details so listings can be linked to a real origin.' },
-  { icon: FiTruck, text: 'Transporters declare vehicle type, capacity, and delivery wilayas during onboarding.' },
-  { icon: FiClock, text: 'Buyers and farmers provide wilaya and commune data so orders and deliveries can be routed correctly.' },
-]
-
-// validateForm handles this module workflow, using its parameters and returning JSX, data, or a service result.
-const validateForm = (formData) => {
+const validateForm = (formData, documents) => {
   if (!formData.name.trim() || !formData.email.trim() || !formData.password || !formData.role) {
     return 'Name, email, password, and role are required.'
+  }
+
+  if (!formData.nationalId.trim()) {
+    return 'National ID Number (رقم التعريف الوطني) is required.'
   }
 
   if (formData.password.length < 10) {
@@ -107,12 +109,15 @@ const validateForm = (formData) => {
     if (!formData.deliveryWilayaIds.length) return 'At least one delivery wilaya is required for Transporter signup.'
   }
 
+  if (documents.length < config.minDocs) {
+    return `Please upload all required documents (${config.minDocs} required for ${roleLabels[formData.role]}).`
+  }
+
   return ''
 }
 
 export default function RegisterPage() {
   const navigate = useNavigate()
-  // State: stores local UI data and is updated by event handlers or API responses.
   const [formData, setFormData] = useState(initialForm)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -123,7 +128,14 @@ export default function RegisterPage() {
     () => roleFieldConfig[formData.role] || roleFieldConfig.farmer,
     [formData.role],
   )
-  // handleChange handles this module workflow, using its parameters and returning JSX, data, or a service result.
+
+  useEffect(() => {
+    return () => {
+      // Cleanup object URLs to avoid memory leaks
+      previews.forEach(url => URL.revokeObjectURL(url))
+    }
+  }, [previews])
+
   const handleChange = (event) => {
     const { name, value } = event.target
     setError('')
@@ -134,6 +146,13 @@ export default function RegisterPage() {
     }))
   }
 
+  const handleRoleSelect = (selectedRole) => {
+    setError('')
+    setFormData(prev => ({ ...prev, role: selectedRole }))
+    setDocuments([])
+    setPreviews([])
+  }
+
   const handleFileChange = (e) => {
     const selectedFiles = Array.from(e.target.files)
     setDocuments(selectedFiles)
@@ -141,18 +160,17 @@ export default function RegisterPage() {
     setPreviews(newPreviews)
   }
 
-  // handleSubmit handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleSubmit = async (event) => {
     event.preventDefault()
     setError('')
 
-    try {
-      const validationMessage = validateForm(formData)
-      if (validationMessage) {
-        setError(validationMessage)
-        return
-      }
+    const validationMessage = validateForm(formData, documents)
+    if (validationMessage) {
+      setError(validationMessage)
+      return
+    }
 
+    try {
       setLoading(true)
 
       const submitData = new FormData()
@@ -160,6 +178,7 @@ export default function RegisterPage() {
       submitData.append('email', formData.email)
       submitData.append('password', formData.password)
       submitData.append('role', formData.role)
+      submitData.append('national_id', formData.nationalId)
       submitData.append('phone_number', formData.phoneNumber)
 
       if (formData.role === 'farmer') {
@@ -196,44 +215,75 @@ export default function RegisterPage() {
       })
     } catch (submitError) {
       console.error('Registration Runtime Error:', submitError)
-      alert(`Registration failed: ${submitError.message || 'Unknown error occurred'}`)
-      setError(submitError.message || 'Failed to submit registration.')
+      setError(submitError.response?.data?.message || submitError.message || 'Failed to submit registration.')
     } finally {
       setLoading(false)
     }
   }
 
+  const isSubmitDisabled = loading || documents.length < roleConfig.minDocs
+
   return (
-    <div className="min-h-screen px-4 py-6 md:px-6">
-      <div className="relative mx-auto max-w-6xl">
-        <div className="mb-4 flex justify-end">
+    <div className="min-h-screen px-4 py-6 md:px-6 bg-slate-50 dark:bg-slate-900">
+      <div className="relative mx-auto max-w-4xl">
+        <div className="mb-4 flex justify-between items-center">
+          <BrandLogo size="md" />
           <ThemeToggle />
         </div>
-        <div className="grid gap-6 lg:grid-cols-[1.02fr_0.98fr]">
-          <Card className="overflow-hidden p-6 md:p-8 flex flex-col items-center justify-center text-center">
-            <BrandLogo size="sm" />
-            <h1 className="mt-5 max-w-xl text-3xl font-bold leading-tight text-slate-900 dark:text-slate-100">
-              Create an account for your role.
-            </h1>
-          </Card>
+        
+        <Card className="p-6 md:p-8 shadow-xl border-emerald-900/10 dark:border-emerald-500/20 backdrop-blur-md bg-white/80 dark:bg-slate-900/80">
+          <h1 className="text-3xl font-bold text-center mb-2 text-emerald-900 dark:text-emerald-400">
+            Join AgriGov Market
+          </h1>
+          <p className="text-center text-slate-600 dark:text-slate-400 mb-8">
+            Select your role to begin the registration process
+          </p>
 
-          <Card className="p-6 md:p-8">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Role-based signup</h2>
-            <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            
+            {/* Highly Visible Glassmorphic Role Selection */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+              {Object.entries(roleLabels).map(([roleKey, roleLabel]) => {
+                const isActive = formData.role === roleKey
+                return (
+                  <button
+                    key={roleKey}
+                    type="button"
+                    onClick={() => handleRoleSelect(roleKey)}
+                    className={`
+                      relative overflow-hidden p-4 rounded-xl border-2 transition-all duration-200 ease-in-out
+                      flex flex-col items-center justify-center gap-2
+                      ${isActive 
+                        ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 shadow-md shadow-emerald-500/20' 
+                        : 'border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:border-emerald-300 dark:hover:border-emerald-700'}
+                    `}
+                  >
+                    {isActive && <div className="absolute top-2 right-2 text-emerald-500"><FiCheckCircle size={20} /></div>}
+                    <span className="text-lg font-semibold">{roleLabel}</span>
+                  </button>
+                )
+              })}
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4">
               <FormField label="Full Name">
                 <Input id="name" name="name" required value={formData.name} onChange={handleChange} />
               </FormField>
 
-              <FormField label="Role">
-                <Select id="role" name="role" value={formData.role} onChange={handleChange}>
-                  <option value="farmer">Farmer</option>
-                  <option value="buyer">Buyer</option>
-                  <option value="transporter">Transporter</option>
-                </Select>
+              <FormField label="Email Address">
+                <Input id="email" name="email" type="email" required value={formData.email} onChange={handleChange} />
               </FormField>
 
-              <FormField label="Email">
-                <Input id="email" name="email" type="email" required value={formData.email} onChange={handleChange} />
+              <FormField label="National ID Number (رقم التعريف الوطني)">
+                <Input 
+                  id="nationalId" 
+                  name="nationalId" 
+                  required 
+                  value={formData.nationalId} 
+                  onChange={handleChange}
+                  placeholder="e.g. 1029384756"
+                  className="border-emerald-200 dark:border-emerald-800 focus:ring-emerald-500"
+                />
               </FormField>
 
               <FormField label="Password">
@@ -247,46 +297,53 @@ export default function RegisterPage() {
                   onChange={handleChange}
                 />
               </FormField>
+            </div>
 
-              {roleConfig.requiresPhone ? (
-                <FormField label="Phone Number">
-                  <Input
-                    id="phone"
-                    name="phoneNumber"
-                    type="tel"
-                    required
-                    value={formData.phoneNumber}
+            <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
+              <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100 mb-4">
+                {roleLabels[formData.role]} Details
+              </h3>
+              <div className="grid md:grid-cols-2 gap-4">
+                {roleConfig.requiresPhone ? (
+                  <FormField label="Phone Number">
+                    <Input
+                      id="phone"
+                      name="phoneNumber"
+                      type="tel"
+                      required
+                      value={formData.phoneNumber}
+                      onChange={handleChange}
+                      placeholder="+213..."
+                    />
+                  </FormField>
+                ) : null}
+
+                {roleConfig.addressField ? (
+                  <FormField label={roleConfig.addressField.label}>
+                    <Input
+                      id={roleConfig.addressField.id}
+                      name={roleConfig.addressField.id}
+                      required
+                      value={formData[roleConfig.addressField.id]}
+                      onChange={handleChange}
+                      placeholder={roleConfig.addressField.placeholder}
+                    />
+                  </FormField>
+                ) : null}
+              </div>
+
+              <div className="mt-4">
+                {(formData.role === 'farmer' || formData.role === 'buyer') && (
+                  <LocationFields
+                    wilayaId={formData.wilayaId}
+                    communeId={formData.communeId}
                     onChange={handleChange}
-                    placeholder="+1 555 123 4567"
                   />
-                </FormField>
-              ) : null}
-
-              {roleConfig.addressField ? (
-                <FormField
-                  label={roleConfig.addressField.label}
-                >
-                  <Input
-                    id={roleConfig.addressField.id}
-                    name={roleConfig.addressField.id}
-                    required
-                    value={formData[roleConfig.addressField.id]}
-                    onChange={handleChange}
-                    placeholder={roleConfig.addressField.placeholder}
-                  />
-                </FormField>
-              ) : null}
-
-              {(formData.role === 'farmer' || formData.role === 'buyer') && (
-                <LocationFields
-                  wilayaId={formData.wilayaId}
-                  communeId={formData.communeId}
-                  onChange={handleChange}
-                />
-              )}
+                )}
+              </div>
 
               {formData.role === 'transporter' ? (
-                <>
+                <div className="mt-4 grid md:grid-cols-2 gap-4">
                   <FormField label={roleConfig.vehicleField.label}>
                     <Input
                       id={roleConfig.vehicleField.id}
@@ -311,40 +368,93 @@ export default function RegisterPage() {
                     />
                   </FormField>
 
-                  <WilayaMultiSelect
-                    selectedIds={formData.deliveryWilayaIds}
-                    onChange={(deliveryWilayaIds) => setFormData((prev) => ({ ...prev, deliveryWilayaIds }))}
-                  />
-                </>
+                  <div className="md:col-span-2">
+                    <WilayaMultiSelect
+                      selectedIds={formData.deliveryWilayaIds}
+                      onChange={(deliveryWilayaIds) => setFormData((prev) => ({ ...prev, deliveryWilayaIds }))}
+                    />
+                  </div>
+                </div>
               ) : null}
+            </div>
 
-              <div className="document-upload-container mt-4 mb-4">
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">Identity Documents</label>
-                <input type="file" multiple onChange={handleFileChange} accept="image/*" className="mb-2 block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100" />
-                <div className="preview-grid flex flex-wrap gap-2 mt-2">
-                  {previews.map((url, i) => <img key={i} src={url} style={{width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ccc'}} alt="preview" />)}
+            {/* Dynamic Enforced Document Upload */}
+            <div className="border border-emerald-100 dark:border-emerald-900/50 bg-emerald-50/50 dark:bg-emerald-900/10 rounded-xl p-5">
+              <h3 className="text-lg font-semibold text-emerald-900 dark:text-emerald-400 flex items-center gap-2 mb-2">
+                <FiShield /> Identity Verification
+              </h3>
+              <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 font-medium">
+                {roleConfig.docInstructions}
+              </p>
+              
+              <div className="relative">
+                <input 
+                  type="file" 
+                  multiple 
+                  required
+                  onChange={handleFileChange} 
+                  accept="image/*,.pdf" 
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
+                />
+                <div className="border-2 border-dashed border-emerald-300 dark:border-emerald-700 rounded-lg p-8 flex flex-col items-center justify-center text-center hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors">
+                  <FiUploadCloud className="text-4xl text-emerald-500 mb-3" />
+                  <span className="text-emerald-700 dark:text-emerald-400 font-semibold mb-1">Click to upload or drag and drop</span>
+                  <span className="text-xs text-slate-500">Supported formats: JPG, PNG, PDF (Min. {roleConfig.minDocs} required)</span>
                 </div>
               </div>
 
-              {error ? <div className="rounded-lg border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">{error}</div> : null}
+              {documents.length > 0 && (
+                <div className="mt-4">
+                  <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Attached Documents ({documents.length}):</h4>
+                  <div className="flex flex-wrap gap-3">
+                    {previews.map((url, i) => (
+                      <div key={i} className="relative group rounded-lg overflow-hidden border border-slate-200 shadow-sm w-20 h-20 bg-white">
+                        <img src={url} className="w-full h-full object-cover" alt={`Document ${i+1}`} onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='flex' }} />
+                        <div className="hidden absolute inset-0 flex items-center justify-center bg-slate-100 text-slate-500">
+                          <FiFileText size={24} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {documents.length > 0 && documents.length < roleConfig.minDocs && (
+                 <p className="mt-2 text-sm text-amber-600 dark:text-amber-500 font-medium">
+                   ⚠️ Please upload at least {roleConfig.minDocs} document(s) as requested.
+                 </p>
+              )}
+            </div>
 
-              <button type="submit" disabled={loading} className={`${buttonStyles.primary} w-full`}>
-                <FiUserPlus />
-                {loading ? 'Creating Account...' : 'Create Account'}
-              </button>
-            </form>
+            {error ? <div className="rounded-lg border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">{error}</div> : null}
 
-            <p className="mt-5 text-sm text-slate-600">
-              Already have an account?{' '}
-              <Link to="/login" className="font-semibold text-emerald-700 hover:text-emerald-800">
-                Sign in
-              </Link>
-            </p>
-          </Card>
-        </div>
+            <button 
+              type="submit" 
+              disabled={isSubmitDisabled} 
+              className={`
+                w-full py-3 px-4 rounded-lg flex items-center justify-center gap-2 font-bold text-lg transition-all
+                ${isSubmitDisabled 
+                  ? 'bg-slate-300 text-slate-500 cursor-not-allowed dark:bg-slate-700 dark:text-slate-500' 
+                  : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/30'}
+              `}
+            >
+              <FiUserPlus />
+              {loading ? 'Processing...' : 'Create Account'}
+            </button>
+            {isSubmitDisabled && !loading && (
+              <p className="text-center text-sm text-slate-500 mt-2">
+                * You must upload the required verification documents to proceed.
+              </p>
+            )}
+          </form>
+
+          <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
+            Already have an account?{' '}
+            <Link to="/login" className="font-semibold text-emerald-700 hover:text-emerald-600 dark:text-emerald-400 dark:hover:text-emerald-300">
+              Sign in securely
+            </Link>
+          </p>
+        </Card>
       </div>
     </div>
   )
 }
-
-

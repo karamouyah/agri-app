@@ -7,7 +7,6 @@ import { FiMapPin, FiPhone, FiSave, FiType } from 'react-icons/fi'
 import { getFarmProfile, updateFarmProfile } from '../../controllers/farmerController'
 import LocationFields from '../../../components/LocationFields'
 import PageHero from '../../../components/PageHero'
-import DocumentUpload from '../../../components/DocumentUpload'
 import { Card, Input, Textarea } from '../../../components/ui'
 
 const initialForm = {
@@ -168,7 +167,6 @@ export default function FarmerProfile() {
           </div>
         </Card>
 
-        <DocumentUpload />
       </div>
     </section>
   )

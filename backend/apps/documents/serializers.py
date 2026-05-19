@@ -86,3 +86,20 @@ class AdminVerificationDocumentUpdateSerializer(serializers.ModelSerializer):
             "status": {"required": False},
             "admin_notes": {"required": False, "allow_blank": True},
         }
+
+    def update(self, instance, validated_data):
+        instance = super().update(instance, validated_data)
+        
+        # Instantly update the user's active/verified status
+        if "status" in validated_data:
+            user = instance.user
+            if instance.status == VerificationDocument.Status.APPROVED:
+                # Check if all other documents are also approved
+                if not VerificationDocument.objects.filter(user=user).exclude(status=VerificationDocument.Status.APPROVED).exists():
+                    user.status = User.Status.APPROVED
+                    user.save(update_fields=["status"])
+            elif instance.status == VerificationDocument.Status.REJECTED:
+                user.status = User.Status.REJECTED
+                user.save(update_fields=["status"])
+                
+        return instance

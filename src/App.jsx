@@ -80,7 +80,7 @@ function App() {
           <Route path="orders" element={<BuyerOrders />} />
           <Route path="invoices" element={<BuyerInvoices />} />
           <Route path="reports" element={<MyReports />} />
-          <Route path="documents" element={<MyDocuments />} />
+
           <Route path="confirmation/:id" element={<BuyerOrderConfirmation />} />
           <Route index element={<Navigate to="dashboard" replace />} />
         </Route>
@@ -92,7 +92,7 @@ function App() {
           <Route path="profile" element={<TransporterProfile />} />
           <Route path="delivery/:id" element={<TransporterDeliveryDetails />} />
           <Route path="reports" element={<MyReports />} />
-          <Route path="documents" element={<MyDocuments />} />
+
           <Route index element={<Navigate to="dashboard" replace />} />
         </Route>
       </Route>

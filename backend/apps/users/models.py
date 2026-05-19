@@ -77,6 +77,7 @@ class User(AbstractUser):
     }
 
     id = models.AutoField(primary_key=True, db_column="IDPerson")
+    national_id = models.CharField(max_length=50, blank=True, null=True, db_column="NationalID")
     first_name = models.CharField(max_length=100, blank=True, db_column="FirstName")
     last_name = models.CharField(max_length=100, blank=True, db_column="LastName")
     address = models.CharField(max_length=255, blank=True, db_column="Address")

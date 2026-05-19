@@ -215,23 +215,37 @@ export default function AdminDocumentsManagement() {
                 <p className="text-sm text-slate-500 dark:text-slate-400">File not provided.</p>
               )}
 
-              <Select
-                value={selectedDocument?.status || 'pending'}
-                onChange={(event) => setSelectedDocument((prev) => ({ ...prev, status: event.target.value }))}
-              >
-                <option value="pending">Pending</option>
-                <option value="approved">Approved</option>
-                <option value="rejected">Rejected</option>
-              </Select>
               <Textarea
-                rows={6}
+                rows={3}
                 value={selectedDocument?.adminNotes || ''}
                 onChange={(event) => setSelectedDocument((prev) => ({ ...prev, adminNotes: event.target.value }))}
-                placeholder="Internal admin notes..."
+                placeholder="Optional rejection reason or admin notes..."
               />
-              <button type="button" onClick={handleSave} disabled={saving} className={buttonStyles.primary}>
-                {saving ? 'Saving...' : 'Save Review'}
-              </button>
+
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedDocument((prev) => ({ ...prev, status: 'approved' }))
+                    handleSave()
+                  }}
+                  disabled={saving}
+                  className="flex-1 py-2 px-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 backdrop-blur-md hover:bg-emerald-500/20 font-semibold transition-all"
+                >
+                  Approve
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedDocument((prev) => ({ ...prev, status: 'rejected' }))
+                    handleSave()
+                  }}
+                  disabled={saving}
+                  className="flex-1 py-2 px-4 rounded-xl border border-rose-500/30 bg-rose-500/10 text-rose-700 dark:text-rose-400 backdrop-blur-md hover:bg-rose-500/20 font-semibold transition-all"
+                >
+                  Reject
+                </button>
+              </div>
             </div>
           ) : (
             <EmptyState icon={FiFileText} title="Select a document" description="Open a document to approve, reject, or add notes." />

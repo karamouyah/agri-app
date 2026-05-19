@@ -79,15 +79,6 @@ export default function BuyerProfile() {
         ]}
       />
       <Card as="form" onSubmit={handleSubmit} className="space-y-4 p-5">
-        <div className="flex justify-end">
-          <Link to="/buyer/documents" className="btn-secondary px-4 py-2 text-sm">
-            <span className="inline-flex items-center gap-2">
-              <FiFileText />
-              Upload Documents
-            </span>
-          </Link>
-        </div>
-
         <FormField label="Street Address" icon={FiType}>
           <Input name="address" value={formData.address} onChange={handleChange} required />
         </FormField>

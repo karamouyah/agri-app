@@ -43,13 +43,6 @@ const actions = [
     meta: 'Monitor active orders',
   },
   {
-    to: '/buyer/documents',
-    label: 'Upload Documents',
-    description: 'Submit buyer verification files for ministry review.',
-    icon: FiFileText,
-    meta: 'Verification',
-  },
-  {
     to: '/buyer/invoices',
     label: 'View Invoices',
     description: 'Access payment records, invoice details, and downloads.',

@@ -342,3 +342,40 @@ class JoinRequest(models.Model):
     def __str__(self):
         """Handles __str__, using the declared parameters and returning the expected value or API response."""
         return f"JoinRequest<{self.email}>"
+
+
+class UserVerification(models.Model):
+    """
+    Stores strict, role-based verification documents for a User.
+    Each slot explicitly corresponds to a specific required document.
+    """
+    id = models.AutoField(primary_key=True)
+    user = models.OneToOneField(
+        User,
+        on_delete=models.PROTECT,
+        related_name="verification"
+    )
+    national_id_image = models.ImageField(
+        upload_to="verifications/national_id/",
+        null=True,
+        blank=True
+    )
+    agricultural_card_image = models.ImageField(
+        upload_to="verifications/agricultural_card/",
+        null=True,
+        blank=True
+    )
+    transport_license_image = models.ImageField(
+        upload_to="verifications/transport_license/",
+        null=True,
+        blank=True
+    )
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "UserVerification"
+        verbose_name = "User Verification"
+        verbose_name_plural = "User Verifications"
+
+    def __str__(self):
+        return f"UserVerification<{self.user.email}>"

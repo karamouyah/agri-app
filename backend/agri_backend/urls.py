@@ -40,7 +40,6 @@ class ApiRootView(APIView):
                 "orders": "/api/orders/",
                 "logistics": "/api/logistics/",
                 "reports": "/api/reports/",
-                "documents": "/api/documents/",
             }
         )
 
@@ -56,14 +55,8 @@ urlpatterns = [
     path("api/orders/", include("apps.orders.urls")),
     path("api/logistics/", include("apps.logistics.urls")),
     path("api/reports/", include("apps.reports.urls")),
-    path("api/documents/", include("apps.documents.urls")),
 ]
 
-from apps.documents.views import SecureMediaView
-
-# Serve media files efficiently and securely.
-# We explicitly define a re_path for `SecureMediaView` so it functions in production on Railway Volume
-# while enforcing authentication and IDOR protection.
-urlpatterns += [
-    re_path(r'^media/(?P<path>.*)$', SecureMediaView.as_view()),
-]
+# We are no longer using SecureMediaView from documents, so we will serve standard media via static if debug is on
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

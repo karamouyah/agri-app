@@ -7,22 +7,26 @@ Connects to the Django backend through imports, app configuration, API routing, 
 from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from apps.documents.models import VerificationDocument
-from apps.users.models import AdminProfile, Buyer, Farmer, Farm, JoinRequest, Transporter, User
+from apps.users.models import AdminProfile, Buyer, Farmer, Farm, JoinRequest, Transporter, User, UserVerification
 
 
-@admin.action(description="Approve User and Documents")
+class UserVerificationInline(admin.StackedInline):
+    model = UserVerification
+    can_delete = False
+    verbose_name_plural = 'Verification Documents'
+    fields = ['national_id_image', 'agricultural_card_image', 'transport_license_image', 'uploaded_at']
+    readonly_fields = ['uploaded_at']
+
+
+@admin.action(description="Approve User")
 def approve_user_and_documents(modeladmin, request, queryset):
     for user in queryset:
         user.status = User.Status.APPROVED
         user.save(update_fields=["status"])
-        
-        docs = VerificationDocument.objects.filter(user=user, status=VerificationDocument.Status.PENDING)
-        docs.update(status=VerificationDocument.Status.APPROVED)
-        
+
     modeladmin.message_user(
         request,
-        "Selected users and their pending documents have been approved.",
+        "Selected users have been approved.",
         messages.SUCCESS,
     )
 
@@ -34,6 +38,7 @@ class UserAdmin(BaseUserAdmin):
     list_display = ["id", "email", "role_slug", "documents_count", "approval_status", "status", "is_staff"]
     list_filter = ["role", "status", "is_staff"]
     actions = [approve_user_and_documents]
+    inlines = [UserVerificationInline]
 
     fieldsets = BaseUserAdmin.fieldsets + (
         (
@@ -53,8 +58,12 @@ class UserAdmin(BaseUserAdmin):
 
     @admin.display(description="Documents")
     def documents_count(self, obj):
-        return obj.verification_documents.count()
-
+        count = 0
+        if hasattr(obj, 'verification'):
+            if obj.verification.national_id_image: count += 1
+            if obj.verification.agricultural_card_image: count += 1
+            if obj.verification.transport_license_image: count += 1
+        return count
     @admin.display(description="Role")
     def role_slug(self, obj):
         """Handles role_slug, using the declared parameters and returning the expected value or API response."""

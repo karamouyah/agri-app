@@ -457,40 +457,44 @@ class UserSerializer(serializers.ModelSerializer):
         return []
 
     def get_verification_documents_count(self, obj):
-        return obj.verification_documents.count() if obj.role in {User.Role.BUYER, User.Role.TRANSPORTER} else 0
+        count = 0
+        if hasattr(obj, 'verification'):
+            if obj.verification.national_id_image: count += 1
+            if obj.verification.agricultural_card_image: count += 1
+            if obj.verification.transport_license_image: count += 1
+        return count
 
     def get_verification_documents_status(self, obj):
-        if obj.role not in {User.Role.BUYER, User.Role.TRANSPORTER}:
-            return "not_required"
-
-        documents = list(obj.verification_documents.all())
-        if not documents:
-            return "missing"
-        if any(document.status == "rejected" for document in documents):
-            return "rejected"
-        if any(document.status == "pending" for document in documents):
-            return "pending"
-        if all(document.status == "approved" for document in documents):
-            return "approved"
-        return "pending"
+        # We now rely on the user's own approval_status_slug
+        return obj.approval_status_slug
 
     def get_verification_documents(self, obj):
-        if obj.role not in {User.Role.BUYER, User.Role.TRANSPORTER}:
+        if not hasattr(obj, 'verification'):
             return []
         
         request = self.context.get("request")
         docs = []
-        for doc in obj.verification_documents.all():
-            if doc.file:
-                url = doc.file.url
-                if request:
-                    from django.core.exceptions import DisallowedHost
-                    try:
-                        url = request.build_absolute_uri(url)
-                    except DisallowedHost:
-                        pass
-                docs.append(url)
-        return docs
+        
+        def build_url(file_field):
+            if not file_field:
+                return None
+            url = file_field.url
+            if request:
+                from django.core.exceptions import DisallowedHost
+                try:
+                    url = request.build_absolute_uri(url)
+                except DisallowedHost:
+                    pass
+            return url
+
+        if obj.role == User.Role.FARMER:
+            docs = [build_url(obj.verification.national_id_image), build_url(obj.verification.agricultural_card_image)]
+        elif obj.role == User.Role.TRANSPORTER:
+            docs = [build_url(obj.verification.national_id_image), build_url(obj.verification.transport_license_image)]
+        elif obj.role == User.Role.BUYER:
+            docs = [build_url(obj.verification.national_id_image)]
+            
+        return [doc for doc in docs if doc]
 
     def to_representation(self, instance):
         """Handles to_representation, using the declared parameters and returning the expected value or API response."""
@@ -586,24 +590,58 @@ class RegisterSerializer(LocationValidationMixin, serializers.ModelSerializer):
             errors["national_id"] = "National ID Number (رقم التعريف الوطني) is strictly required."
 
         request = self.context.get("request")
-        if not request or not request.FILES.getlist("documents"):
-            errors["documents"] = "You must upload the required verification documents."
-        else:
-            from apps.documents.models import validate_verification_image
-            from django.core.exceptions import ValidationError as DjangoValidationError
-            
-            doc_errors = []
-            for doc_file in request.FILES.getlist("documents"):
-                try:
-                    validate_verification_image(doc_file)
-                except DjangoValidationError as exc:
-                    doc_errors.extend(exc.messages)
-            
-            if doc_errors:
-                errors["documents"] = doc_errors
 
-        if not attrs["phone_number"]:
-            errors["phone_number"] = f"Phone number is required for {role_label} signup."
+        def validate_image_file(file, field_name):
+            if not file:
+                return f"{field_name} is required."
+            if file.content_type == 'application/pdf':
+                return f"{field_name} strictly cannot be a PDF."
+            if not file.content_type.startswith('image/'):
+                return f"{field_name} must be a valid image."
+            ext = file.name.split('.')[-1].lower()
+            if ext not in ['jpg', 'jpeg', 'png', 'webp']:
+                return f"{field_name} must be JPEG, PNG, or WebP."
+            return None
+
+        if not request:
+            errors["documents"] = "Verification documents are required."
+        else:
+            files = request.FILES
+
+            if role_slug == "farmer":
+                if not files.get("national_id_image"):
+                    errors["national_id_image"] = "National ID Card Picture is required for Farmer."
+                else:
+                    err = validate_image_file(files["national_id_image"], "National ID Card Picture")
+                    if err: errors["national_id_image"] = err
+
+                if not files.get("agricultural_card_image"):
+                    errors["agricultural_card_image"] = "Agricultural Card Picture is required for Farmer."
+                else:
+                    err = validate_image_file(files["agricultural_card_image"], "Agricultural Card Picture")
+                    if err: errors["agricultural_card_image"] = err
+
+            elif role_slug == "transporter":
+                if not files.get("national_id_image"):
+                    errors["national_id_image"] = "National ID Card Picture is required for Transporter."
+                else:
+                    err = validate_image_file(files["national_id_image"], "National ID Card Picture")
+                    if err: errors["national_id_image"] = err
+
+                if not files.get("transport_license_image"):
+                    errors["transport_license_image"] = "Commercial Transport License Picture is required for Transporter."
+                else:
+                    err = validate_image_file(files["transport_license_image"], "Commercial Transport License Picture")
+                    if err: errors["transport_license_image"] = err
+
+            elif role_slug == "buyer":
+                if not files.get("national_id_image"):
+                    errors["national_id_image"] = "National ID Card Picture is required for Buyer."
+                else:
+                    err = validate_image_file(files["national_id_image"], "National ID Card Picture")
+                    if err: errors["national_id_image"] = err
+
+        if not attrs["phone_number"]:            errors["phone_number"] = f"Phone number is required for {role_label} signup."
         elif not PHONE_REGEX.fullmatch(attrs["phone_number"]):
             errors["phone_number"] = "Enter a valid phone number."
 
@@ -700,17 +738,22 @@ class RegisterSerializer(LocationValidationMixin, serializers.ModelSerializer):
                 elif role_slug == "buyer":
                     Buyer.objects.create(person=user, wilaya=wilaya, commune=commune)
 
-                from apps.documents.models import VerificationDocument
+                from apps.users.models import UserVerification
                 request = self.context.get("request")
                 if request and request.FILES:
-                    for doc_file in request.FILES.getlist("documents"):
-                        VerificationDocument.objects.create(
-                            user=user,
-                            role=user.role_slug,
-                            document_type=VerificationDocument.DocumentType.ID_CARD,
-                            file=doc_file,
-                            status=VerificationDocument.Status.PENDING,
-                        )
+                    files = request.FILES
+                    verification = UserVerification(user=user)
+                    
+                    if role_slug == "farmer":
+                        verification.national_id_image = files.get("national_id_image")
+                        verification.agricultural_card_image = files.get("agricultural_card_image")
+                    elif role_slug == "transporter":
+                        verification.national_id_image = files.get("national_id_image")
+                        verification.transport_license_image = files.get("transport_license_image")
+                    elif role_slug == "buyer":
+                        verification.national_id_image = files.get("national_id_image")
+                    
+                    verification.save()
 
                 JoinRequest.objects.create(
                     first_name=first_name,

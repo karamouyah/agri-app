@@ -5,13 +5,10 @@ import { useMemo, useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { 
   FiCheckCircle, 
-  FiClock, 
-  FiFeather, 
   FiShield, 
   FiTruck, 
   FiUserPlus, 
   FiUploadCloud, 
-  FiFileText,
   FiEye,
   FiEyeOff,
   FiLock,
@@ -19,14 +16,15 @@ import {
   FiMail,
   FiHash,
   FiPhone,
-  FiMapPin
+  FiMapPin,
+  FiXCircle
 } from 'react-icons/fi'
 import { register as registerUser } from '../controllers/authController'
 import BrandLogo from '../../components/BrandLogo'
 import LocationFields from '../../components/LocationFields'
 import ThemeToggle from '../../components/ThemeToggle'
 import WilayaMultiSelect from '../../components/WilayaMultiSelect'
-import { Card, FormField, Input, buttonStyles } from '../../components/ui'
+import { Card, FormField, Input } from '../../components/ui'
 
 const PHONE_REGEX = /^\+?[0-9()\-\s]{7,20}$/
 const APPROVAL_NOTICE = 'Your account has been created and is waiting for ministry approval.'
@@ -57,8 +55,6 @@ const roleLabels = {
 const roleFieldConfig = {
   farmer: {
     requiresPhone: true,
-    docInstructions: 'Please upload your National ID and Agricultural Card/License',
-    minDocs: 2,
     addressField: {
       id: 'farmAddress',
       label: 'Farm Address',
@@ -68,8 +64,6 @@ const roleFieldConfig = {
   },
   transporter: {
     requiresPhone: true,
-    docInstructions: 'Please upload your National ID and Vehicle/Driver License',
-    minDocs: 2,
     vehicleField: {
       id: 'vehicle',
       label: 'Vehicle Type',
@@ -79,8 +73,6 @@ const roleFieldConfig = {
   },
   buyer: {
     requiresPhone: true,
-    docInstructions: 'Please upload your National ID Card',
-    minDocs: 1,
     addressField: {
       id: 'address',
       label: 'Address',
@@ -90,61 +82,19 @@ const roleFieldConfig = {
   },
 }
 
-const validateForm = (formData, documents) => {
-  if (!formData.name.trim() || !formData.email.trim() || !formData.password || !formData.role) {
-    return 'Name, email, password, and role are required.'
-  }
-
-  if (!formData.nationalId.trim()) {
-    return 'National ID Number (رقم التعريف الوطني) is required.'
-  }
-
-  if (formData.password.length < 10) {
-    return 'Password must be at least 10 characters.'
-  }
-
-  if (formData.password !== formData.confirmPassword) {
-    return 'Passwords do not match.'
-  }
-
-  const config = roleFieldConfig[formData.role] || roleFieldConfig.farmer
-
-  if (config.requiresPhone) {
-    const phoneNumber = formData.phoneNumber.trim()
-    const roleLabel = roleLabels[formData.role] || 'Selected role'
-    if (!phoneNumber) return `Phone number is required for ${roleLabel} signup.`
-    if (!PHONE_REGEX.test(phoneNumber)) return 'Enter a valid phone number.'
-  }
-
-  if (config.addressField && !String(formData[config.addressField.id] || '').trim()) {
-    return config.addressField.requiredMessage
-  }
-
-  if (formData.role === 'farmer' || formData.role === 'buyer') {
-    if (!String(formData.wilayaId || '').trim()) return 'Wilaya is required.'
-    if (!String(formData.communeId || '').trim()) return 'Commune is required.'
-  }
-
-  if (formData.role === 'transporter') {
-    if (!String(formData.vehicle || '').trim()) return 'Vehicle is required for Transporter signup.'
-    if (Number(formData.maxLoadKg) <= 0) return 'Maximum load capacity in KG is required and must be greater than zero.'
-    if (!formData.deliveryWilayaIds.length) return 'At least one delivery wilaya is required for Transporter signup.'
-  }
-
-  if (documents.length < config.minDocs) {
-    return `Please upload all required documents (${config.minDocs} required for ${roleLabels[formData.role]}).`
-  }
-
-  return ''
-}
-
 export default function RegisterPage() {
   const navigate = useNavigate()
   const [formData, setFormData] = useState(initialForm)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [documents, setDocuments] = useState([])
-  const [previews, setPreviews] = useState([])
+  
+  const [nationalIdImage, setNationalIdImage] = useState(null)
+  const [agriculturalCardImage, setAgriculturalCardImage] = useState(null)
+  const [transportLicenseImage, setTransportLicenseImage] = useState(null)
+
+  const [nationalIdPreview, setNationalIdPreview] = useState(null)
+  const [agriculturalCardPreview, setAgriculturalCardPreview] = useState(null)
+  const [transportLicensePreview, setTransportLicensePreview] = useState(null)
   
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -156,10 +106,11 @@ export default function RegisterPage() {
 
   useEffect(() => {
     return () => {
-      // Cleanup object URLs to avoid memory leaks
-      previews.forEach(url => URL.revokeObjectURL(url))
+      if (nationalIdPreview) URL.revokeObjectURL(nationalIdPreview)
+      if (agriculturalCardPreview) URL.revokeObjectURL(agriculturalCardPreview)
+      if (transportLicensePreview) URL.revokeObjectURL(transportLicensePreview)
     }
-  }, [previews])
+  }, [nationalIdPreview, agriculturalCardPreview, transportLicensePreview])
 
   const handleChange = (event) => {
     const { name, value } = event.target
@@ -174,22 +125,77 @@ export default function RegisterPage() {
   const handleRoleSelect = (selectedRole) => {
     setError('')
     setFormData(prev => ({ ...prev, role: selectedRole }))
-    setDocuments([])
-    setPreviews([])
+    // Reset specific images when role changes to enforce exact slots
+    setNationalIdImage(null)
+    setAgriculturalCardImage(null)
+    setTransportLicenseImage(null)
+    setNationalIdPreview(null)
+    setAgriculturalCardPreview(null)
+    setTransportLicensePreview(null)
   }
 
-  const handleFileChange = (e) => {
-    const selectedFiles = Array.from(e.target.files)
-    setDocuments(selectedFiles)
-    const newPreviews = selectedFiles.map(file => URL.createObjectURL(file))
-    setPreviews(newPreviews)
+  const validateAndSetFile = (file, setter, previewSetter, label) => {
+    setError('')
+    if (!file) {
+      setter(null)
+      previewSetter(null)
+      return
+    }
+
+    if (file.type === 'application/pdf') {
+      setError(`PDF files are strictly not allowed for ${label}. Please upload an image.`)
+      return
+    }
+
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      setError(`Only JPEG, PNG, and WebP images are allowed for ${label}.`)
+      return
+    }
+
+    setter(file)
+    previewSetter(URL.createObjectURL(file))
+  }
+
+  const checkValidation = () => {
+    if (!formData.name.trim() || !formData.email.trim() || !formData.password || !formData.role) {
+      return 'Name, email, password, and role are required.'
+    }
+    if (!formData.nationalId.trim()) {
+      return 'National ID Number (رقم التعريف الوطني) is required.'
+    }
+    if (formData.password.length < 10) {
+      return 'Password must be at least 10 characters.'
+    }
+    if (formData.password !== formData.confirmPassword) {
+      return 'Passwords do not match.'
+    }
+    const config = roleFieldConfig[formData.role] || roleFieldConfig.farmer
+    if (config.requiresPhone) {
+      const phoneNumber = formData.phoneNumber.trim()
+      const roleLabel = roleLabels[formData.role] || 'Selected role'
+      if (!phoneNumber) return `Phone number is required for ${roleLabel} signup.`
+      if (!PHONE_REGEX.test(phoneNumber)) return 'Enter a valid phone number.'
+    }
+    if (config.addressField && !String(formData[config.addressField.id] || '').trim()) {
+      return config.addressField.requiredMessage
+    }
+    if (formData.role === 'farmer' || formData.role === 'buyer') {
+      if (!String(formData.wilayaId || '').trim()) return 'Wilaya is required.'
+      if (!String(formData.communeId || '').trim()) return 'Commune is required.'
+    }
+    if (formData.role === 'transporter') {
+      if (!String(formData.vehicle || '').trim()) return 'Vehicle is required for Transporter signup.'
+      if (Number(formData.maxLoadKg) <= 0) return 'Maximum load capacity in KG is required and must be greater than zero.'
+      if (!formData.deliveryWilayaIds.length) return 'At least one delivery wilaya is required for Transporter signup.'
+    }
+    return ''
   }
 
   const handleSubmit = async (event) => {
     event.preventDefault()
     setError('')
 
-    const validationMessage = validateForm(formData, documents)
+    const validationMessage = checkValidation()
     if (validationMessage) {
       setError(validationMessage)
       return
@@ -211,12 +217,15 @@ export default function RegisterPage() {
         submitData.append('farm_address', formData.farmAddress || '')
         submitData.append('wilaya_id', formData.wilayaId || '')
         submitData.append('commune_id', formData.communeId || '')
+        submitData.append('national_id_image', nationalIdImage)
+        submitData.append('agricultural_card_image', agriculturalCardImage)
       }
 
       if (formData.role === 'buyer') {
         submitData.append('address', formData.address || '')
         submitData.append('wilaya_id', formData.wilayaId || '')
         submitData.append('commune_id', formData.communeId || '')
+        submitData.append('national_id_image', nationalIdImage)
       }
 
       if (formData.role === 'transporter') {
@@ -227,11 +236,9 @@ export default function RegisterPage() {
             submitData.append('delivery_wilaya_ids', id)
           })
         }
+        submitData.append('national_id_image', nationalIdImage)
+        submitData.append('transport_license_image', transportLicenseImage)
       }
-
-      documents.forEach((file) => {
-        submitData.append('documents', file)
-      })
 
       await registerUser(submitData)
       navigate('/login', {
@@ -246,7 +253,51 @@ export default function RegisterPage() {
     }
   }
 
-  const isSubmitDisabled = loading || documents.length < roleConfig.minDocs
+  let isSubmitDisabled = loading
+  if (formData.role === 'farmer') {
+    if (!nationalIdImage || !agriculturalCardImage) isSubmitDisabled = true
+  } else if (formData.role === 'transporter') {
+    if (!nationalIdImage || !transportLicenseImage) isSubmitDisabled = true
+  } else if (formData.role === 'buyer') {
+    if (!nationalIdImage) isSubmitDisabled = true
+  }
+
+  const renderUploadSlot = (file, preview, setter, previewSetter, label) => {
+    return (
+      <div 
+        className={`relative border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center transition-colors overflow-hidden ${
+          file 
+            ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20' 
+            : 'border-emerald-300 hover:border-emerald-500 dark:border-emerald-700 dark:hover:border-emerald-500 bg-white/50 dark:bg-slate-800/50'
+        }`}
+      >
+        <input 
+          type="file" 
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
+          accept="image/jpeg, image/png, image/webp" 
+          onChange={(e) => {
+            const f = e.target.files[0]
+            validateAndSetFile(f, setter, previewSetter, label)
+            e.target.value = ''
+          }} 
+        />
+        {preview ? (
+          <div className="flex flex-col items-center z-0">
+            <img src={preview} alt={label} className="w-24 h-24 object-cover rounded-lg shadow-sm border border-emerald-200 dark:border-emerald-700 mb-3" />
+            <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-medium text-sm text-center">
+              <FiCheckCircle /> {label} Selected
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center text-center z-0">
+            <FiUploadCloud className="text-3xl text-emerald-500 mb-3" />
+            <span className="text-emerald-800 dark:text-emerald-400 font-semibold mb-1 text-sm">{label}</span>
+            <span className="text-xs text-slate-500 mt-1 font-bold">JPEG, PNG, WebP only. No PDFs.</span>
+          </div>
+        )}
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen px-4 py-6 md:px-6 bg-slate-50 dark:bg-slate-900">
@@ -442,54 +493,31 @@ export default function RegisterPage() {
               ) : null}
             </div>
 
-            {/* Dynamic Enforced Document Upload */}
+            {/* Dynamic Enforced Role-Based Document Slots */}
             <div className="border border-emerald-100 dark:border-emerald-900/50 bg-emerald-50/50 dark:bg-emerald-900/10 rounded-xl p-5">
-              <h3 className="text-lg font-semibold text-emerald-900 dark:text-emerald-400 flex items-center gap-2 mb-2">
-                <FiShield /> Identity Verification
+              <h3 className="text-lg font-semibold text-emerald-900 dark:text-emerald-400 flex items-center gap-2 mb-4">
+                <FiShield /> Identity Verification ({roleLabels[formData.role]})
               </h3>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 font-medium">
-                {roleConfig.docInstructions}
-              </p>
               
-              <div className="relative">
-                <input 
-                  type="file" 
-                  multiple 
-                  required
-                  onChange={handleFileChange} 
-                  accept="image/jpeg,image/png,image/webp" 
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
-                />
-                <div className="border-2 border-dashed border-emerald-300 dark:border-emerald-700 rounded-lg p-8 flex flex-col items-center justify-center text-center hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors">
-                  <FiUploadCloud className="text-4xl text-emerald-500 mb-3" />
-                  <span className="text-emerald-700 dark:text-emerald-400 font-semibold mb-1">Click to upload or drag and drop</span>
-                  <span className="text-xs text-slate-500">Supported formats: JPG, PNG, WEBP (Min. {roleConfig.minDocs} required)</span>
-                </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {renderUploadSlot(nationalIdImage, nationalIdPreview, setNationalIdImage, setNationalIdPreview, 'National ID Card Picture')}
+                
+                {formData.role === 'farmer' && (
+                  renderUploadSlot(agriculturalCardImage, agriculturalCardPreview, setAgriculturalCardImage, setAgriculturalCardPreview, 'Agricultural Card Picture')
+                )}
+                
+                {formData.role === 'transporter' && (
+                  renderUploadSlot(transportLicenseImage, transportLicensePreview, setTransportLicenseImage, setTransportLicensePreview, 'Commercial Transport License Picture')
+                )}
               </div>
-
-              {documents.length > 0 && (
-                <div className="mt-4">
-                  <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Attached Documents ({documents.length}):</h4>
-                  <div className="flex flex-wrap gap-3">
-                    {previews.map((url, i) => (
-                      <div key={i} className="relative group rounded-lg overflow-hidden border border-slate-200 shadow-sm w-20 h-20 bg-white">
-                        <img src={url} className="w-full h-full object-cover" alt={`Document ${i+1}`} onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='flex' }} />
-                        <div className="hidden absolute inset-0 flex items-center justify-center bg-slate-100 text-slate-500">
-                          <FiFileText size={24} />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {documents.length > 0 && documents.length < roleConfig.minDocs && (
-                 <p className="mt-2 text-sm text-amber-600 dark:text-amber-500 font-medium">
-                   ⚠️ Please upload at least {roleConfig.minDocs} document(s) as requested.
-                 </p>
-              )}
             </div>
 
-            {error ? <div className="rounded-lg border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-300">{error}</div> : null}
+            {error ? (
+              <div className="mb-6 flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 text-red-700 dark:text-red-400 rounded-lg text-sm shadow-sm">
+                <FiXCircle className="shrink-0 text-lg" />
+                <p className="font-medium">{error}</p>
+              </div>
+            ) : null}
 
             <button 
               type="submit" 
@@ -497,7 +525,7 @@ export default function RegisterPage() {
               className={`
                 w-full py-3 px-4 rounded-lg flex items-center justify-center gap-2 font-bold text-lg transition-all
                 ${isSubmitDisabled 
-                  ? 'bg-slate-300 text-slate-500 cursor-not-allowed dark:bg-slate-700 dark:text-slate-500' 
+                  ? 'bg-slate-300 text-slate-500 cursor-not-allowed dark:bg-slate-700 dark:text-slate-500 shadow-none' 
                   : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/30'}
               `}
             >
@@ -505,8 +533,8 @@ export default function RegisterPage() {
               {loading ? 'Processing...' : 'Create Account'}
             </button>
             {isSubmitDisabled && !loading && (
-              <p className="text-center text-sm text-slate-500 mt-2">
-                * You must upload the required verification documents to proceed.
+              <p className="text-center text-sm text-slate-500 mt-2 font-medium">
+                * You must upload all required verification pictures for {roleLabels[formData.role]} to proceed.
               </p>
             )}
           </form>

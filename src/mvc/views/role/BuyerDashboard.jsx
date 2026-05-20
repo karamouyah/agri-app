@@ -17,7 +17,7 @@ const actions = [
   {
     to: '/buyer/search',
     label: 'Browse Products',
-    description: 'Find fresh products by category, price, quality, and location.',
+    description: 'Find fresh products by category, price, and location.',
     icon: FiSearch,
     meta: 'Explore approved produce',
   },

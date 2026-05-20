@@ -26,7 +26,6 @@ export const buyerFilterOptions = {
   locations: [],
   wilayas: [],
   communes: [],
-  qualities: ['A', 'B', 'Premium'],
 }
 
 let productSearchCache = {
@@ -40,7 +39,6 @@ apiRequest('/catalog/filters/')
     buyerFilterOptions.locations = payload.locations || []
     buyerFilterOptions.wilayas = payload.wilayas || []
     buyerFilterOptions.communes = payload.communes || []
-    buyerFilterOptions.qualities = payload.qualities || buyerFilterOptions.qualities
   })
   .catch(() => {
     // Keep defaults when backend is unavailable during initial load.
@@ -53,7 +51,6 @@ export const getBuyerFilterOptions = async () => {
     locations: payload.locations || [],
     wilayas: payload.wilayas || [],
     communes: payload.communes || [],
-    qualities: payload.qualities || buyerFilterOptions.qualities,
   }
 }
 
@@ -74,7 +71,6 @@ const normalizeProduct = (item) => ({
   farmerWilaya: item.farmer_wilaya || '',
   farmerCommuneId: Number(item.farmer_commune_id || 0) || '',
   farmerCommune: item.farmer_commune || '',
-  quality: item.quality,
   imageUrl: item.image_url || '',
   description: item.description || '',
   status: item.status,
@@ -134,14 +130,12 @@ export const searchProducts = async (query = '', filters = {}, page = 1, pageSiz
   if (filters.location) params.set('location', filters.location)
   if (filters.wilaya) params.set('wilaya', filters.wilaya)
   if (filters.commune) params.set('commune', filters.commune)
-  if (filters.quality) params.set('quality', filters.quality)
   const cacheKey = JSON.stringify({
     query,
     category: filters.category || '',
     location: filters.location || '',
     wilaya: filters.wilaya || '',
     commune: filters.commune || '',
-    quality: filters.quality || '',
   })
   let normalized = productSearchCache.key === cacheKey ? productSearchCache.items : null
 

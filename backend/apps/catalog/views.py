@@ -201,7 +201,6 @@ class BuyerFilterOptionsView(APIView):
                 "locations": sorted(set(locations)),
                 "wilayas": wilayas,
                 "communes": communes,
-                "qualities": ["A"],
             }
         )
 

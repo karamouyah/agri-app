@@ -130,7 +130,6 @@ class ProductSerializer(serializers.ModelSerializer):
     farmer_wilaya = serializers.SerializerMethodField()
     farmer_commune_id = serializers.SerializerMethodField()
     farmer_commune = serializers.SerializerMethodField()
-    quality = serializers.SerializerMethodField()
     image_url = serializers.SerializerMethodField()
     description = serializers.SerializerMethodField()
     status = serializers.SerializerMethodField()
@@ -159,7 +158,6 @@ class ProductSerializer(serializers.ModelSerializer):
             "farmer_wilaya",
             "farmer_commune_id",
             "farmer_commune",
-            "quality",
             "image_url",
             "description",
             "status",
@@ -230,10 +228,6 @@ class ProductSerializer(serializers.ModelSerializer):
         """Handles get_farmer_commune, using the declared parameters and returning the expected value or API response."""
         farm = self._get_primary_farm(obj)
         return farm.commune.name if farm and farm.commune else ""
-
-    def get_quality(self, _obj):
-        """Handles get_quality, using the declared parameters and returning the expected value or API response."""
-        return "A"
 
     def get_image_url(self, _obj):
         """Handles get_image_url, using the declared parameters and returning the expected value or API response."""

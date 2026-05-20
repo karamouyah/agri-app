@@ -77,13 +77,6 @@ export default function BuyerProductDetails() {
               </div>
               <div className="surface-muted p-3 text-sm">
                 <p className="inline-flex items-center gap-2 font-semibold text-slate-800 dark:text-slate-100">
-                  <FiShield />
-                  Quality
-                </p>
-                <p className="mt-1 text-slate-600 dark:text-slate-300">{product.quality}</p>
-              </div>
-              <div className="surface-muted p-3 text-sm">
-                <p className="inline-flex items-center gap-2 font-semibold text-slate-800 dark:text-slate-100">
                   <FiUser />
                   Farmer
                 </p>

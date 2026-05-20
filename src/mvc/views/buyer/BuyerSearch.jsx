@@ -20,7 +20,6 @@ const initialFilters = {
   location: '',
   wilaya: '',
   commune: '',
-  quality: '',
 }
 
 export default function BuyerSearch() {
@@ -108,7 +107,7 @@ export default function BuyerSearch() {
       <PageHeader
         eyebrow="Product Search"
         title="Browse approved produce listings"
-        description="Search the catalog by product, price, quality, and origin to find suitable listings."
+        description="Search the catalog by product, price, and origin to find suitable listings."
         meta={[
           { label: 'Results', value: data.total },
           { label: 'Pages', value: data.totalPages },
@@ -206,26 +205,6 @@ export default function BuyerSearch() {
               hint="Filter listings by the farmer's Algeria wilaya and commune."
               required={false}
             />
-
-            <div>
-              <label htmlFor="quality" className="mb-1 block text-slate-600 dark:text-slate-300">
-                Quality
-              </label>
-              <Select
-                id="quality"
-                name="quality"
-                value={filters.quality}
-                onChange={handleFilterChange}
-                className="px-3 py-2"
-              >
-                <option value="">All</option>
-                {filterOptions.qualities.map((quality) => (
-                  <option key={quality} value={quality}>
-                    {quality}
-                  </option>
-                ))}
-              </Select>
-            </div>
 
             <button
               type="button"

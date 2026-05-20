@@ -7,7 +7,8 @@ Connects to the Django backend through imports, app configuration, API routing, 
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from django.db import transaction
+from django.db import transaction, IntegrityError, DatabaseError
+import logging
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -25,6 +26,9 @@ def get_transporter_for_user(user):
         return user.transporter
     except Transporter.DoesNotExist:
         return None
+
+
+logger = logging.getLogger(__name__)
 
 
 def mission_queryset():
@@ -152,15 +156,23 @@ class AcceptMissionView(APIView):
 
     def post(self, request, mission_id):
         """Handles post, using the declared parameters and returning the expected value or API response."""
-        transporter = get_transporter_for_user(request.user)
-        if not transporter:
-            transporter = Transporter.objects.create(person=request.user)
+        try:
+            transporter = get_transporter_for_user(request.user)
+            if not transporter:
+                try:
+                    transporter = Transporter.objects.create(person=request.user)
+                except IntegrityError:
+                    transporter = get_transporter_for_user(request.user)
 
-        # Lock the shipment row to avoid race conditions when multiple transporters accept simultaneously.
-        with transaction.atomic():
-            shipment = (
-                mission_queryset().filter(**mission_filter_for_identifier(mission_id)).select_for_update().first()
-            )
+            # Lock the shipment row to avoid race conditions when multiple transporters accept simultaneously.
+            with transaction.atomic():
+                try:
+                    qs = mission_queryset().filter(**mission_filter_for_identifier(mission_id)).select_for_update()
+                except DatabaseError:
+                    # Some DB backends (sqlite) don't support SELECT FOR UPDATE — fall back to non-locking read.
+                    qs = mission_queryset().filter(**mission_filter_for_identifier(mission_id))
+
+                shipment = qs.first()
             if not shipment:
                 return Response({"detail": "Mission not found."}, status=status.HTTP_404_NOT_FOUND)
 
@@ -177,11 +189,14 @@ class AcceptMissionView(APIView):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
-            shipment.transporter = transporter
-            shipment.status = Shipment.Status.ACCEPTED
-            shipment.save(update_fields=["transporter", "status"])
+                shipment.transporter = transporter
+                shipment.status = Shipment.Status.ACCEPTED
+                shipment.save(update_fields=["transporter", "status"])
 
-        return Response(MissionSerializer(shipment).data)
+            return Response(MissionSerializer(shipment).data)
+        except Exception as exc:
+            logger.exception("Error accepting mission %s by user %s", mission_id, request.user.id)
+            return Response({"detail": "Internal server error."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class DeclineMissionView(APIView):
@@ -190,23 +205,33 @@ class DeclineMissionView(APIView):
 
     def post(self, request, mission_id):
         """Handles post, using the declared parameters and returning the expected value or API response."""
-        transporter = get_transporter_for_user(request.user)
-        if not transporter:
-            transporter = Transporter.objects.create(person=request.user)
+        try:
+            transporter = get_transporter_for_user(request.user)
+            if not transporter:
+                try:
+                    transporter = Transporter.objects.create(person=request.user)
+                except IntegrityError:
+                    transporter = get_transporter_for_user(request.user)
 
-        # Lock the shipment while declining to keep updates consistent.
-        with transaction.atomic():
-            shipment = (
-                mission_queryset().filter(**mission_filter_for_identifier(mission_id)).select_for_update().first()
-            )
-            if not shipment:
-                return Response({"detail": "Mission not found."}, status=status.HTTP_404_NOT_FOUND)
+            # Lock the shipment while declining to keep updates consistent.
+            with transaction.atomic():
+                try:
+                    qs = mission_queryset().filter(**mission_filter_for_identifier(mission_id)).select_for_update()
+                except DatabaseError:
+                    qs = mission_queryset().filter(**mission_filter_for_identifier(mission_id))
 
-            shipment.transporter = transporter
-            shipment.status = Shipment.Status.DECLINED
-            shipment.save(update_fields=["transporter", "status"])
+                shipment = qs.first()
+                if not shipment:
+                    return Response({"detail": "Mission not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        return Response(MissionSerializer(shipment).data)
+                shipment.transporter = transporter
+                shipment.status = Shipment.Status.DECLINED
+                shipment.save(update_fields=["transporter", "status"])
+
+            return Response(MissionSerializer(shipment).data)
+        except Exception as exc:
+            logger.exception("Error declining mission %s by user %s", mission_id, request.user.id)
+            return Response({"detail": "Internal server error."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class UpdateDeliveryStatusView(APIView):

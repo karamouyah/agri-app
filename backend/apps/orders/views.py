@@ -4,6 +4,7 @@ Connects to the Django backend through imports, app configuration, API routing, 
 """
 
 # Imports: load Django, DRF, models, serializers, and helpers used in this module.
+from django.db import transaction
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -102,8 +103,19 @@ class UpdateOrderStatusView(APIView):
 
         serializer = OrderStatusUpdateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        order.status = serializer.get_status_code()
-        order.save(update_fields=["status"])
+        new_status = serializer.get_status_code()
+
+        with transaction.atomic():
+            # If the order is being declined, restore the stock quantity to the farmer's listing.
+            # Order.Status.DECLINED = 2
+            if new_status == Order.Status.DECLINED and order.status != Order.Status.DECLINED:
+                for item in order.items.all():
+                    listing = item.product_list
+                    listing.quantity += item.quantity
+                    listing.save(update_fields=["quantity"])
+
+            order.status = new_status
+            order.save(update_fields=["status"])
 
         return Response(OrderSerializer(order).data, status=status.HTTP_200_OK)
 

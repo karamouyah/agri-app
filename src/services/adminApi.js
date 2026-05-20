@@ -36,12 +36,29 @@ export const getNationalStats = () => apiRequest('/auth/admin/stats/')
 // getUsers handles this Imodule workflow, using its parameters and returning JSX, data, or a service result.
 export const getUsers = async (filters = {}) => {
   const search = new URLSearchParams()
+  if (filters.q) search.set('q', filters.q)
   if (filters.role) search.set('role', filters.role)
   if (filters.approvalStatus) search.set('approval_status', filters.approvalStatus)
   if (filters.wilaya) search.set('wilaya', filters.wilaya)
+  if (filters.page) search.set('page', filters.page)
+
   const query = search.toString()
-  const users = await apiRequest(`/auth/admin/users/${query ? `?${query}` : ''}`)
-  return users.map(normalizeUser)
+  const response = await apiRequest(`/auth/admin/users/${query ? `?${query}` : ''}`)
+
+  // Handle paginated vs non-paginated response
+  if (response && response.results) {
+    return {
+      count: response.count,
+      next: response.next,
+      previous: response.previous,
+      results: response.results.map(normalizeUser),
+    }
+  }
+
+  return {
+    count: Array.isArray(response) ? response.length : 0,
+    results: Array.isArray(response) ? response.map(normalizeUser) : [],
+  }
 }
 
 // getPendingUsers handles this module workflow, using its parameters and returning JSX, data, or a service result.

@@ -12,7 +12,7 @@ import {
   requestInfo,
 } from '../../controllers/adminController'
 import { useLocations } from '../../../context/LocationContext'
-import { Card, EmptyState, PageHeader, Select, StatusBadge, Textarea, buttonStyles, cn } from '../../../components/ui'
+import { Card, EmptyState, Input, PageHeader, Select, StatusBadge, Textarea, buttonStyles, cn } from '../../../components/ui'
 
 // getProfileDetails handles this module workflow, using its parameters and returning JSX, data, or a service result.
 const getProfileDetails = (user) => {
@@ -54,6 +54,10 @@ export default function AdminUsers() {
   const [users, setUsers] = useState([])
   // State: stores local UI data and is updated by event handlers or API responses.
   const [pendingCount, setPendingCount] = useState(0)
+  const [totalCount, setTotalCount] = useState(0)
+  const [page, setPage] = useState(1)
+  const [searchQuery, setSearchQuery] = useState('')
+
   // State: stores local UI data and is updated by event handlers or API responses.
   const [roleFilter, setRoleFilter] = useState('')
   // State: stores local UI data and is updated by event handlers or API responses.
@@ -71,20 +75,26 @@ export default function AdminUsers() {
   // State: stores local UI data and is updated by event handlers or API responses.
   const [loading, setLoading] = useState(true)
 
+  const totalPages = Math.ceil(totalCount / 10) || 1
+
   // load handles this module workflow, using its parameters and returning JSX, data, or a service result.
-  const load = async () => {
+  const load = async (nextPage = page) => {
     setLoading(true)
     setError('')
     try {
-      const [list, pending] = await Promise.all([
+      const [response, pending] = await Promise.all([
         getUsers({
+          q: searchQuery || undefined,
           role: roleFilter || undefined,
           approvalStatus: approvalFilter || undefined,
           wilaya: wilayaFilter || undefined,
+          page: nextPage,
         }),
         getPendingUsers(),
       ])
-      setUsers(list)
+      setUsers(response.results || [])
+      setTotalCount(response.count || 0)
+      setPage(nextPage)
       setPendingCount(pending.length)
     } catch (loadError) {
       setError(loadError.message)
@@ -95,30 +105,14 @@ export default function AdminUsers() {
 
   // Effect: runs after render to load data, sync storage, or react to dependency changes.
   useEffect(() => {
-    // syncUsers handles this module workflow, using its parameters and returning JSX, data, or a service result.
-    const syncUsers = async () => {
-      setLoading(true)
-      setError('')
-      try {
-        const [list, pending] = await Promise.all([
-          getUsers({
-            role: roleFilter || undefined,
-            approvalStatus: approvalFilter || undefined,
-            wilaya: wilayaFilter || undefined,
-          }),
-          getPendingUsers(),
-        ])
-        setUsers(list)
-        setPendingCount(pending.length)
-      } catch (loadError) {
-        setError(loadError.message)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    syncUsers()
+    load(1)
   }, [roleFilter, approvalFilter, wilayaFilter])
+
+  // handleSearch handles this module workflow, using its parameters and returning JSX, data, or a service result.
+  const handleSearch = (e) => {
+    e.preventDefault()
+    load(1)
+  }
 
   // closeModal handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const closeModal = () => {
@@ -152,13 +146,19 @@ export default function AdminUsers() {
         title="Review and approve user onboarding"
         meta={[
           { label: 'Pending', value: pendingCount },
-          { label: 'Visible users', value: users.length },
+          { label: 'Total items', value: totalCount },
           { label: 'Workflow', value: 'Approval controlled' },
         ]}
       />
 
       <Card className="p-5 md:p-6">
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <form onSubmit={handleSearch} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr_auto_auto]">
+          <Input
+            placeholder="Search by name, email..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+
           <Select value={roleFilter} onChange={(event) => setRoleFilter(event.target.value)}>
             <option value="">All Roles</option>
             <option value="farmer">Farmer</option>
@@ -186,19 +186,21 @@ export default function AdminUsers() {
           <button
             type="button"
             onClick={() => {
+              setSearchQuery('')
               setRoleFilter('')
               setApprovalFilter('pending')
               setWilayaFilter('')
+              load(1)
             }}
             className={buttonStyles.secondary}
           >
-            Reset Filters
+            Reset
           </button>
 
-          <button type="button" onClick={load} className={buttonStyles.primary}>
-            Refresh
+          <button type="submit" className={buttonStyles.primary}>
+            Search
           </button>
-        </div>
+        </form>
 
         {feedback ? (
           <p className="mt-4 rounded-lg border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-300">
@@ -223,6 +225,7 @@ export default function AdminUsers() {
             />
           </div>
         ) : (
+          <>
           <div className="table-shell m-5 md:m-6">
             <div className="overflow-x-auto">
               <table className="table-base">
@@ -358,6 +361,31 @@ export default function AdminUsers() {
               </table>
             </div>
           </div>
+          
+          <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/50 px-5 py-3 dark:border-slate-800 dark:bg-slate-900/50">
+              <span className="text-sm text-slate-600 dark:text-slate-400">
+                Page {page} of {totalPages}
+              </span>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  disabled={page <= 1}
+                  onClick={() => load(page - 1)}
+                  className="btn-secondary px-4 py-1.5 text-xs disabled:opacity-50"
+                >
+                  Previous
+                </button>
+                <button
+                  type="button"
+                  disabled={page >= totalPages}
+                  onClick={() => load(page + 1)}
+                  className="btn-secondary px-4 py-1.5 text-xs disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          </>
         )}
       </Card>
 

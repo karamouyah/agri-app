@@ -10,6 +10,7 @@ from django.db.models import Count, Q, Sum
 from django.utils import timezone
 from rest_framework import generics, status
 from rest_framework.decorators import action
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
@@ -66,6 +67,13 @@ class CurrentUserView(APIView):
         return Response(UserSerializer(request.user).data)
 
 
+class StandardPagination(PageNumberPagination):
+    """Defines StandardPagination for this app and is used by the serializers, views, routes, or admin when imported."""
+    page_size = 10
+    page_size_query_param = "page_size"
+    max_page_size = 100
+
+
 class AdminUserViewSet(ModelViewSet):
     """Defines AdminUserViewSet for this app and is used by the serializers, views, routes, or admin when imported."""
     queryset = (
@@ -88,13 +96,23 @@ class AdminUserViewSet(ModelViewSet):
     )
     serializer_class = UserSerializer
     permission_classes = [IsMinistry]
+    pagination_class = StandardPagination
 
     def get_queryset(self):
         """Handles get_queryset, using the declared parameters and returning the expected value or API response."""
         queryset = super().get_queryset()
+        query = clean_text(self.request.query_params.get("q")).lower()
         role = clean_text(self.request.query_params.get("role")).lower()
         approval_status = clean_text(self.request.query_params.get("approval_status")).lower()
         wilaya = clean_text(self.request.query_params.get("wilaya"))
+
+        if query:
+            queryset = queryset.filter(
+                Q(first_name__icontains=query)
+                | Q(last_name__icontains=query)
+                | Q(email__icontains=query)
+                | Q(username__icontains=query)
+            )
 
         if role:
             role_code = User.role_from_slug(role)

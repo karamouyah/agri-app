@@ -19,6 +19,14 @@ from apps.orders.models import Order
 from apps.users.models import Transporter
 
 
+def get_transporter_for_user(user):
+    """Return the Transporter related to `user` or None if it doesn't exist."""
+    try:
+        return user.transporter
+    except Transporter.DoesNotExist:
+        return None
+
+
 def mission_queryset():
     """Handles mission_queryset, using the declared parameters and returning the expected value or API response."""
     return Shipment.objects.select_related(
@@ -68,7 +76,7 @@ class DeliveryRequestsView(generics.ListAPIView):
 
     def get_queryset(self):
         """Handles get_queryset, using the declared parameters and returning the expected value or API response."""
-        return eligible_shipments_for_transporter(getattr(self.request.user, "transporter", None))
+        return eligible_shipments_for_transporter(get_transporter_for_user(self.request.user))
 
 
 class ActiveDeliveriesView(generics.ListAPIView):
@@ -78,7 +86,7 @@ class ActiveDeliveriesView(generics.ListAPIView):
 
     def get_queryset(self):
         """Handles get_queryset, using the declared parameters and returning the expected value or API response."""
-        transporter = getattr(self.request.user, "transporter", None)
+        transporter = get_transporter_for_user(self.request.user)
         if not transporter:
             return Shipment.objects.none()
 
@@ -95,7 +103,7 @@ class CompletedDeliveriesView(generics.ListAPIView):
 
     def get_queryset(self):
         """Handles get_queryset, using the declared parameters and returning the expected value or API response."""
-        transporter = getattr(self.request.user, "transporter", None)
+        transporter = get_transporter_for_user(self.request.user)
         if not transporter:
             return Shipment.objects.none()
 
@@ -112,7 +120,7 @@ class DeclinedDeliveriesView(generics.ListAPIView):
 
     def get_queryset(self):
         """Returns declined shipments only when they belong to the signed-in transporter."""
-        transporter = getattr(self.request.user, "transporter", None)
+        transporter = get_transporter_for_user(self.request.user)
         if not transporter:
             return Shipment.objects.none()
 
@@ -144,7 +152,7 @@ class AcceptMissionView(APIView):
 
     def post(self, request, mission_id):
         """Handles post, using the declared parameters and returning the expected value or API response."""
-        transporter = getattr(request.user, "transporter", None)
+        transporter = get_transporter_for_user(request.user)
         if not transporter:
             transporter = Transporter.objects.create(person=request.user)
 
@@ -182,7 +190,7 @@ class DeclineMissionView(APIView):
 
     def post(self, request, mission_id):
         """Handles post, using the declared parameters and returning the expected value or API response."""
-        transporter = getattr(request.user, "transporter", None)
+        transporter = get_transporter_for_user(request.user)
         if not transporter:
             transporter = Transporter.objects.create(person=request.user)
 
@@ -207,7 +215,7 @@ class UpdateDeliveryStatusView(APIView):
 
     def patch(self, request, mission_id):
         """Handles patch, using the declared parameters and returning the expected value or API response."""
-        transporter = getattr(request.user, "transporter", None)
+        transporter = get_transporter_for_user(request.user)
         if not transporter:
             return Response({"detail": "Mission not found."}, status=status.HTTP_404_NOT_FOUND)
 

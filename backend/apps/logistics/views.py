@@ -166,10 +166,11 @@ class AcceptMissionView(APIView):
 
             # Lock the shipment row to avoid race conditions when multiple transporters accept simultaneously.
             with transaction.atomic():
-                from django.db import connection
-                if connection.features.has_select_for_update:
-                    shipment = mission_queryset().filter(**mission_filter_for_identifier(mission_id)).select_for_update().first()
-                else:
+                try:
+                    with transaction.atomic():
+                        shipment = mission_queryset().filter(**mission_filter_for_identifier(mission_id)).select_for_update(of=("self",)).first()
+                except DatabaseError:
+                    # Fall back to non-locking read if backend or query structure doesn't support SELECT FOR UPDATE.
                     shipment = mission_queryset().filter(**mission_filter_for_identifier(mission_id)).first()
 
                 if not shipment:
@@ -214,10 +215,11 @@ class DeclineMissionView(APIView):
 
             # Lock the shipment while declining to keep updates consistent.
             with transaction.atomic():
-                from django.db import connection
-                if connection.features.has_select_for_update:
-                    shipment = mission_queryset().filter(**mission_filter_for_identifier(mission_id)).select_for_update().first()
-                else:
+                try:
+                    with transaction.atomic():
+                        shipment = mission_queryset().filter(**mission_filter_for_identifier(mission_id)).select_for_update(of=("self",)).first()
+                except DatabaseError:
+                    # Fall back to non-locking read if backend or query structure doesn't support SELECT FOR UPDATE.
                     shipment = mission_queryset().filter(**mission_filter_for_identifier(mission_id)).first()
 
                 if not shipment:

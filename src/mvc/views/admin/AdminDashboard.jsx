@@ -96,26 +96,7 @@ export default function AdminDashboard() {
           </div>
         </Card>
 
-        <Card className="p-5 md:p-6">
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Strategic Price Index</h3>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Wholesale variation across essential crops (DZD)</p>
-          </div>
-          <div className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={priceTrends}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#d1d5db" vertical={false} />
-                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill: '#64748b'}} />
-                <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b'}} width={40} />
-                <Tooltip formatter={(value, name) => [formatDzd(value), name]} cursor={{strike: '#f1f5f9'}} />
-                <Legend iconType="circle" wrapperStyle={{paddingTop: '20px'}} />
-                <Line type="monotone" dataKey="tomatoes" stroke="#ef4444" strokeWidth={2} dot={false} activeDot={{r: 4}} />
-                <Line type="monotone" dataKey="oranges" stroke="#f59e0b" strokeWidth={2} dot={false} activeDot={{r: 4}} />
-                <Line type="monotone" dataKey="potatoes" stroke="#eab308" strokeWidth={2} dot={false} activeDot={{r: 4}} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
+        {/* Strategic Price Index card removed per request */}
       </div>
     </section>
   )

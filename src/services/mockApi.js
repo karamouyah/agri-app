@@ -154,7 +154,9 @@ export const declineOrder = async (id) => updateOrderStatus(id, 'declined')
 // getRevenueData handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const getRevenueData = async () => {
   const orders = await apiRequest('/orders/mine/')
-  const transactions = orders.map((order) => ({
+  const validOrders = orders.filter((order) => order.status !== 'declined')
+
+  const transactions = validOrders.map((order) => ({
     id: order.id,
     product: order.items[0]?.name || '-',
     amount: Number(order.total),

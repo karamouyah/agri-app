@@ -198,7 +198,8 @@ class NationalStatsView(APIView):
         totals = {row["role"]: row["total"] for row in grouped}
 
         region_rows = (
-            OrderItem.objects.values("order__pickup_wilaya__name", "order__pickup_address")
+            OrderItem.objects.exclude(order__status=2)
+            .values("order__pickup_wilaya__name", "order__pickup_address")
             .annotate(volume=Sum("quantity"))
             .order_by("order__pickup_wilaya__name", "order__pickup_address")
         )
@@ -240,7 +241,7 @@ class GenerateReportView(APIView):
         region = clean_text(request.query_params.get("region"))
         category = clean_text(request.query_params.get("category"))
 
-        items = OrderItem.objects.select_related(
+        items = OrderItem.objects.exclude(order__status=2).select_related(
             "order",
             "order__pickup_wilaya",
             "product_list__product__category",

@@ -124,7 +124,8 @@ export default function FarmerOrders() {
   }
 
   const totals = useMemo(() => {
-    const totalRevenue = orders.reduce((sum, order) => sum + Number(order.amount || 0), 0)
+    const validOrders = orders.filter((order) => order.status !== 'declined')
+    const totalRevenue = validOrders.reduce((sum, order) => sum + Number(order.amount || 0), 0)
 
     return {
       newOrders: orders.filter((order) => order.status === 'pending').length,

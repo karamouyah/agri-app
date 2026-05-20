@@ -255,7 +255,7 @@ export const getShippingProfile = async () => {
   try {
     const profile = await apiRequest('/auth/buyer/profile/')
     const shippingProfile = {
-      fullName: '',
+      fullName: profile.name || '',
       phone: profile.phone_number || profile.phone || '',
       address: profile.street_address || '',
       city: profile.commune_name || '',

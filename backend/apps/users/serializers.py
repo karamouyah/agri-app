@@ -927,6 +927,7 @@ class BuyerAccountSerializer(LocationValidationMixin, serializers.Serializer):
         """Handles to_representation, using the declared parameters and returning the expected value or API response."""
         buyer = user.buyer
         return {
+            "name": f"{user.first_name} {user.last_name}".strip() or user.username,
             "address": compose_structured_address(user.address, buyer.commune, buyer.wilaya),
             "street_address": user.address,
             "phone_number": user.phone_number,

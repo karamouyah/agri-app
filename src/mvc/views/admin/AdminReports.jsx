@@ -2,7 +2,7 @@
 // Used by the React frontend or build tooling as part of the full-stack agriculture app.
 
 // Imports: bring in React, routing, UI components, services, and helpers used below.
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   Bar,
   BarChart,
@@ -13,7 +13,7 @@ import {
   YAxis,
 } from 'recharts'
 import { FiBarChart2, FiDownload, FiFileText } from 'react-icons/fi'
-import { generateReport } from '../../controllers/adminController'
+import { generateReport, getCategories } from '../../controllers/adminController'
 import { useLocations } from '../../../context/LocationContext'
 import { formatDzd } from '../../../utils/currency'
 import { Card, EmptyState, Input, PageHeader, SectionHeader, Select, buttonStyles, cn } from '../../../components/ui'
@@ -25,14 +25,27 @@ const initialForm = {
   toDate: '',
 }
 
-const categoryOptions = ['Vegetables', 'Fruits', 'Herbs', 'Dry products']
-
 export default function AdminReports() {
   const { wilayas } = useLocations()
   // State: stores local UI data and is updated by event handlers or API responses.
   const [formData, setFormData] = useState(initialForm)
   // State: stores local UI data and is updated by event handlers or API responses.
   const [result, setResult] = useState({ rows: [] })
+  const [categories, setCategories] = useState([])
+
+  // Effect: runs after render to load data, sync storage, or react to dependency changes.
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const data = await getCategories()
+        setCategories(data.map((cat) => cat.name))
+      } catch (err) {
+        console.error('Failed to load categories', err)
+      }
+    }
+    load()
+  }, [])
+
   // handleChange handles this module workflow, using its parameters and returning JSX, data, or a service result.
   const handleChange = (event) => {
     const { name, value } = event.target
@@ -88,7 +101,7 @@ export default function AdminReports() {
 
           <Select name="category" value={formData.category} onChange={handleChange}>
             <option value="">All Categories</option>
-            {categoryOptions.map((category) => (
+            {categories.map((category) => (
               <option key={category} value={category}>
                 {category}
               </option>

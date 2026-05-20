@@ -22,8 +22,6 @@ const initialForm = {
   quantity: '',
 }
 
-const categoryOptions = ['All', 'Vegetables', 'Fruits', 'Herbs', 'Dry products']
-
 export default function FarmerProducts() {
   // State: stores local UI data and is updated by event handlers or API responses.
   const [products, setProducts] = useState([])
@@ -47,6 +45,11 @@ export default function FarmerProducts() {
   const [pageError, setPageError] = useState('')
 
   const editing = useMemo(() => Boolean(formData.id), [formData.id])
+
+  const categoryOptions = useMemo(() => {
+    const cats = new Set(catalog.map((item) => item.category).filter(Boolean))
+    return ['All', ...Array.from(cats).sort()]
+  }, [catalog])
 
   const filteredCatalog = useMemo(() => {
     const normalizedQuery = catalogSearch.trim().toLowerCase()

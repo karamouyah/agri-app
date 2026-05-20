@@ -4,7 +4,7 @@ Connects to the Django backend through imports, app configuration, API routing, 
 """
 
 # Imports: load Django, DRF, models, serializers, and helpers used in this module.
-from django.db.models import Prefetch, Q
+from django.db.models import Prefetch, Q, ProtectedError
 from rest_framework import generics
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
@@ -34,6 +34,15 @@ class CategoryViewSet(ModelViewSet):
         if self.action in {"list", "retrieve"}:
             return [IsAuthenticated()]
         return [IsMinistry()]
+
+    def perform_destroy(self, instance):
+        """Handles perform_destroy, using the declared parameters and returning the expected value or API response."""
+        try:
+            instance.delete()
+        except ProtectedError:
+            raise ValidationError(
+                {"detail": "This category cannot be deleted because it contains products."}
+            )
 
 
 class AdminProductViewSet(ModelViewSet):
@@ -187,7 +196,7 @@ class BuyerFilterOptionsView(APIView):
         return Response(
             {
                 "categories": list(
-                    Category.objects.filter(products__is_active=True).distinct().values_list("name", flat=True)
+                    Category.objects.all().values_list("name", flat=True)
                 ),
                 "locations": sorted(set(locations)),
                 "wilayas": wilayas,

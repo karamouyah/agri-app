@@ -143,6 +143,12 @@ class ProductViewSet(ModelViewSet):
                 )
         serializer.save(farmer=farmer)
 
+    def perform_destroy(self, instance):
+        """Handles perform_destroy, using the declared parameters and returning the expected value or API response."""
+        if instance.order_items.exists():
+            raise ValidationError({"detail": "This listing cannot be deleted because it is linked to existing orders."})
+        instance.delete()
+
 
 class ControlledProductListView(generics.ListAPIView):
     """Defines ControlledProductListView for this app and is used by the serializers, views, routes, or admin when imported."""

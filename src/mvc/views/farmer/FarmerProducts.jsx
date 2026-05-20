@@ -208,8 +208,12 @@ export default function FarmerProducts() {
     const confirmed = window.confirm('Delete this product listing?')
     if (!confirmed) return
 
-    await deleteProduct(id)
-    await loadData()
+    try {
+      await deleteProduct(id)
+      await loadData()
+    } catch (error) {
+      alert(error?.message || 'Unable to delete this listing right now. It may be linked to existing orders.')
+    }
   }
 
   return (

@@ -5,6 +5,7 @@ Connects to the Django backend through imports, app configuration, API routing, 
 
 # Imports: load Django, DRF, models, serializers, and helpers used in this module.
 from rest_framework.permissions import BasePermission
+from apps.users.models import User
 
 
 class IsRole(BasePermission):
@@ -15,6 +16,11 @@ class IsRole(BasePermission):
         """Handles has_permission, using the declared parameters and returning the expected value or API response."""
         user = request.user
         if not (user and user.is_authenticated):
+            return False
+
+        # Task 1: Verify user status is APPROVED.
+        # This prevents PENDING or REJECTED users from accessing role-protected endpoints.
+        if getattr(user, "status", None) != User.Status.APPROVED:
             return False
 
         role_value = getattr(user, "role_slug", None)

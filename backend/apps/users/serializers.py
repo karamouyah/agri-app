@@ -5,7 +5,9 @@ Connects to the Django backend through imports, app configuration, API routing, 
 
 # Imports: load Django, DRF, models, serializers, and helpers used in this module.
 import re
+import uuid
 
+from PIL import Image
 from django.contrib.auth.password_validation import validate_password
 from django.db import IntegrityError, transaction
 from rest_framework import serializers
@@ -605,6 +607,18 @@ class RegisterSerializer(LocationValidationMixin, serializers.ModelSerializer):
             ext = file.name.split('.')[-1].lower()
             if ext not in ['jpg', 'jpeg', 'png', 'webp']:
                 return f"{field_name} must be JPEG, PNG, or WebP."
+
+            # Task 3: Secure Magic Number verification via Pillow
+            try:
+                img = Image.open(file)
+                img.verify()
+                file.seek(0)  # Reset pointer after verification
+            except Exception:
+                return f"{field_name} is a corrupt or malicious image file."
+
+            # Task 3: Filename Obfuscation using Cryptographic UUIDs
+            file.name = f"{uuid.uuid4().hex}.{ext}"
+
             return None
 
         if not request:

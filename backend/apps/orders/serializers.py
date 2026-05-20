@@ -347,11 +347,26 @@ class InvoiceSerializer(serializers.ModelSerializer):
     date = serializers.DateTimeField(source="transaction_date", read_only=True)
     details = serializers.SerializerMethodField()
     currency = serializers.SerializerMethodField()
+    items = serializers.SerializerMethodField()
+    buyer_contact = UserContactSerializer(source="order.buyer.person", read_only=True)
+    farmer_contact = UserContactSerializer(source="order.farmer.person", read_only=True)
+    delivery_location = serializers.SerializerMethodField()
 
     class Meta:
         """Defines Meta for this app and is used by the serializers, views, routes, or admin when imported."""
         model = Payment
-        fields = ["id", "order_id", "date", "amount", "currency", "details"]
+        fields = [
+            "id",
+            "order_id",
+            "date",
+            "amount",
+            "currency",
+            "details",
+            "items",
+            "buyer_contact",
+            "farmer_contact",
+            "delivery_location",
+        ]
 
     def get_id(self, obj):
         """Handles get_id, using the declared parameters and returning the expected value or API response."""
@@ -364,6 +379,20 @@ class InvoiceSerializer(serializers.ModelSerializer):
     def get_currency(self, _obj):
         """Handles get_currency, using the declared parameters and returning the expected value or API response."""
         return "DZD"
+
+    def get_items(self, obj):
+        """Returns real order items with product details."""
+        return OrderItemSerializer(obj.order.items.all(), many=True).data
+
+    def get_delivery_location(self, obj):
+        """Returns delivery address and structured location fields when available."""
+        order = obj.order
+        return {
+            "address": order.delivery_address or "",
+            "wilaya": order.delivery_wilaya.name if order.delivery_wilaya else "",
+            "commune": order.delivery_commune.name if order.delivery_commune else "",
+            "label": compose_location_label(order.delivery_commune, order.delivery_wilaya, order.delivery_address or ""),
+        }
 
 
 class OrderStatusUpdateSerializer(serializers.Serializer):

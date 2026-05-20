@@ -374,6 +374,10 @@ export const getInvoices = async () => {
     currency: item.currency || PLATFORM_CURRENCY,
     downloadUrl: '#',
     details: item.details,
+    items: item.items || [],
+    buyerContact: item.buyer_contact,
+    farmerContact: item.farmer_contact,
+    deliveryLocation: item.delivery_location,
   }))
 }
 

@@ -32,16 +32,16 @@ export default function BuyerInvoices() {
       <PageHero
         eyebrow="Invoices"
         title="Payment records"
-        description="Review downloadable invoice history and inspect each order charge in DZD without losing readability in dark mode."
+        description="Review your payment history and inspect detailed order charges in DZD."
         variant="buyer"
         stats={[
-          { label: 'Invoices', value: invoices.length, help: 'Issued records available for download' },
+          { label: 'Invoices', value: invoices.length, help: 'Issued payment records' },
           { label: 'Latest amount', value: selectedInvoice ? formatDzd(selectedInvoice.amount) : '-', help: 'Most recent invoice currently selected' },
           { label: 'Currency', value: 'DZD', help: 'Invoices stay aligned with platform pricing rules' },
         ]}
       />
 
-      <div className="grid gap-4 xl:grid-cols-[1fr_320px]">
+      <div className="grid gap-4 xl:grid-cols-[1fr_400px]">
         <Card className="overflow-hidden p-4">
           <div className="table-shell">
             <table className="table-base min-w-full text-left text-sm">
@@ -51,7 +51,6 @@ export default function BuyerInvoices() {
                   <th>Order</th>
                   <th>Date</th>
                   <th>Amount</th>
-                  <th>PDF</th>
                   <th>View</th>
                 </tr>
               </thead>
@@ -62,11 +61,6 @@ export default function BuyerInvoices() {
                     <td>{invoice.orderId}</td>
                     <td>{invoice.date}</td>
                     <td>{formatDzd(invoice.amount)}</td>
-                    <td>
-                      <a href={invoice.downloadUrl} className="font-semibold text-emerald-700 transition hover:underline dark:text-emerald-300">
-                        Download
-                      </a>
-                    </td>
                     <td>
                       <button
                         type="button"
@@ -80,7 +74,7 @@ export default function BuyerInvoices() {
                 ))}
                 {invoices.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-slate-500 dark:text-slate-400">
+                    <td colSpan={5} className="px-4 py-8 text-center text-slate-500 dark:text-slate-400">
                       No invoices available yet.
                     </td>
                   </tr>
@@ -92,26 +86,56 @@ export default function BuyerInvoices() {
 
         {selectedInvoice ? (
           <Card className="p-5 text-sm">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">{selectedInvoice.id}</h3>
-            <div className="mt-4 grid gap-3">
-              <div className="surface-muted p-3">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">{selectedInvoice.id}</h3>
+              <span className="text-xs font-medium text-slate-500">{selectedInvoice.date}</span>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="surface-muted p-3 space-y-2">
                 <p className="inline-flex items-center gap-2 font-semibold text-slate-800 dark:text-slate-100">
                   <FiFileText />
-                  Order
+                  Order #{selectedInvoice.orderId}
                 </p>
-                <p className="mt-1 text-slate-600 dark:text-slate-300">{selectedInvoice.orderId}</p>
+                <div className="space-y-1">
+                  {selectedInvoice.items.map((item, idx) => (
+                    <div key={idx} className="flex justify-between text-xs text-slate-600 dark:text-slate-300">
+                      <span>{item.name} x {item.quantity}</span>
+                      <span className="font-medium">{formatDzd(item.unit_price * item.quantity)}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="soft-divider my-2" />
+                <div className="flex justify-between font-bold text-slate-900 dark:text-slate-100">
+                  <span>Total Paid</span>
+                  <span>{formatDzd(selectedInvoice.amount)}</span>
+                </div>
               </div>
+
               <div className="surface-muted p-3">
-                <p className="inline-flex items-center gap-2 font-semibold text-slate-800 dark:text-slate-100">
+                <p className="inline-flex items-center gap-2 font-semibold text-slate-800 dark:text-slate-100 mb-1">
                   <FiCreditCard />
-                  Amount
+                  Payment
                 </p>
-                <p className="mt-1 text-slate-600 dark:text-slate-300">{formatDzd(selectedInvoice.amount)}</p>
+                <p className="text-xs text-slate-600 dark:text-slate-300">{selectedInvoice.details}</p>
               </div>
-              <div className="surface-muted p-3">
-                <p className="font-semibold text-slate-800 dark:text-slate-100">Notes</p>
-                <p className="mt-1 text-slate-600 dark:text-slate-300">{selectedInvoice.details}</p>
-              </div>
+
+              {selectedInvoice.deliveryLocation && (
+                <div className="surface-muted p-3">
+                  <p className="font-semibold text-slate-800 dark:text-slate-100 mb-1">Delivery Address</p>
+                  <p className="text-xs text-slate-600 dark:text-slate-300">{selectedInvoice.deliveryLocation.label}</p>
+                </div>
+              )}
+
+              {selectedInvoice.farmerContact && (
+                <div className="surface-muted p-3">
+                  <p className="font-semibold text-slate-800 dark:text-slate-100 mb-1">Farmer Contact</p>
+                  <div className="text-xs text-slate-600 dark:text-slate-300">
+                    <p>{selectedInvoice.farmerContact.full_name}</p>
+                    <p>{selectedInvoice.farmerContact.phone_number}</p>
+                  </div>
+                </div>
+              )}
             </div>
           </Card>
         ) : null}

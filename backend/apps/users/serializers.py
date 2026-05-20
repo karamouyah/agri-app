@@ -808,12 +808,8 @@ class UserTokenSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         """Handles validate, using the declared parameters and returning the expected value or API response."""
         data = super().validate(attrs)
-
-        if self.user.status == User.Status.PENDING and self.user.role not in {
-            User.Role.BUYER,
-            User.Role.TRANSPORTER,
-        }:
-            raise AuthenticationFailed("Your account is waiting for ministry approval.")
+        if self.user.status == User.Status.PENDING:
+            raise AuthenticationFailed("Your account is waiting for administrator approval.")
 
         if self.user.status == User.Status.REJECTED:
             raise AuthenticationFailed(

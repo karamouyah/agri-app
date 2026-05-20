@@ -166,28 +166,27 @@ class AcceptMissionView(APIView):
 
             # Lock the shipment row to avoid race conditions when multiple transporters accept simultaneously.
             with transaction.atomic():
-                try:
-                    qs = mission_queryset().filter(**mission_filter_for_identifier(mission_id)).select_for_update()
-                except DatabaseError:
-                    # Some DB backends (sqlite) don't support SELECT FOR UPDATE — fall back to non-locking read.
-                    qs = mission_queryset().filter(**mission_filter_for_identifier(mission_id))
+                from django.db import connection
+                if connection.features.has_select_for_update:
+                    shipment = mission_queryset().filter(**mission_filter_for_identifier(mission_id)).select_for_update().first()
+                else:
+                    shipment = mission_queryset().filter(**mission_filter_for_identifier(mission_id)).first()
 
-                shipment = qs.first()
-            if not shipment:
-                return Response({"detail": "Mission not found."}, status=status.HTTP_404_NOT_FOUND)
+                if not shipment:
+                    return Response({"detail": "Mission not found."}, status=status.HTTP_404_NOT_FOUND)
 
-            if shipment.status != Shipment.Status.PENDING:
-                return Response({"detail": "This mission is no longer available."}, status=status.HTTP_400_BAD_REQUEST)
+                if shipment.status != Shipment.Status.PENDING:
+                    return Response({"detail": "This mission is no longer available."}, status=status.HTTP_400_BAD_REQUEST)
 
-            if not eligible_shipments_for_transporter(transporter).filter(id=shipment.id).exists():
-                return Response(
-                    {
-                        "detail": (
-                            "This mission is outside your delivery wilayas or exceeds your maximum load capacity."
-                        )
-                    },
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+                if not eligible_shipments_for_transporter(transporter).filter(id=shipment.id).exists():
+                    return Response(
+                        {
+                            "detail": (
+                                "This mission is outside your delivery wilayas or exceeds your maximum load capacity."
+                            )
+                        },
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
 
                 shipment.transporter = transporter
                 shipment.status = Shipment.Status.ACCEPTED
@@ -215,12 +214,12 @@ class DeclineMissionView(APIView):
 
             # Lock the shipment while declining to keep updates consistent.
             with transaction.atomic():
-                try:
-                    qs = mission_queryset().filter(**mission_filter_for_identifier(mission_id)).select_for_update()
-                except DatabaseError:
-                    qs = mission_queryset().filter(**mission_filter_for_identifier(mission_id))
+                from django.db import connection
+                if connection.features.has_select_for_update:
+                    shipment = mission_queryset().filter(**mission_filter_for_identifier(mission_id)).select_for_update().first()
+                else:
+                    shipment = mission_queryset().filter(**mission_filter_for_identifier(mission_id)).first()
 
-                shipment = qs.first()
                 if not shipment:
                     return Response({"detail": "Mission not found."}, status=status.HTTP_404_NOT_FOUND)
 

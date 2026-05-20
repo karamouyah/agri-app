@@ -7,6 +7,7 @@ Connects to the Django backend through imports, app configuration, API routing, 
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django.db import transaction
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -143,30 +144,35 @@ class AcceptMissionView(APIView):
 
     def post(self, request, mission_id):
         """Handles post, using the declared parameters and returning the expected value or API response."""
-        shipment = mission_queryset().filter(**mission_filter_for_identifier(mission_id)).first()
-        if not shipment:
-            return Response({"detail": "Mission not found."}, status=status.HTTP_404_NOT_FOUND)
-
         transporter = getattr(request.user, "transporter", None)
         if not transporter:
             transporter = Transporter.objects.create(person=request.user)
 
-        if shipment.status != Shipment.Status.PENDING:
-            return Response({"detail": "This mission is no longer available."}, status=status.HTTP_400_BAD_REQUEST)
-
-        if not eligible_shipments_for_transporter(transporter).filter(id=shipment.id).exists():
-            return Response(
-                {
-                    "detail": (
-                        "This mission is outside your delivery wilayas or exceeds your maximum load capacity."
-                    )
-                },
-                status=status.HTTP_400_BAD_REQUEST,
+        # Lock the shipment row to avoid race conditions when multiple transporters accept simultaneously.
+        with transaction.atomic():
+            shipment = (
+                mission_queryset().filter(**mission_filter_for_identifier(mission_id)).select_for_update().first()
             )
+            if not shipment:
+                return Response({"detail": "Mission not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        shipment.transporter = transporter
-        shipment.status = Shipment.Status.ACCEPTED
-        shipment.save(update_fields=["transporter", "status"])
+            if shipment.status != Shipment.Status.PENDING:
+                return Response({"detail": "This mission is no longer available."}, status=status.HTTP_400_BAD_REQUEST)
+
+            if not eligible_shipments_for_transporter(transporter).filter(id=shipment.id).exists():
+                return Response(
+                    {
+                        "detail": (
+                            "This mission is outside your delivery wilayas or exceeds your maximum load capacity."
+                        )
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            shipment.transporter = transporter
+            shipment.status = Shipment.Status.ACCEPTED
+            shipment.save(update_fields=["transporter", "status"])
+
         return Response(MissionSerializer(shipment).data)
 
 
@@ -176,17 +182,22 @@ class DeclineMissionView(APIView):
 
     def post(self, request, mission_id):
         """Handles post, using the declared parameters and returning the expected value or API response."""
-        shipment = mission_queryset().filter(**mission_filter_for_identifier(mission_id)).first()
-        if not shipment:
-            return Response({"detail": "Mission not found."}, status=status.HTTP_404_NOT_FOUND)
-
         transporter = getattr(request.user, "transporter", None)
         if not transporter:
             transporter = Transporter.objects.create(person=request.user)
 
-        shipment.transporter = transporter
-        shipment.status = Shipment.Status.DECLINED
-        shipment.save(update_fields=["transporter", "status"])
+        # Lock the shipment while declining to keep updates consistent.
+        with transaction.atomic():
+            shipment = (
+                mission_queryset().filter(**mission_filter_for_identifier(mission_id)).select_for_update().first()
+            )
+            if not shipment:
+                return Response({"detail": "Mission not found."}, status=status.HTTP_404_NOT_FOUND)
+
+            shipment.transporter = transporter
+            shipment.status = Shipment.Status.DECLINED
+            shipment.save(update_fields=["transporter", "status"])
+
         return Response(MissionSerializer(shipment).data)
 
 

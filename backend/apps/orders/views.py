@@ -4,7 +4,10 @@ Connects to the Django backend through imports, app configuration, API routing, 
 """
 
 # Imports: load Django, DRF, models, serializers, and helpers used in this module.
+from datetime import timedelta
+
 from django.db import transaction
+from django.utils import timezone
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -12,6 +15,7 @@ from rest_framework.views import APIView
 
 from apps.common.permissions import IsBuyer
 from apps.common.permissions import IsMinistry
+from apps.logistics.models import Shipment
 from apps.orders.models import Order, Payment
 from apps.orders.serializers import (
     AdminOrderSerializer,
@@ -21,6 +25,46 @@ from apps.orders.serializers import (
     OrderStatusUpdateSerializer,
 )
 from apps.users.models import User
+
+
+def ensure_order_shipment(order):
+    """Creates or reopens the first shipment so the order can reach transporters."""
+    shipment = order.shipments.order_by("id").first()
+    if shipment:
+        update_fields = []
+
+        if shipment.status != Shipment.Status.PENDING:
+            shipment.status = Shipment.Status.PENDING
+            update_fields.append("status")
+
+        if shipment.transporter_id is not None:
+            shipment.transporter = None
+            update_fields.append("transporter")
+
+        if not shipment.tracking_number:
+            shipment.tracking_number = f"SHIP-{order.id:06d}"
+            update_fields.append("tracking_number")
+
+        if not shipment.pickup_date:
+            shipment.pickup_date = timezone.now()
+            update_fields.append("pickup_date")
+
+        if not shipment.estimated_delivery_date:
+            shipment.estimated_delivery_date = timezone.now() + timedelta(days=3)
+            update_fields.append("estimated_delivery_date")
+
+        if update_fields:
+            shipment.save(update_fields=update_fields)
+        return shipment
+
+    return Shipment.objects.create(
+        order=order,
+        tracking_number=f"SHIP-{order.id:06d}",
+        status=Shipment.Status.PENDING,
+        shipping_fee=0,
+        pickup_date=timezone.now(),
+        estimated_delivery_date=timezone.now() + timedelta(days=3),
+    )
 
 
 class CheckoutView(generics.CreateAPIView):
@@ -113,6 +157,9 @@ class UpdateOrderStatusView(APIView):
                     listing = item.product_list
                     listing.quantity += item.quantity
                     listing.save(update_fields=["quantity"])
+
+            if new_status == Order.Status.ACCEPTED:
+                ensure_order_shipment(order)
 
             order.status = new_status
             order.save(update_fields=["status"])

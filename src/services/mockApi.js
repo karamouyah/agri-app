@@ -151,6 +151,9 @@ export const acceptOrder = async (id) => updateOrderStatus(id, 'accepted')
 // declineOrder handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const declineOrder = async (id) => updateOrderStatus(id, 'declined')
 
+// notifyTransporters handles this module workflow, using its parameters and returning JSX, data, or a service result.
+export const notifyTransporters = async (id) => updateOrderStatus(id, 'accepted')
+
 // getRevenueData handles this module workflow, using its parameters and returning JSX, data, or a service result.
 export const getRevenueData = async () => {
   const orders = await apiRequest('/orders/mine/')

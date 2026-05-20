@@ -4,7 +4,7 @@
 // Imports: bring in React, routing, UI components, services, and helpers used below.
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FiFlag, FiPhone, FiMail, FiUser } from 'react-icons/fi'
-import { acceptOrder, declineOrder, getOrders } from '../../controllers/farmerController'
+import { acceptOrder, declineOrder, getOrders, notifyTransporters } from '../../controllers/farmerController'
 import { formatDzd } from '../../../utils/currency'
 import { PageHeader, StatusBadge, buttonStyles, cn } from '../../../components/ui'
 import ReportModal from '../../../components/ReportModal'
@@ -119,6 +119,13 @@ export default function FarmerOrders() {
       orders.some((order) => order.id === id && order.status === 'pending'),
     )
     await Promise.all(pendingIds.map((id) => acceptOrder(id)))
+    setSelectedIds([])
+    await loadOrders()
+  }
+
+  const handleNotifyTransporters = async () => {
+    const targetIds = selectedIds.filter((id) => orders.some((order) => order.id === id))
+    await Promise.all(targetIds.map((id) => notifyTransporters(id)))
     setSelectedIds([])
     await loadOrders()
   }
@@ -329,6 +336,8 @@ export default function FarmerOrders() {
             </button>
             <button
               type="button"
+              onClick={handleNotifyTransporters}
+              disabled={selectedIds.length === 0}
               className="btn-secondary w-full px-4 py-3 text-sm transition hover:bg-slate-50"
             >
               Notify Transporters

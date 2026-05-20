@@ -12,5 +12,6 @@ export {
   getOrders,
   acceptOrder,
   declineOrder,
+  notifyTransporters,
   getRevenueData,
 } from '../models/farmerModel'

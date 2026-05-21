@@ -31,7 +31,7 @@ const getProfileDetails = (user) => {
       ['Phone Number', user.phoneNumber || '-'],
       ['Vehicle', user.vehicle || '-'],
       ['Max Load', user.maxLoadKg ? `${user.maxLoadKg} KG` : '-'],
-      ['Delivery Wilayas', user.deliveryWilayas.map((item) => item.name).join(', ') || '-'],
+      ['Delivery Wilayas', Array.isArray(user.deliveryWilayas) ? user.deliveryWilayas.map((item) => item.name).join(', ') : '-'],
       ['Documents', `${user.verificationDocumentsCount || 0} (${user.verificationDocumentsStatus || 'not_required'})`],
     ]
   }

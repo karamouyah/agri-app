@@ -38,7 +38,10 @@ const normalizeWilaya = (wilaya) => {
 }
 
 // normalizeDataset handles this module workflow, using its parameters and returning JSX, data, or a service result.
-const normalizeDataset = (payload) => (payload?.wilayas || payload || []).map(normalizeWilaya)
+const normalizeDataset = (payload) => {
+  const data = payload?.results || payload?.wilayas || payload || []
+  return Array.isArray(data) ? data.map(normalizeWilaya) : []
+}
 
 export const fallbackLocations = normalizeDataset(fallbackDataset)
 
